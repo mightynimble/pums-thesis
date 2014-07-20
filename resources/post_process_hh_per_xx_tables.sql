@@ -1,0 +1,7 @@
+ALTER TABLE `thesis`.`HH_Per_56` 
+CHANGE COLUMN `ID` `ID` INT(11) NOT NULL AUTO_INCREMENT ,
+ADD COLUMN `randBusiness` INT NULL AFTER `hhinc`,
+ADD COLUMN `randPerson` INT NULL AFTER `randBusiness`,
+ADD COLUMN `randPB` INT NULL AFTER `randPerson`,
+ADD COLUMN `msapmsa` INT NULL AFTER `randPB`,
+ADD PRIMARY KEY (`ID`);

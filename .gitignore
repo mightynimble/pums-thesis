@@ -1,0 +1,8 @@
+.DS_Store
+Census\ Tract/
+build/
+dist/
+logs/
+output_tier1/
+tucson_*
+resources/pums
