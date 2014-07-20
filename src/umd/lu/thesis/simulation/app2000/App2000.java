@@ -260,6 +260,8 @@ public class App2000 {
         } catch (InvalidValueException ex) {
             sLog.error(ex.getLocalizedMessage(), ex);
             System.exit(1);
+        } catch (NullPointerException ex) {
+            sLog.error(ex.getLocalizedMessage(), ex);
         }
     }
 
