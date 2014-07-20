@@ -84,15 +84,14 @@ public class DataAccess {
         return getTableRowNumber(id, false);
     }
 
-    public List<Person> bulkFetch(int tableId, int startId, int bulkFetchSize) {
+    public List<Person> bulkFetch(int tableId, int startId, int endId) {
         List<Person> persons = new ArrayList<>();
         try {
             Statement statement = connect.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM "
                     + ThesisProperties.getProperties("simulation.app2000.db")
                     + "." + LEGACY_TABLE_BASE_NAME + (tableId < 10 ? "0" + tableId : tableId)
-                    + " WHERE id >= " + startId + " AND id < "
-                    + (startId + bulkFetchSize));
+                    + " WHERE id >= " + startId + " AND id <= " + endId);
 
             while (resultSet.next()) {
                 Person p = getPersonFromResultSetEntry(resultSet);

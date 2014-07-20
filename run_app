@@ -1,0 +1,13 @@
+#!/bin/bash
+
+i=1
+while [ $i -eq 1 ] ; do
+  echo "$i of 20"
+  p=`ps auxwww | grep java | grep -i App2000Executa1ble | awk '{print $2}'`
+  if [ -z $p ] ; then
+    echo "Executing umd.lu.thesis.simulation.app2000.App2000Executable"
+    `java -Dfile.encoding=UTF-8 -Xmx6500m -classpath '/Users/lousia/Documents/Code/Thesis/lib/commons-lang3-3.1-javadoc.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-lang3-3.1-sources.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-lang3-3.1-tests.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-lang3-3.1.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-math3-3.2-javadoc.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-math3-3.2-sources.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-math3-3.2-test-sources.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-math3-3.2-tests.jar:/Users/lousia/Documents/Code/Thesis/lib/commons-math3-3.2.jar:/Users/lousia/Documents/Code/Thesis/lib/javax.ws.rs-api-2.0.jar:/Users/lousia/Documents/Code/Thesis/lib/apache-log4j-1.2.17/log4j-1.2.17.jar:/Applications/NetBeans/NetBeans 7.4.app/Contents/Resources/NetBeans/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar:/Users/lousia/Documents/Code/Thesis/build/classes' umd.lu.thesis.simulation.app2000.App2000Executable`
+  else
+  	sleep 300
+  fi
+done

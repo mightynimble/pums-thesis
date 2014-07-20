@@ -13,7 +13,7 @@ public class App2000Executable {
     public static void main(String[] args) throws Exception {
         sLog.info("App2000 Simulation Started.");
         App2000 app = new App2000();
-//        app.run();
+        app.run();
         sLog.info("App2000 Simulation Stopped.");
     }
 
