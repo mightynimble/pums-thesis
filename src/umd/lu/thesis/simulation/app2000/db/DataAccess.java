@@ -13,9 +13,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.*;
 import umd.lu.thesis.common.ThesisProperties;
 import umd.lu.thesis.simulation.app2000.objects.Person;
-import org.apache.log4j.*;
+import umd.lu.thesis.simulation.app2000.objects.SimResult;
 
 /**
  *
@@ -31,7 +32,7 @@ public class DataAccess {
     private static final String TABLE_BASE_NAME = "sim_app2000_";
 
     public DataAccess() {
-        String url = "jdbc:mysql://localhost:3306/";
+        String url = "jdbc:mysql://" + ThesisProperties.getProperties("db.host") + ":3306/";
         String db = ThesisProperties.getProperties("simulation.app2000.db");
         String user = ThesisProperties.getProperties("db.username");
         String password = ThesisProperties.getProperties("db.password");
@@ -84,6 +85,26 @@ public class DataAccess {
         return getTableRowNumber(id, false);
     }
 
+    public List<SimResult> bulkFetchSimTable(int tableId, int startId, int endId) {
+        List<SimResult> results = new ArrayList<>();
+        try {
+            Statement statement = connect.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT msapmsa, dest, time, mode FROM "
+                    + ThesisProperties.getProperties("simulation.app2000.db")
+                    + "." + TABLE_BASE_NAME + (tableId < 10 ? "0" + tableId : tableId)
+                    + " WHERE id >= " + startId + " AND id <= " + endId);
+
+            while (resultSet.next()) {
+                SimResult r = new SimResult(resultSet.getInt("msapmsa"), resultSet.getInt("dest"), resultSet.getInt("time"), resultSet.getInt("mode"));
+                results.add(r);
+            }
+        } catch (SQLException ex) {
+            sLog.error(ex.getLocalizedMessage(), ex);
+            System.exit(1);
+        }
+        return results;
+    }
+    
     public List<Person> bulkFetch(int tableId, int startId, int endId) {
         List<Person> persons = new ArrayList<>();
         try {
