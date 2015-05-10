@@ -14,7 +14,7 @@ import umd.lu.thesis.helper.FileUtils;
  *
  * @author Home
  */
-public class Business_TOY_2015 {
+public class BP_TOY_2015 {
 
     private final static int bufferSize = 10485760;
 
@@ -41,31 +41,29 @@ public class Business_TOY_2015 {
     private static HashMap<String, Double> odStopNight = new HashMap<>();
 
     private static HashMap<String, String> odAirFareByQuarter = new HashMap<>();
-        
+            
     private static HashMap<String, Double> odTrainTime = new HashMap<>();
     
     private static HashMap<String, Double> odTrainCost = new HashMap<>();
 
-    private final static double lgsCoefTime = -0.0569;
+    private final static double lgsCoefTime = -0.0899;
 
-    private final static int lgsWeight = 1;
+    private final static int lgsWeight = 2;
 
     /**
-     * 2014 Values
-     * private final static double coeffL = -0.00615;
-     * private final static double coeffM = -0.00388;
-     * private final static double coeffH = -0.00125;
-     * 
+     * 2014 Values:
+     * private final static double coeffL = -0.00779;
+     * private final static double coeffM = -0.00733;
+     * private final static double coeffH = -0.00621;
      */
-    
-    private final static double Coef_cost1 = -0.0325;
-    private final static double Coef_cost2 = -0.00934;
-    private final static double Coef_cost3 = -0.00662;
-    private final static double Coef_cost4 = -0.00370;
-    private final static double Coef_cost5 = -0.00278;
-    private final static double Coef_Time = -0.0356;
-    private final static double ASC_Air = -0.440;
-    private final static double ASC_Train = -2.93;
+    private final static double Coef_cost1 = -0.0127;
+    private final static double Coef_cost2 = -0.00570;
+    private final static double Coef_cost3 = -0.00396;
+    private final static double Coef_cost4 = -0.00276;
+    private final static double Coef_cost5 = -0.00108;
+    private final static double Coef_Time = -0.0328;
+    private final static double ASC_Air = -1.49;
+    private final static double ASC_Train = -3.75;
 
     private static Random rand = new Random();
 
@@ -174,7 +172,7 @@ public class Business_TOY_2015 {
     }
 
     private static String prepareHeader() {
-        String header = "Person_Char_woIntel_HHPer\tHouseholdId\tPersonid\tTripId\tO_MSA/NMSA\tD_MSA/NMSA\tINC\tLowInc\tMedInc\tHighInc\tTOY\n";
+        String header = "Person_Char_woIntel_HHPer\tHouseholdId\tPersonid\tTripId\tO_MSA/NMSA\tD_MSA/NMSA\tINC\tLowInc\tMedInc\tHighInc\tTOY\tChoice\tLGS\tFlag\n";
         return header;
     }
 
@@ -185,30 +183,32 @@ public class Business_TOY_2015 {
      * @return 7 output lines (in a string)
      */
     private static String processLine(String in) {
-        String sevenLines = "";
+        String nineLines = "";
         boolean delete = false;
         for (String t : T) {
             // fixed columns
-            sevenLines += writeFixedColumns(in);
+            nineLines += writeFixedColumns(in);
             // T column
-            sevenLines += t + "\t";
+            nineLines += t + "\t";
             // lgs column
             String lgs = writeLogSumColumn(in, t);
             if (lgs.equals("-9999999.0")) {
                 delete = true;
                 break;
             }
-            sevenLines += lgs + "\t";
+            nineLines += lgs + "\t";
             // choice column
-            sevenLines += writeChoiceColumn(in, t) + "\t";
+            nineLines += writeChoiceColumn(in, t) + "\t";
+            // flag column
+            nineLines += writeFlagColumn(getColumnValue(110, in), t) + "\t";
             // endline
-            sevenLines += "\n";
+            nineLines += "\n";
         }
         if (delete) {
             return "";
         }
         
-        return sevenLines;
+        return nineLines;
     }
 
     private static String writeFixedColumns(String in) {
@@ -221,20 +221,20 @@ public class Business_TOY_2015 {
         fixed += getColumnValue(3, in) + "\t";
         // D - 	TripId
         fixed += getColumnValue(4, in) + "\t";
-        // L - O_MSA/NMSA
+        // K - O_MSA/NMSA
         fixed += getColumnValue(12, in) + "\t";
-        // R - D_MSA/NMSA
+        // Q - D_MSA/NMSA
         fixed += getColumnValue(18, in) + "\t";
-        // BT - INC
-        fixed += getColumnValue(72, in) + "\t";
-        // BV - LowInc
-        fixed += getColumnValue(74, in) + "\t";
-        // BW - MedInc
-        fixed += getColumnValue(75, in) + "\t";
-        // BX - HighInc
-        fixed += getColumnValue(76, in) + "\t";
-        // DS - TOY
-        fixed += getColumnValue(123, in) + "\t";
+        // BB - INC
+        fixed += getColumnValue(55, in) + "\t";
+        // BE - LowInc
+        fixed += getColumnValue(58, in) + "\t";
+        // BF - MedInc
+        fixed += getColumnValue(59, in) + "\t";
+        // BG - HighInc
+        fixed += getColumnValue(60, in) + "\t";
+        // DE - TOY
+        fixed += getColumnValue(110, in) + "\t";
 
         return fixed;
     }
@@ -260,7 +260,7 @@ public class Business_TOY_2015 {
         Double uAir = calculateUAir(in, key, t);
         
         Double uTrain = calculateUTrain(in, key, t);
-        
+
         if ((!odAirFare.containsKey(key) || odAirTime.get(key).doubleValue() == 0.0) && uTrain ==null) {
             lgs = java.lang.Math.log(java.lang.Math.exp(uCar));
         }
@@ -273,12 +273,12 @@ public class Business_TOY_2015 {
         else {
             lgs = java.lang.Math.log(java.lang.Math.exp(uAir) + java.lang.Math.exp(uCar) + java.lang.Math.exp(uTrain));
         }
-
         return lgs.toString();
     }
 
     private static String writeChoiceColumn(String in, String t) {
-        return getColumnValue(123, in).equals(t) ? "1" : "0";
+        // column 109 - toy
+        return getColumnValue(110, in).equals(t) ? "1" : "0";
     }
 
     /**
@@ -294,20 +294,21 @@ public class Business_TOY_2015 {
         return oMsa.toString() + "-" + dMsa.toString();
     }
 
-     private static Double calculateUCar(String in, String key) {
+    private static Double calculateUCar(String in, String key) {
         Double uCar = -1.0;
 
         // get unitLodgeCost for FORMULA-2
         Double unitLodgeCost;
-        Double inc = Double.parseDouble(getColumnValue(72, in));
+        // column 54 - INC
+        Double inc = Double.parseDouble(getColumnValue(55, in));
         if(inc.doubleValue() <= 30000.0) {
-            unitLodgeCost = 70.0;
+            unitLodgeCost = 30.0;
         }
         else if(inc.doubleValue() > 30000.0 && inc.doubleValue() <= 70000.0) {
-            unitLodgeCost = 90.0;
+            unitLodgeCost = 50.0;
         }
         else {
-            unitLodgeCost = 110.0;
+            unitLodgeCost = 70.0;
         }
         // get stopNight for FORMULA-2
         Double stopNight = odStopNight.get(key);
@@ -320,19 +321,19 @@ public class Business_TOY_2015 {
         // get tourCarTime for FORMULA-3
         Double tourCarTime = odCarTime.get(key) * 2.0;
         // get lowInc, midInc, and highInc for FORMULA-3
-        Double lowInc = Double.parseDouble(getColumnValue(74, in));
-        Double midInc = Double.parseDouble(getColumnValue(75, in));
-        Double highInc = Double.parseDouble(getColumnValue(76, in));
+        // column 57, 58, 59 - LowInc,MedInc,HigInc
+        Double lowInc = Double.parseDouble(getColumnValue(58, in));
+        Double midInc = Double.parseDouble(getColumnValue(59, in));
+        Double highInc = Double.parseDouble(getColumnValue(60, in));
         // FORMULA-3: U_Car = CoeffL*LowInc*tourCarCost + CoeffM * MedInc *tourCarCost + CoeffH*HigInc*tourCarCost + CoeffTime * tourCarTime
         // 2014 formula: uCar = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourCarCost + lgsCoefTime * tourCarTime;
-        
         uCar = Coef_cost1 * tourCarCost * (tourCarCost <= 188 ? 1 : 0)
-                 + Coef_cost2 * tourCarCost * (tourCarCost > 188 && tourCarCost <= 332 ? 1 : 0)
-                 + Coef_cost3 * tourCarCost * (tourCarCost > 332 && tourCarCost <= 476 ? 1 : 0)
-                 + Coef_cost4 * tourCarCost * (tourCarCost > 476 && tourCarCost <= 620 ? 1 : 0)
-                 + Coef_cost5 * tourCarCost * (tourCarCost > 620 ? 1 : 0)
-                 + Coef_Time * tourCarTime;
-
+                + Coef_cost2 * tourCarCost * (tourCarCost <= 312 && tourCarCost > 188 ? 1 : 0)
+                + Coef_cost3 * tourCarCost * (tourCarCost <= 436 && tourCarCost > 312 ? 1 : 0)
+                + Coef_cost4 * tourCarCost * (tourCarCost <= 560 && tourCarCost > 436 ? 1 : 0)
+                + Coef_cost5 * tourCarCost * (tourCarCost > 560 ? 1 : 0)
+                + Coef_Time * tourCarTime;
+        
         return uCar;
     }
 
@@ -346,18 +347,19 @@ public class Business_TOY_2015 {
                 return 0.0;
             }
             // get lowInc, midInc, and highInc
-            Double lowInc = Double.parseDouble(getColumnValue(74, in));
-            Double midInc = Double.parseDouble(getColumnValue(75, in));
-            Double highInc = Double.parseDouble(getColumnValue(76, in));
+            // column 57, 58, 59 - LowInc,MedInc,HigInc
+            Double lowInc = Double.parseDouble(getColumnValue(58, in));
+            Double midInc = Double.parseDouble(getColumnValue(59, in));
+            Double highInc = Double.parseDouble(getColumnValue(60, in));
 
             // FORMULA-1: U_Air = CoeffL*LowInc*Tour_AirCost + CoeffM * MedInc * Tour_AirCost + CoeffH*HigInc*Tour_AirCost + Coeff_Time * Tour_AirTime
             // 2014 formula: uAir = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * totalAirCost + lgsCoefTime * totalAirTime;
-            uAir = ASC_Air 
+            uAir = ASC_Air
                     + Coef_cost1 * totalAirCost * (totalAirCost <= 188 ? 1 : 0)
-                    + Coef_cost2 * totalAirCost * (totalAirCost > 188 && totalAirCost <= 332 ? 1 : 0)
-                    + Coef_cost3 * totalAirCost * (totalAirCost > 332 && totalAirCost <= 476 ? 1 : 0)
-                    + Coef_cost4 * totalAirCost * (totalAirCost > 476 && totalAirCost <= 620 ? 1 : 0)
-                    + Coef_cost5 * totalAirCost * (totalAirCost > 620 ? 1 : 0)
+                    + Coef_cost2 * totalAirCost * (totalAirCost > 188 && totalAirCost <= 312 ? 1 : 0)
+                    + Coef_cost3 * totalAirCost * (totalAirCost > 312 && totalAirCost <= 436 ? 1 : 0)
+                    + Coef_cost4 * totalAirCost * (totalAirCost > 436 && totalAirCost <= 560 ? 1 : 0)
+                    + Coef_cost5 * totalAirCost * (totalAirCost > 560 ? 1 : 0)
                     + Coef_Time * totalAirTime;
         }
         else {
@@ -391,25 +393,34 @@ public class Business_TOY_2015 {
         return airFare;
     }
 
+    private static String writeFlagColumn(String toyStr, String tStr) {
+        Integer toy = Integer.parseInt(toyStr);
+        Integer t = Integer.parseInt(tStr);
+        if (toy.intValue() == t.intValue()) {
+            return "1";
+        }
+        return "0";
+    }
+
     private static Double calculateUTrain(String in, String key, String t) {
         // FORMULA-4: uTrain = coefCost * tourTrainCost + coefTime * tourTrainTime
         Double tourTrainCost = odTrainCost.get(key);
         Double tourTrainTime = odTrainTime.get(key);
-        
+
         // get lowInc, midInc, and highInc
         Double lowInc = Double.parseDouble(getColumnValue(74, in));
         Double midInc = Double.parseDouble(getColumnValue(75, in));
         Double highInc = Double.parseDouble(getColumnValue(76, in));
-        
+
         Double uTrain = null;
-        if (tourTrainCost != null && tourTrainTime != null) {
-            // 2014 formula: uTrain = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourTrainCost * 2.0 + lgsCoefTime * tourTrainTime * 2.0;
+        if(tourTrainCost != null && tourTrainTime != null) {
+            //2014 fomula: uTrain = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourTrainCost * 2.0 + lgsCoefTime * tourTrainTime * 2.0;
             uTrain = ASC_Train
                     + Coef_cost1 * tourTrainCost * (tourTrainCost <= 188 ? 1 : 0)
-                    + Coef_cost2 * tourTrainCost * (tourTrainCost > 188 && tourTrainCost <= 332 ? 1 : 0)
-                    + Coef_cost3 * tourTrainCost * (tourTrainCost > 332 && tourTrainCost <= 476 ? 1 : 0)
-                    + Coef_cost4 * tourTrainCost * (tourTrainCost > 476 && tourTrainCost <= 620 ? 1 : 0)
-                    + Coef_cost5 * tourTrainCost * (tourTrainCost > 620 ? 1 : 0)
+                    + Coef_cost2 * tourTrainCost * (tourTrainCost > 188 && tourTrainCost <= 312 ? 1 : 0)
+                    + Coef_cost3 * tourTrainCost * (tourTrainCost > 312 && tourTrainCost <= 436 ? 1 : 0)
+                    + Coef_cost4 * tourTrainCost * (tourTrainCost > 436 && tourTrainCost <= 560 ? 1 : 0)
+                    + Coef_cost5 * tourTrainCost * (tourTrainCost > 560 ? 1 : 0)
                     + Coef_Time * tourTrainTime;
         }
         return uTrain;
