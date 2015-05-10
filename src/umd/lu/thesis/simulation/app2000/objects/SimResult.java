@@ -12,10 +12,10 @@ public class SimResult {
     private int mode;
     
     public SimResult(int msapmsa, int d, int time, int mode) {
-        msapmsa = msapmsa;
-        d = d;
-        time = time;
-        mode = mode;
+        this.msapmsa = msapmsa;
+        this.d = d;
+        this.time = time;
+        this.mode = mode;
     }
 
     /**
