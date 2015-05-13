@@ -17,6 +17,8 @@ import umd.lu.thesis.helper.FileUtils;
 public class BP_TOY_2015 {
 
     private final static int bufferSize = 10485760;
+    
+    private final static boolean debug = true;
 
     private static ArrayList<String> T = new ArrayList<>();
 
@@ -86,7 +88,7 @@ public class BP_TOY_2015 {
             while ((line = br.readLine()) != null) {
                 // skip header then process each line, write the processed line to 
                 // output file.
-                if(!line.startsWith("Person_Char_woIntel_HHPer")) {
+                if(!line.toLowerCase().startsWith("person_char_wointel_hhper")) {
                     bw.write(processLine(line));
                 }
             }
@@ -254,12 +256,24 @@ public class BP_TOY_2015 {
     private static String writeLogSumColumn(String in, String t) {
         Double lgs = -1.0;
         String key = getODPair(in);
+        if (debug) {
+            System.out.println("\n\nkey: " + key);
+        }
 
         Double uCar = calculateUCar(in, key);
+        if (debug) {
+            System.out.println("uCar: " + uCar);
+        }
 
         Double uAir = calculateUAir(in, key, t);
+        if (debug) {
+            System.out.println("uAir: " + uAir);
+        }
         
         Double uTrain = calculateUTrain(in, key, t);
+        if (debug) {
+            System.out.println("uTrain: " + uTrain);
+        }
 
         if ((!odAirFare.containsKey(key) || odAirTime.get(key).doubleValue() == 0.0) && uTrain ==null) {
             lgs = java.lang.Math.log(java.lang.Math.exp(uCar));
@@ -318,8 +332,14 @@ public class BP_TOY_2015 {
         // get tourCarCost for FORMULA-3
         Double driveCost = odDriveCost.get(key);
         Double tourCarCost = (driveCost / lgsWeight + lodgeCost) * 2.0;
+        if (debug) {
+            System.out.println("carCost: " + tourCarCost);
+        }
         // get tourCarTime for FORMULA-3
         Double tourCarTime = odCarTime.get(key) * 2.0;
+        if (debug) {
+            System.out.println("carTime: " + tourCarTime);
+        }
         // get lowInc, midInc, and highInc for FORMULA-3
         // column 57, 58, 59 - LowInc,MedInc,HigInc
         Double lowInc = Double.parseDouble(getColumnValue(58, in));
@@ -341,8 +361,14 @@ public class BP_TOY_2015 {
         Double uAir = -1.0;
 
         Double totalAirCost = calculateTotalAirCost(key, t);
+        if (debug) {
+            System.out.println("airCost: " + totalAirCost);
+        }
         if(totalAirCost != -1.0) {
             Double totalAirTime = odAirTime.get(key) * 2.0;
+            if (debug) {
+                System.out.println("airtime: " + totalAirTime);
+            }
             if (totalAirTime == 0.0) {
                 return 0.0;
             }
@@ -406,6 +432,9 @@ public class BP_TOY_2015 {
         // FORMULA-4: uTrain = coefCost * tourTrainCost + coefTime * tourTrainTime
         Double tourTrainCost = odTrainCost.get(key);
         Double tourTrainTime = odTrainTime.get(key);
+        if (debug) {
+            System.out.println("trainCost: " + tourTrainCost + ", trainTime: " + tourTrainTime);
+        }
 
         // get lowInc, midInc, and highInc
         Double lowInc = Double.parseDouble(getColumnValue(74, in));
