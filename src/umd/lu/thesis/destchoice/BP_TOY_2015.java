@@ -18,7 +18,7 @@ public class BP_TOY_2015 {
 
     private final static int bufferSize = 10485760;
     
-    private final static boolean debug = true;
+    private final static boolean debug = false;
 
     private static ArrayList<String> T = new ArrayList<>();
 
@@ -443,6 +443,8 @@ public class BP_TOY_2015 {
 
         Double uTrain = null;
         if(tourTrainCost != null && tourTrainTime != null) {
+            tourTrainCost *= 2;
+            tourTrainTime *= 2;
             //2014 fomula: uTrain = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourTrainCost * 2.0 + lgsCoefTime * tourTrainTime * 2.0;
             uTrain = ASC_Train
                     + Coef_cost1 * tourTrainCost * (tourTrainCost <= 188 ? 1 : 0)

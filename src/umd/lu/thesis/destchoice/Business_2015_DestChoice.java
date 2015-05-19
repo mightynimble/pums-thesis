@@ -377,6 +377,8 @@ public class Business_2015_DestChoice {
 
         Double uTrain = null;
         if (tourTrainCost != null && tourTrainTime != null) {
+            tourTrainCost *= 2;
+            tourTrainTime *= 2;
 // (2014)            uTrain = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourTrainCost * 2.0 + lgsCoefTime * tourTrainTime * 2.0;
             // tbcost1 = 1 if Tour_TrainCost <= 188 else tbcost1 = 0
             // tbcost2 = 1 if 188 < Tour_TrainCost <= 332 else tbcost2 = 0

@@ -403,6 +403,8 @@ public class Business_TOY_2015 {
         
         Double uTrain = null;
         if (tourTrainCost != null && tourTrainTime != null) {
+            tourTrainCost *= 2;
+            tourTrainTime *= 2;
             // 2014 formula: uTrain = (coeffL * lowInc + coeffM * midInc + coeffH * highInc) * tourTrainCost * 2.0 + lgsCoefTime * tourTrainTime * 2.0;
             uTrain = ASC_Train
                     + Coef_cost1 * tourTrainCost * (tourTrainCost <= 188 ? 1 : 0)

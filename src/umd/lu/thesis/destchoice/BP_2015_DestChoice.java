@@ -385,6 +385,8 @@ public class BP_2015_DestChoice {
 
         Double uTrain = null;
         if (tourTrainCost != null && tourTrainTime != null) {
+            tourTrainCost *= 2;
+            tourTrainTime *= 2;
             /**
              * 2014 formula
              */
