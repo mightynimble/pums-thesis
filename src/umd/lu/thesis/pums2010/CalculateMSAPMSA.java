@@ -31,6 +31,9 @@ public class CalculateMSAPMSA {
     private HashMap<Integer, List<MsapmsaPercentagePair>> pumaMsaPerpopContainer = new HashMap<>();
 
     org.apache.log4j.Logger log = org.apache.log4j.LogManager.getLogger(CalculateMSAPMSA.class);
+    
+    // can't process all states due to memory issues
+    private int cutoffState = 5;
 
     public CalculateMSAPMSA() {
     }
@@ -44,33 +47,35 @@ public class CalculateMSAPMSA {
         log.info("Started to calculate MSAPMSA.");
         List<Integer> states = getStates();
         for (Integer st : states) {
-            List<Integer> pumas = getPumas(st);
-            for (Integer p : pumas) {
-                List<Integer> ids = getIdsbyStAndPuma(st, p);
-                List<MsapmsaPercentagePair> mpList = pumaMsaPerpopContainer.get(constructStPuma(st, p));
-                Random r = new Random();
-                List<Integer> selectedIds = new ArrayList<>();
+            if(st > cutoffState) {
+                List<Integer> pumas = getPumas(st);
+                for (Integer p : pumas) {
+                    List<Integer> ids = getIdsbyStAndPuma(st, p);
+                    List<MsapmsaPercentagePair> mpList = pumaMsaPerpopContainer.get(constructStPuma(st, p));
+                    Random r = new Random();
+                    List<Integer> selectedIds = new ArrayList<>();
 
-                for (int i = 0; i < mpList.size(); i++) {
-                    selectedIds.clear();
-                    MsapmsaPercentagePair mp = mpList.get(i);
-                    double percentage = mp.getPercentage();
-                    int msapmsa = mp.getMsapmsa();
-                    int size = ids.size();
-                    if(i == mpList.size() - 1) {
-                        // last one in the list
-                        setMsapmsa(ids, msapmsa);
-                    }
-                    else {
-                        // not last one
-                        int assignable = (int) (size * percentage);
-                        for (int assgn = 0; assgn < assignable; assgn++) {
-                            size = ids.size();
-                            int randomId = r.nextInt(size);
-                            selectedIds.add(ids.get(randomId));
-                            ids.remove(randomId);
+                    for (int i = 0; i < mpList.size(); i++) {
+                        selectedIds.clear();
+                        MsapmsaPercentagePair mp = mpList.get(i);
+                        double percentage = mp.getPercentage();
+                        int msapmsa = mp.getMsapmsa();
+                        int size = ids.size();
+                        if(i == mpList.size() - 1) {
+                            // last one in the list
+                            setMsapmsa(ids, msapmsa);
                         }
-                        setMsapmsa(selectedIds, msapmsa);
+                        else {
+                            // not last one
+                            int assignable = (int) (size * percentage);
+                            for (int assgn = 0; assgn < assignable; assgn++) {
+                                size = ids.size();
+                                int randomId = r.nextInt(size);
+                                selectedIds.add(ids.get(randomId));
+                                ids.remove(randomId);
+                            }
+                            setMsapmsa(selectedIds, msapmsa);
+                        }
                     }
                 }
             }
