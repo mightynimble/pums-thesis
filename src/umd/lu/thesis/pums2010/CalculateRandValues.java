@@ -39,7 +39,9 @@ class CalculateRandValues {
 
     private static HashMap<String, Double[]> tripRatePb;
 
-    private static final int batchSize = 50000;
+    private static final int batchSize = 500;
+
+    private static final int cutoffId = 1300000;
 
     public CalculateRandValues(int totalRows) {
         this.totalRows = totalRows;
@@ -52,21 +54,20 @@ class CalculateRandValues {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
             String line;
             while ((line = br.readLine()) != null) {
-                if(!line.startsWith("Group")) {
+                if (!line.startsWith("Group")) {
                     String key = ExcelUtils.getColumnValue(2, line) + "-"
-                                 + ExcelUtils.getColumnValue(3, line) + "-"
-                                 + ExcelUtils.getColumnValue(4, line) + "-"
-                                 + ExcelUtils.getColumnValue(5, line);
+                            + ExcelUtils.getColumnValue(3, line) + "-"
+                            + ExcelUtils.getColumnValue(4, line) + "-"
+                            + ExcelUtils.getColumnValue(5, line);
                     Double[] value = {Double.parseDouble(ExcelUtils.getColumnValue(6, line)),
-                                      Double.parseDouble(ExcelUtils.getColumnValue(7, line))
+                        Double.parseDouble(ExcelUtils.getColumnValue(7, line))
                     };
 
                     tripRateBusiness.put(key, value);
                 }
             }
             br.close();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             System.exit(1);
         }
@@ -75,21 +76,20 @@ class CalculateRandValues {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
             String line;
             while ((line = br.readLine()) != null) {
-                if(!line.startsWith("Group")) {
+                if (!line.startsWith("Group")) {
                     String key = ExcelUtils.getColumnValue(2, line) + "-"
-                                 + ExcelUtils.getColumnValue(3, line) + "-"
-                                 + ExcelUtils.getColumnValue(4, line) + "-"
-                                 + ExcelUtils.getColumnValue(5, line);
+                            + ExcelUtils.getColumnValue(3, line) + "-"
+                            + ExcelUtils.getColumnValue(4, line) + "-"
+                            + ExcelUtils.getColumnValue(5, line);
                     Double[] value = {Double.parseDouble(ExcelUtils.getColumnValue(6, line)),
-                                      Double.parseDouble(ExcelUtils.getColumnValue(7, line))
+                        Double.parseDouble(ExcelUtils.getColumnValue(7, line))
                     };
 
                     tripRatePleasure.put(key, value);
                 }
             }
             br.close();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             System.exit(1);
         }
@@ -98,21 +98,20 @@ class CalculateRandValues {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
             String line;
             while ((line = br.readLine()) != null) {
-                if(!line.startsWith("Group")) {
+                if (!line.startsWith("Group")) {
                     String key = ExcelUtils.getColumnValue(2, line) + "-"
-                                 + ExcelUtils.getColumnValue(3, line) + "-"
-                                 + ExcelUtils.getColumnValue(4, line) + "-"
-                                 + ExcelUtils.getColumnValue(5, line);
+                            + ExcelUtils.getColumnValue(3, line) + "-"
+                            + ExcelUtils.getColumnValue(4, line) + "-"
+                            + ExcelUtils.getColumnValue(5, line);
                     Double[] value = {Double.parseDouble(ExcelUtils.getColumnValue(6, line)),
-                                      Double.parseDouble(ExcelUtils.getColumnValue(7, line))
+                        Double.parseDouble(ExcelUtils.getColumnValue(7, line))
                     };
 
                     tripRatePb.put(key, value);
                 }
             }
             br.close();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             System.exit(1);
         }
@@ -121,44 +120,44 @@ class CalculateRandValues {
     public void run() {
         log.info("Started setting rand value columns (R_BUSINESS, R_PERSON, R_PB)");
         String insertSql = "INSERT INTO ID_RANDS (ID, R_BUSINESS, R_PERSON, R_PB) VALUES ";
-        StringBuilder sb = new StringBuilder(insertSql);
-        for (int id = 1; id <= totalRows; id++) {
-            if(id % 100000 == 1) {
-                log.info("Progress: " + id + " out of " + totalRows);
-            }
+//        StringBuilder sb = new StringBuilder(insertSql);
+        try {
+            Statement st = dao.getConnection().createStatement();
+            Statement insertStmt = dao.getConnection().createStatement();
+            for (int id = cutoffId; id <= totalRows; id++) {
+                if (id % 100000 == 1) {
+                    log.info("Progress: " + id + " out of " + totalRows);
+                }
 
-            try {
-                Statement st = dao.getConnection().createStatement();
                 ResultSet rs = st.executeQuery("SELECT * FROM PERSON_HOUSEHOLD_EXPANDED WHERE ID = " + id);
                 while (rs.next()) {
                     Double randBusiness = getRandomSample(rs, "business");
                     Double randPerson = getRandomSample(rs, "person");
                     Double randPB = getRandomSample(rs, "pb");
-                    prepareInsertElement(sb, randBusiness, randPerson, randPB);
+                    insertSql = prepareInsertElement(insertSql, rs.getInt("ID"), randBusiness, randPerson, randPB);
                 }
-                if(id % batchSize == 0) {
+                if (id % batchSize == 0) {
                     // execute insert
-                    Statement insertStmt = dao.getConnection().createStatement();
-                    insertStmt.executeUpdate(sb.toString());
-                    
-                    // reset stringBuilder
-                    sb.setLength(0);
+//                    sb.deleteCharAt(sb.lastIndexOf(","));
+                    insertStmt.executeUpdate(insertSql.substring(0, insertSql.length() - 1));
                     insertSql = "INSERT INTO ID_RANDS (ID, R_BUSINESS, R_PERSON, R_PB) VALUES ";
-                    sb.append(insertSql);
+//                    sb = new StringBuilder(insertSql);
                 }
+
             }
-            catch (SQLException ex) {
-                log.error("Error: " + ex.getLocalizedMessage(), ex);
-                System.exit(1);
-            }
+        } catch (SQLException ex) {
+//                log.error("SQL: " + sb.toString());
+            log.error("Error: " + ex.getLocalizedMessage(), ex);
+            System.exit(1);
         }
         log.info("Completed. ");
 
     }
 
-    private void prepareInsertElement(StringBuilder sb, Double randBusiness, Double randPerson, Double randPB) {
-        String sql = "(" + randBusiness + "," + randPerson + "," + randPB + "),";
-        sb.append(sql);
+    private String prepareInsertElement(String sql, int id, Double randBusiness, Double randPerson, Double randPB) {
+        sql += "(" + id + "," + randBusiness + "," + randPerson + "," + randPB + "),";
+//        sb.append(sql);
+        return sql;
     }
 
     private double getRandomSample(ResultSet rs, String type) {
@@ -169,16 +168,14 @@ class CalculateRandValues {
             int dumEmp = rs.getInt("EMP_STATUS");
 
             NormalDistributionParams ndParams = getNormalDistributionParams(msa, incLevel, sex, dumEmp, type);
-            if(ndParams.getSd() == 0.0) {
+            if (ndParams.getSd() == 0.0) {
                 return ndParams.getMean();
-            }
-            else {
+            } else {
                 NormalDistribution nd = new NormalDistribution(ndParams.getMean(), ndParams.getSd());
                 double tmpSample = nd.sample();
                 return tmpSample < 0.0 ? 0.0 : tmpSample;
             }
-        }
-        catch (SQLException | InvalidValueException ex) {
+        } catch (SQLException | InvalidValueException ex) {
             ex.printStackTrace();
             System.exit(1);
         }
@@ -188,19 +185,16 @@ class CalculateRandValues {
     private NormalDistributionParams getNormalDistributionParams(int msa, int incLevel, int sex, int dumEmp, String type) throws InvalidValueException {
         NormalDistributionParams params = new NormalDistributionParams();
         String key = msa + "-" + incLevel + "-" + sex + "-" + dumEmp;
-        if(type.equalsIgnoreCase("business")) {
+        if (type.equalsIgnoreCase("business")) {
             params.setMean(tripRateBusiness.get(key)[0]);
             params.setSd(tripRateBusiness.get(key)[1]);
-        }
-        else if(type.equalsIgnoreCase("person")) {
+        } else if (type.equalsIgnoreCase("person")) {
             params.setMean(tripRatePleasure.get(key)[0]);
             params.setSd(tripRatePleasure.get(key)[1]);
-        }
-        else if(type.equalsIgnoreCase("pb")) {
+        } else if (type.equalsIgnoreCase("pb")) {
             params.setMean(tripRatePb.get(key)[0]);
             params.setSd(tripRatePb.get(key)[1]);
-        }
-        else {
+        } else {
             throw new InvalidValueException("Invalid type value: " + type);
         }
         return params;
