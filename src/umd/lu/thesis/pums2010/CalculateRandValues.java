@@ -145,6 +145,10 @@ class CalculateRandValues {
                 }
 
             }
+            
+            if (!insertSql.equals("INSERT INTO ID_RANDS (ID, R_BUSINESS, R_PERSON, R_PB) VALUES ")) {
+                insertStmt.executeUpdate(insertSql.substring(0, insertSql.length() - 1));
+            }
         } catch (SQLException ex) {
 //                log.error("SQL: " + sb.toString());
             log.error("Error: " + ex.getLocalizedMessage(), ex);
