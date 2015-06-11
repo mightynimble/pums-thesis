@@ -94,7 +94,22 @@ public class StopLocation {
                 // skip header then process each line, write the processed line to 
                 // output file.
                 if(!line.startsWith(headerStarts)) {
-                    bw.write(processLine(line));
+                    int rId = msaIdTable.get(Integer.parseInt(getColumnValue(r, line)));
+                    int mId = msaIdTable.get(Integer.parseInt(getColumnValue(m, line)));
+                    int uId = msaIdTable.get(Integer.parseInt(getColumnValue(u, line)));
+                    if (getColumnValue(av, line).equals("2")
+                            && odAirFare.get(rId + "-" + mId) != null
+                            && odAirFare.get(mId + "-" + uId) != null
+                            && odAirFare.get(rId + "-" + uId) != null
+                            || !getColumnValue(av, line).equals("2")) {
+                        bw.write(processLine(line));
+                    }
+                    else {
+                        System.out.println("NULL VALUE: r: " + rId + ", m: " + mId + ", u: " + uId);
+                        System.out.println("----------: r-m: " + odAirFare.get(rId + "-" + mId)
+                                + ", m-u: " + odAirFare.get(mId + "-" + uId)
+                                + ", r-u: " + odAirFare.get(rId + "-" + uId));
+                    }
                 }
                 else {
                     bw.write(line + "\tTime\tCost\tChoice\n");
@@ -109,7 +124,7 @@ public class StopLocation {
     private static String processLine(String line) throws Exception {
         String lines = "";
 
-        int[] randomIDs = getRandomIDs(getColumnValue(m, line), getColumnValue(r, line), getColumnValue(t, line));
+        int[] randomIDs = getRandomIDs(getColumnValue(m, line), getColumnValue(r, line), getColumnValue(u, line), getColumnValue(t, line), Integer.parseInt(getColumnValue(av, line)));
 
         for (int i = 0; i <= expandedLines; i++) {
             if(i == 0) {
@@ -130,17 +145,21 @@ public class StopLocation {
         return lines;
     }
 
-    private static int[] getRandomIDs(String excluded1, String excluded2, String excluded3) {
+    private static int[] getRandomIDs(String excluded1, String excluded2, String excluded3, String excluded4, int avValue) {
         Integer id1 = msaIdTable.get(Integer.parseInt(excluded1));
         Integer id2 = msaIdTable.get(Integer.parseInt(excluded2));
         Integer id3 = msaIdTable.get(Integer.parseInt(excluded3));
+        Integer id4 = msaIdTable.get(Integer.parseInt(excluded4));
         int num = expandedLines;
         int[] randomIDs = new int[num];
+        
+        System.out.println("m: " + id1 + ", r: " + id2 + ", u: " + id3 + ", t: " + id4);
 
         while (num > 0) {
             int r = rand.nextInt(idArr.size());
             int randID = idArr.get(r).intValue();
-            if(randID != id1.intValue() && randID != id2.intValue() && randID != id3.intValue() && !containsID(new Integer(randID), randomIDs)) {
+            if(randID != id1 && randID != id2 && randID != id3 && randID != id4 && !containsID(new Integer(randID), randomIDs)
+                    && (avValue == 2 && odAirFare.get(id2 + "-" + randID) != null && odAirFare.get(randID + "-" + id2) != null && odAirFare.get(randID + "-" + id3) != null || avValue != 2)) {
                 randomIDs[num - 1] = randID;
                 num--;
             }
@@ -325,7 +344,7 @@ public class StopLocation {
     }
 
     private static String calculateCostColumn(String line, Integer id) throws Exception {
-        Double m_r = 0.0;
+        Double r_m = 0.0;
         Double m_u = 0.0;
         Double r_u = 0.0;
         Double income = 0.0;
@@ -338,18 +357,18 @@ public class StopLocation {
 
         if(id != null) {
             // Expanded line, get random M column value
-            m_r = getPairCost(id, rId, avValue, afValue, awValue);
+            r_m = getPairCost(rId, id, avValue, afValue, awValue);
             m_u = getPairCost(id, uId, avValue, afValue, awValue);
         }
         else {
             // Original line
-            m_r = getPairCost(mId, rId, avValue, afValue, awValue);
+            r_m = getPairCost(rId, mId, avValue, afValue, awValue);
             m_u = getPairCost(mId, uId, avValue, afValue, awValue);
         }
         r_u = getPairCost(rId, uId, avValue, afValue, awValue);
                
-        if (m_r == null) {
-            m_r = mId == rId ? 0.0 : null;
+        if (r_m == null) {
+            r_m = mId == rId ? 0.0 : null;
         }
         if (m_u == null) {
             m_u = mId == uId ? 0.0 : null;
@@ -358,15 +377,15 @@ public class StopLocation {
             r_u = rId == uId ? 0.0 : null;
         }
         
-        if(m_r == null || m_u == null || r_u == null) {
+        if(r_m == null || m_u == null || r_u == null) {
             return "Null(m_r = "
-                   + (m_r == null ? "Null" : Double.toString(m_r)) + ", m_u = "
+                   + (r_m == null ? "Null" : Double.toString(r_m)) + ", m_u = "
                    + (m_u == null ? "Null" : Double.toString(m_u)) + ", r_u = "
                    + (r_u == null ? "Null" : Double.toString(r_u)) + ", rId = "
                    + rId + ", mId = " + mId + ", uId = " + uId + ")";
         }
         else {
-            return Double.toString(m_r + m_u - r_u);
+            return Double.toString(r_m + m_u - r_u);
         }
     }
 
@@ -395,7 +414,10 @@ public class StopLocation {
             }
         }
         else if(av == 2) {
-            return odAirTime.get(key) / 2;
+            if (odAirFare.get(key) == null) {
+                System.out.println("Key: " + key);
+            }
+            return odAirFare.get(key) / 2;
         }
         else {
             return odTrainCost.get(key);
