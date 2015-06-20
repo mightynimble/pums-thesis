@@ -40,7 +40,10 @@ public class ProcessExpandedTable {
         
         
         // calculate randBusiness, randPerson, and randBP columns
-        (new CalculateRandValues(totalRows)).run();
+//        (new CalculateRandValues(totalRows)).run();
+        
+        // since new dummy columns were added, we need to populate the fields
+        (new CalculateDummyVarsSet1(totalRows)).run();
         
         log.info("Completed processing expanded table 'PERSON_HOUSEHOLD_EXPANDED'.");
     }
