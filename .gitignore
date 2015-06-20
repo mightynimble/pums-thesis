@@ -6,3 +6,8 @@ logs/
 output_tier1/
 tucson_*
 resources/pums
+master.log
+nbproject/build-impl.xml
+nbproject/genfiles.properties
+nbproject/private/private.properties
+nbproject/private/private.xml
