@@ -11,6 +11,17 @@ package umd.lu.thesis.simulation.app2000.objects;
  */
 public enum TripType {
 
-    BUSINESS, PLEASURE, PERSONAL_BUSINESS;
+    BUSINESS(0), PLEASURE(1), PERSONAL_BUSINESS(2), HOME(3);
 
+    private int value;
+
+    private TripType(int v) {
+        value = v;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public static final int itemCount = 4;
 }
