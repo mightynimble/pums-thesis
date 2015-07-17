@@ -19,6 +19,8 @@ class CalculateDummyVarsSet1 {
     private int[] dummyValueSet;
 
     private static final int batchSize = 50000;
+    
+    private static final int cutoffId = 144250000;
 
     private static final String insertSqlPrefix = "INSERT INTO ID_EXPAND1 (ID, EMPLOYMENT, UNEMPLOYMENT,"
             + " STUDENT, MALE, HHCHD, HHOCHD, SINGLE, NON_FAM, LOWINCOME, "
@@ -38,12 +40,12 @@ class CalculateDummyVarsSet1 {
         StringBuilder sb = new StringBuilder(insertSql);
         try {
             Statement insertStmt = dao.getConnection().createStatement();
-            for (int id = 1; id <= totalRows; id++) {
+            Statement st = dao.getConnection().createStatement();
+            for (int id = cutoffId + 1; id <= totalRows; id++) {
                 if (id % 100000 == 1) {
                     log.info("Progress: " + id + " out of " + totalRows);
                 }
 
-                Statement st = dao.getConnection().createStatement();
                 ResultSet rs = st.executeQuery("SELECT * FROM PERSON_HOUSEHOLD_EXPANDED WHERE ID = " + id);
                 while (rs.next()) {
                     dummyValueSet[0] = rs.getInt("EMP_STATUS") == 1 ? 1 : 0;
@@ -65,7 +67,7 @@ class CalculateDummyVarsSet1 {
                 }
                 if (id % batchSize == 0) {
                     // execute insert
-                    insertStmt.executeUpdate(sb.toString());
+                    insertStmt.executeUpdate(sb.substring(0, sb.length() - 1));
 
                     // reset stringBuilder
                     sb.setLength(0);
