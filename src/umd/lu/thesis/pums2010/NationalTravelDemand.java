@@ -38,15 +38,15 @@ public class NationalTravelDemand {
 
     private static final int INVALID_QUARTER = -1;
 
-    private static final int bulkSize = 11;
+    private static final int bulkSize = 2000;
 
-    private static final int startRow = 4;  /* inclusive */
-
-
-    private static final int endRow = 5;    /* exclusive */
+    private static int startRow;  /* inclusive */
 
 
-    private static int currentRow = startRow;
+    private static int endRow;    /* exclusive */
+
+
+    private static int currentRow;
 
     private static final int NIL_INT = Integer.MIN_VALUE;
 
@@ -78,7 +78,10 @@ public class NationalTravelDemand {
         rand = new UniformRealDistribution();
     }
 
-    public void run() {
+    public void run(int start, int end) {
+        startRow = start;
+        endRow = end;
+        currentRow = start;
         sLog.info("NationalTravelDemand Simulation Started. Start Row: " + startRow + ", End Row: " + endRow + ", bulkSize: " + bulkSize);
 
         int rowCount = pumsDao.getTotalRecordsByMaxId("PERSON_HOUSEHOLD_EXPANDED");

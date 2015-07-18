@@ -792,15 +792,15 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         else if(type == TripType.PLEASURE) {
             return tdPleasureCoefs.get("p_cwc") * (p.getHhType() == 2 ? 1 : 0)
                    + tdPleasureCoefs.get("p_sf") * (p.getHhType() == 3 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_nfh") * (p.getHhType() == 4 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_size") * p.getNp()
-                   + tdBusinessCoefs.get("p_medinc") * (p.getIncLevel() == 2 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_higinc") * (p.getIncLevel() == 3 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_unemp") * (p.getEmpStatus() == 2 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_student") * (p.getEmpStatus() == 3 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_age") * (p.getAge())
-                   + tdBusinessCoefs.get("p_harf") * log(t)
-                   + tdBusinessCoefs.get("cons");
+                   + tdPleasureCoefs.get("p_nfh") * (p.getHhType() == 4 ? 1 : 0)
+                   + tdPleasureCoefs.get("p_size") * p.getNp()
+                   + tdPleasureCoefs.get("p_medinc") * (p.getIncLevel() == 2 ? 1 : 0)
+                   + tdPleasureCoefs.get("p_higinc") * (p.getIncLevel() == 3 ? 1 : 0)
+                   + tdPleasureCoefs.get("p_unemp") * (p.getEmpStatus() == 2 ? 1 : 0)
+                   + tdPleasureCoefs.get("p_student") * (p.getEmpStatus() == 3 ? 1 : 0)
+                   + tdPleasureCoefs.get("p_age") * (p.getAge())
+                   + tdPleasureCoefs.get("p_harf") * log(t)
+                   + tdPleasureCoefs.get("cons");
 
         }
         else {
@@ -1320,7 +1320,6 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         else if(quarter == 4) {
             logsum = logsumCacheQ4.get(o + "-" + d + "-" + p.getIncLevel() + "-" + type.name());
         }
-        sLog.debug("      logsum: " + logsum + " (o: " + o + ", d: " + d + ")");
         return logsum;
     }
 

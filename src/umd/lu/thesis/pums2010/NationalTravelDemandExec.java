@@ -11,7 +11,9 @@ package umd.lu.thesis.pums2010;
 public class NationalTravelDemandExec {
     
     public static void main(String[] args) throws Exception {
+        int start = Integer.parseInt(args[0]);
+        int end = Integer.parseInt(args[1]);
         NationalTravelDemand runner = new NationalTravelDemand();
-        runner.run();
+        runner.run(start, end);
     }
 }
