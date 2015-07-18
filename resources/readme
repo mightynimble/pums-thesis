@@ -1,1 +1,99 @@
-java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec 1 20000
+1. Start menu, type "Windows PowerShell", open it.
+
+2. Create a directory called "workspace-yijing-lu"
+
+3. To run multiple NationalTravelDemand instances at the same time (concurrently), create multiple directories in "workspace-yijing-lu":
+	For example, if you wanna run 3 instances, you should create a directory structure like this:
+	workspace-yijing-lu
+	         |
+	         +-- dir1
+	         |
+	         +-- dir2
+	         |
+	         +-- dir3
+4. Copy everything in "yijinglu-thesis" to dir1, dir2, dir3.
+
+5. Create a directory "output" in each of the sub directories (dir1/output, dir2/output, dir3/output)
+
+6. At this point, your directory structure should look like this:
+	workspace-yijing-lu
+		         |
+		         +-- dir1
+ 		         |     |
+		         |     +-- output (directory)
+		         |     |
+		         |     +-- resources (directory)
+		         |     |      |
+		         |     |      +-- config.properties (file)
+		         |     |
+		         |     +-- master.log (file)
+		         |     |
+		         |     +-- ... (other non-important directories and files)
+		         |     
+		         |
+		         +-- dir2
+		         |     |
+		         |     +-- output (directory)
+		         |     |
+		         |     +-- resources (directory)
+		         |     |      |
+		         |     |      +-- config.properties (file)
+		         |     |
+		         |     +-- master.log (file)
+		         |     |
+		         |     +-- ... (other non-important directories and files)
+		         |     
+		         |
+		         +-- dir3
+		         |     |
+		         |     +-- output (directory)
+		         |     |
+		         |     +-- resources (directory)
+		         |     |      |
+		         |     |      +-- config.properties (file)
+		         |     |
+		         |     +-- master.log (file)
+		         |     |
+		         |     +-- ... (other non-important directories and files)
+		         |     
+		         |
+		         + ...
+
+6. Make changes in config.properties (yijinglu-thesis/resources). Fields needs to be changed are:
+	db.username=root
+	db.password=???
+	db.host=192.168.1.204
+	db.port=3306
+
+	simulation.pums2010.zoneid=D:\\2010PUMS\\ZONE_ID.txt
+	simulation.pums2010.odskim_car_business=D:\\2010PUMS\\ODSKIM_Car_Business_2010.txt
+	simulation.pums2010.odskim_car_other=D:\\2010PUMS\\ODSKIM_Car_PPB_2010.txt
+	simulation.pums2010.air_skim_avg=D:\\2010PUMS\\Air_Skim_Avg_2010.txt
+	simulation.pums2010.odskim_train=D:\\2010PUMS\\OD_Skim_Train_2010.txt
+	simulation.pums2010.msa_emp=D:\\2010PUMS\\MSA_SD_2010.txt
+	simulation.pums2010.msafare_1=D:\\2010PUMS\\MSA_airfare_1.txt
+	simulation.pums2010.msafare_2=D:\\2010PUMS\\MSA_airfare_2.txt
+	simulation.pums2010.msafare_3=D:\\2010PUMS\\MSA_airfare_3.txt
+	simulation.pums2010.msafare_4=D:\\2010PUMS\\MSA_airfare_4.txt
+
+	simulation.pums2010.output.dir=<roo-path>\\dir1\\output\\
+
+7. You will also need to make the same change in other dirX directories. The property values should be the same except for simulation.pums2010.output.dir.
+
+8. Open more Windows PowerShell and "cd" into dir1, dir2, dir3, ... then run this command. 
+   The two numbers in the end will be used to define which record to start processing in "person_household_expanded" table and where to stop.
+   Start row is inclusive, stop row is exclusive. So "1 20000" means starting from first record, process 19999 records and stop at 20000.
+
+		java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec <start_row> <stop_row>
+   
+   Therefore, if you have 3 diretories: dir1, dir2, dir3 and wanna process row 1 to row 89,999
+   go to dir1 and run:
+   		java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec 1 30000
+   go to dir2 and run:
+   		java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec 30000 60000
+   go to dir3 and run:
+   		java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec 60000 90000
+
+
+
+
