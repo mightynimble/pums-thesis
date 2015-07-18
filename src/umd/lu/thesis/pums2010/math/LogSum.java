@@ -12,8 +12,6 @@ import static java.lang.Math.log;
 import java.util.Collections;
 //import static org.apache.commons.math3.util.FastMath.expm1;
 //import static org.apache.commons.math3.util.FastMath.log;
-import org.apfloat.ApfloatMath;
-import org.apfloat.Apfloat;
 
 import java.util.Map;
 import umd.lu.thesis.exceptions.InvalidValueException;

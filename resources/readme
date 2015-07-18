@@ -1,0 +1,1 @@
+java -Xmx13500m -classpath ".\lib\commons-lang3-3.1-javadoc.jar;.\lib\commons-lang3-3.1.jar;.\lib\javax.ws.rs-api-2.0.jar;.\lib\apache-log4j-1.2.17\log4j-1.2.17.jar;.\lib\mysql-connector-java-5.1.18-bin.jar;.\lib\commons-math3-3.5\commons-math3-3.5.jar;.\build\classes" umd.lu.thesis.pums2010.NationalTravelDemandExec 1 20000
