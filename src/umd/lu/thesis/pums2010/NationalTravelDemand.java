@@ -148,7 +148,7 @@ public class NationalTravelDemand {
         sLog.debug("    destUDExpSum: " + uDExpSum);
         for (int d = 1; d <= Math.alt; d++) {
             double pU = math.destUDExp(p, o, d, tripType, quarter) / uDExpSum;
-            sLog.debug("    destP[" + d + "]: " + pU);
+//            sLog.debug("    destP[" + d + "]: " + pU);
             pList.add(pU);
             pMap.put(pU, d);
         }

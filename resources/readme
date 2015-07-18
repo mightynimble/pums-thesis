@@ -1,9 +1,11 @@
 1. Start menu, type "Windows PowerShell", open it.
 
-2. Create a directory called "workspace-yijing-lu"
 
-3. To run multiple NationalTravelDemand instances at the same time (concurrently), create multiple directories in "workspace-yijing-lu":
-	For example, if you wanna run 3 instances, you should create a directory structure like this:
+2. Create a folder called "workspace-yijing-lu"
+
+
+3. To run multiple NationalTravelDemand instances at the same time (concurrently), create multiple folders in "workspace-yijing-lu":
+	For example, if you wanna run 3 instances, you should create a folder structure like this:
 	workspace-yijing-lu
 	         |
 	         +-- dir1
@@ -11,53 +13,58 @@
 	         +-- dir2
 	         |
 	         +-- dir3
+
+
 4. Copy everything in "yijinglu-thesis" to dir1, dir2, dir3.
 
-5. Create a directory "output" in each of the sub directories (dir1/output, dir2/output, dir3/output)
 
-6. At this point, your directory structure should look like this:
+5. Create a folder "output" in each of the sub folders (dir1/output, dir2/output, dir3/output)
+
+
+6. At this point, your folder structure should look like this:
 	workspace-yijing-lu
 		         |
 		         +-- dir1
  		         |     |
-		         |     +-- output (directory)
+		         |     +-- output (folder)
 		         |     |
-		         |     +-- resources (directory)
+		         |     +-- resources (folder)
 		         |     |      |
 		         |     |      +-- config.properties (file)
 		         |     |
 		         |     +-- master.log (file)
 		         |     |
-		         |     +-- ... (other non-important directories and files)
+		         |     +-- ... (other non-important folders and files)
 		         |     
 		         |
 		         +-- dir2
 		         |     |
-		         |     +-- output (directory)
+		         |     +-- output (folder)
 		         |     |
-		         |     +-- resources (directory)
+		         |     +-- resources (folder)
 		         |     |      |
 		         |     |      +-- config.properties (file)
 		         |     |
 		         |     +-- master.log (file)
 		         |     |
-		         |     +-- ... (other non-important directories and files)
+		         |     +-- ... (other non-important folders and files)
 		         |     
 		         |
 		         +-- dir3
 		         |     |
-		         |     +-- output (directory)
+		         |     +-- output (folder)
 		         |     |
-		         |     +-- resources (directory)
+		         |     +-- resources (folder)
 		         |     |      |
 		         |     |      +-- config.properties (file)
 		         |     |
 		         |     +-- master.log (file)
 		         |     |
-		         |     +-- ... (other non-important directories and files)
+		         |     +-- ... (other non-important folders and files)
 		         |     
 		         |
 		         + ...
+
 
 6. Make changes in config.properties (yijinglu-thesis/resources). Fields needs to be changed are:
 	db.username=root
@@ -78,7 +85,9 @@
 
 	simulation.pums2010.output.dir=<roo-path>\\dir1\\output\\
 
-7. You will also need to make the same change in other dirX directories. The property values should be the same except for simulation.pums2010.output.dir.
+
+7. You will also need to make the same change in other dirX folders. The property values should be the same except for simulation.pums2010.output.dir.
+
 
 8. Open more Windows PowerShell and "cd" into dir1, dir2, dir3, ... then run this command. 
    The two numbers in the end will be used to define which record to start processing in "person_household_expanded" table and where to stop.

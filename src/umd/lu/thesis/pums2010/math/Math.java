@@ -1068,7 +1068,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         else if(mc == ModeChoice.AIR) {
             return (logsum.tourAirCost(so, s, toy)
                     + logsum.tourAirCost(s, d, toy)
-                    - logsum.tourAirCost(s, d, toy)) / 2;
+                    - logsum.tourAirCost(so, d, toy)) / 2;
         }
         else {
             // mc == ModeChoice.TRAIN
@@ -1177,10 +1177,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     private double detDist(int so, int d, int s) {
         if(businessCarMap.get(getKey(so, s))[3] < 50) {
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         if(so == s) {
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         return businessCarMap.get(getKey(so, s))[3] + businessCarMap.get(getKey(s, d))[3] - businessCarMap.get(getKey(so, d))[3];
     }
