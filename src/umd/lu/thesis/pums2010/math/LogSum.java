@@ -360,7 +360,7 @@ public class LogSum {
                 }
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
-                if(otherCarMap.get(getKey(o, d)) == null) {
+                if(otherCarMap.get(getKey(o, d)) == null  || otherCarMap.get(getKey(o, d))[1] == 99999999) {
                     driveCost = Double.NEGATIVE_INFINITY;
                 }
                 else {
@@ -385,7 +385,7 @@ public class LogSum {
     public double tourCarTime(int o, int d, TripType type) {
         try {
             if(type == TripType.BUSINESS) {
-                if(businessCarMap.get(getKey(o, d)) == null) {
+                if(businessCarMap.get(getKey(o, d)) == null || businessCarMap.get(getKey(o, d))[0] == 99999999) {
                     return Double.NEGATIVE_INFINITY;
                 }
                 else {
@@ -393,7 +393,7 @@ public class LogSum {
                 }
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
-                if(otherCarMap.get(getKey(o, d)) == null) {
+                if(otherCarMap.get(getKey(o, d)) == null || otherCarMap.get(getKey(o, d))[0] == 99999999) {
                     return Double.NEGATIVE_INFINITY;
                 }
                 else {
@@ -442,9 +442,15 @@ public class LogSum {
         // o => column C, d => column D, stopNight => column H
         try {
             if(type == TripType.BUSINESS) {
+                if (businessCarMap.get(getKey(o, d))[2] == 99999999) {
+                    return Double.NEGATIVE_INFINITY;
+                }
                 return businessCarMap.get(getKey(o, d))[2];
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
+                if (otherCarMap.get(getKey(o, d))[2] == 99999999) {
+                    return Double.NEGATIVE_INFINITY;
+                }
                 return otherCarMap.get(getKey(o, d))[2];
             }
         }
