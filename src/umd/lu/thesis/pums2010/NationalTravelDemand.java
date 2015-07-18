@@ -11,11 +11,15 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import static java.lang.Math.abs;
+import static java.lang.Math.abs;
+import static java.lang.Math.abs;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static java.lang.Math.abs;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -70,8 +74,8 @@ public class NationalTravelDemand {
             for (int q = 0; q < Quarter.itemCount; q++) {
                 for (int t = 0; t < TripType.itemCount; t++) {
                     results.put(TravelMode.values()[m] + "-"
-                                + Quarter.values()[q] + "-"
-                                + TripType.values()[t], subset);
+                            + Quarter.values()[q] + "-"
+                            + TripType.values()[t], subset);
                 }
             }
         }
@@ -105,12 +109,12 @@ public class NationalTravelDemand {
         for (Person2010 p : pList) {
             currentRow = p.getPid();
             sLog.debug("PID: " + currentRow);
-            if(currentRow == endRow) {
+            if (currentRow == endRow) {
                 break;
             }
 
             int o = lookupAlt(p);
-            if(o == 0) {
+            if (o == 0) {
                 // can't find origin from msapmsa, skip
                 continue;
             }
@@ -137,7 +141,7 @@ public class NationalTravelDemand {
 
     private Integer findDestinationChoice(Person2010 p, int o, TripType tripType, int quarter) {
         sLog.debug("Find Dest Choice - p: " + p.getPid() + ", o: " + o
-                   + ", Trip Purpose:  " + tripType.name() + ", quarter: " + quarter);
+                + ", Trip Purpose:  " + tripType.name() + ", quarter: " + quarter);
         Map<Double, Integer> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         double uDExpSum = math.destUDExpSum(p, o, tripType, quarter);
@@ -155,10 +159,10 @@ public class NationalTravelDemand {
 
     private Integer findToY(Person2010 p, int o, int d, TripType type) {
         sLog.debug("Find Time of Year - p: " + p.getPid() + ", o: " + o
-                   + ", d: " + d + ", Trip Purpose:  " + type.name());
+                + ", d: " + d + ", Trip Purpose:  " + type.name());
         Map<Double, Integer> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
-        if(type == TripType.BUSINESS || type == TripType.PLEASURE) {
+        if (type == TripType.BUSINESS || type == TripType.PLEASURE) {
             double uDExpSum = math.toyUDExpSum(p, o, d, type);
             sLog.debug("    destUDExpSum: " + uDExpSum);
             for (int q = 1; q <= 4; q++) {
@@ -167,8 +171,7 @@ public class NationalTravelDemand {
                 pList.add(pU);
                 pMap.put(pU, q);
             }
-        }
-        else {
+        } else {
             pList.add(0.228);
             pMap.put(0.228, 1);
             sLog.debug("    toyP[1]: " + 0.228);
@@ -189,19 +192,18 @@ public class NationalTravelDemand {
 
     private Integer findTourDuration(Person2010 p, int d, TripType tripType, int toy) {
         sLog.debug("Find Trip Duration - p: " + p.getPid() + ", d: " + d
-                   + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
+                + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
         // Note that S(T) gets smaller when T increase. So the loop can break
         // early.
         double prevAbs = Double.POSITIVE_INFINITY;
         double abs = Double.POSITIVE_INFINITY;
         for (int t = 1; t <= 30; t++) {
             sLog.debug("    prevAbs: " + prevAbs + ", newAbs: " + abs);
-            abs = abs(math.tdST(p, d, toy, t, tripType)-0.5);
-            if(abs < prevAbs) {
+            abs = abs(math.tdST(p, d, toy, t, tripType) - 0.5);
+            if (abs < prevAbs) {
                 prevAbs = abs;
                 continue;
-            }
-            else {
+            } else {
                 return t - 1;
             }
         }
@@ -210,7 +212,7 @@ public class NationalTravelDemand {
 
     private Integer findTravelPartySize(Person2010 p, int d, TripType type) {
         sLog.debug("Find Party Size - p: " + p.getPid() + ", d: " + d
-                   + ", Trip Purpose:  " + type.name());
+                + ", Trip Purpose:  " + type.name());
         double tspU1Exp = math.tpsUtpExp(p, d, 1, type);
         sLog.debug("    tspU1Exp: " + tspU1Exp);
         double tspU2Exp = math.tpsUtpExp(p, d, 2, type);
@@ -248,7 +250,7 @@ public class NationalTravelDemand {
 
     private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy) {
         sLog.debug("Find Mode Choice - p: " + p.getPid() + ", d: " + d
-                   + ", Trip Purpose:  " + type.name() + ", toy: " + toy);
+                + ", Trip Purpose:  " + type.name() + ", toy: " + toy);
         double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p));
         sLog.debug("    uCarExp: " + uCarExp);
         double uAirExp = math.mcUairExp(p, type, d, lookupAlt(p), toy);
@@ -282,9 +284,9 @@ public class NationalTravelDemand {
 
     private Integer findStopFrequency(int o, int d, Integer toy, Integer td, Integer tps, ModeChoice mc, TripType type, boolean isOutBound) {
         sLog.debug("Find Stop Frequency - o: " + o + ", d: " + d
-                   + ", Trip Duration: " + td + ", Party size: " + tps
-                   + ", Mode: " + mc.name() + ", Trip Purpose:  " + type.name()
-                   + ", outbound?: " + isOutBound);
+                + ", Trip Duration: " + td + ", Party size: " + tps
+                + ", Mode: " + mc.name() + ", Trip Purpose:  " + type.name()
+                + ", outbound?: " + isOutBound);
         List<Double> uExpList = new ArrayList<>();
         double sum = 0.0;
         for (int i = 0; i < 5; i++) {
@@ -308,8 +310,8 @@ public class NationalTravelDemand {
 
     private List<TripType> findStopTypes(Integer stops, TripType tripType, Integer tps, ModeChoice mc, boolean isOutBound) {
         sLog.debug("Find Stop Types - Number of  stops: " + stops
-                   + ", Party size: " + tps + ", Mode: " + mc.name()
-                   + ", Trip Purpose:  " + tripType.name() + ", outbound?: " + isOutBound);
+                + ", Party size: " + tps + ", Mode: " + mc.name()
+                + ", Trip Purpose:  " + tripType.name() + ", outbound?: " + isOutBound);
         List<TripType> stopTypes = new ArrayList<>();
         for (int s = 1; s <= stops; s++) {
             double uBExp = math.stopTypeUExp(s, TripType.BUSINESS, tps, mc, isOutBound);
@@ -336,17 +338,17 @@ public class NationalTravelDemand {
 
             int typeValue = math.MonteCarloMethod(pList, pMap, rand.sample());
             stopTypes.add((typeValue == TripType.BUSINESS.getValue() ? TripType.BUSINESS
-                           : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
-                              : TripType.PERSONAL_BUSINESS)));
+                    : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
+                    : TripType.PERSONAL_BUSINESS)));
         }
         return stopTypes;
     }
 
     private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, boolean isOutBound) {
         sLog.debug("Find Stop Location - p: " + p.getPid() + ", stop origin: " + so
-                   + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
-                   + ", Trip Purpose:  " + type.name() + ", toy: " + toy
-                   + ", outbound?: " + isOutBound);
+                + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
+                + ", Trip Purpose:  " + type.name() + ", toy: " + toy
+                + ", outbound?: " + isOutBound);
         Map<Double, Integer> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         List<Double> uExpList = new ArrayList<>();
@@ -375,15 +377,14 @@ public class NationalTravelDemand {
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
             String line;
             while ((line = br.readLine()) != null) {
-                if(!line.startsWith("MSA/NMSA")) {
+                if (!line.startsWith("MSA/NMSA")) {
                     Integer key = Integer.parseInt(ExcelUtils.getColumnValue(1, line));
                     Integer[] value = {Integer.parseInt(ExcelUtils.getColumnValue(2, line)), Integer.parseInt(ExcelUtils.getColumnValue(3, line))};
                     zone.put(key, value);
                 }
             }
             br.close();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             sLog.error(ex.getLocalizedMessage(), ex);
             System.exit(1);
         }
@@ -392,22 +393,21 @@ public class NationalTravelDemand {
 
     private int lookupAlt(Person2010 p) {
         int alt = 0;
-        if(p.getMsapmsa() == 9999) {
+        if (p.getMsapmsa() == 9999) {
             int msapmsa = Integer.parseInt(p.getSt() + "99");
-            if(zoneIdMap.get(msapmsa) == null) {
+            if (zoneIdMap.get(msapmsa) == null) {
                 return Integer.MIN_VALUE;
             }
             p.setTmpMsapmsa(msapmsa);
             alt = zoneIdMap.get(msapmsa)[0];
-        }
-        else {
+        } else {
             alt = zoneIdMap.get(p.getMsapmsa())[0];
         }
         return alt;
     }
 
     private void runSimulationAndPopulateResults(Person2010 p, int origin, TripType type) {
-        if(type == TripType.BUSINESS) {
+        if (type == TripType.BUSINESS) {
             sLog.debug("Total BUSINESS tour: " + p.getrB());
             for (int tour = 0; tour < p.getrP(); tour++) {
                 sLog.debug("Tour #" + tour);
@@ -455,7 +455,7 @@ public class NationalTravelDemand {
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
                 for (int stopIndex = 0; stopIndex < obNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
@@ -464,7 +464,7 @@ public class NationalTravelDemand {
                     so = loc;
                 }
                 for (int stopIndex = 0; stopIndex < ibNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
@@ -492,17 +492,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
                 for (int stopLoc : obStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (origin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = origin + "-" + stopLoc;
-                    }
-                    else if(i == obStopLocations.size() - 1) {
+                    } else if (i == obStopLocations.size() - 1) {
                         // last stop, output (stopLoc, dest), type is tour's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
                         odPair = stopLoc + "-" + dest;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
@@ -514,17 +512,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
                 for (int stopLoc : ibStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (dest, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = dest + "-" + stopLoc;
-                    }
-                    else if(i == ibStopLocations.size() - 1) {
+                    } else if (i == ibStopLocations.size() - 1) {
                         // last stop, output (stopLoc, origin), type is HOME
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
                         odPair = stopLoc + "-" + origin;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
@@ -533,8 +529,7 @@ public class NationalTravelDemand {
                     i++;
                 }
             }
-        }
-        else if(type == TripType.PERSONAL_BUSINESS) {
+        } else if (type == TripType.PERSONAL_BUSINESS) {
             sLog.debug("Total PERSONAL_BUSINESS tour: " + p.getrPB());
             for (int tour = 0; tour < p.getrPB(); tour++) {
                 sLog.debug("Tour #" + tour);
@@ -582,7 +577,7 @@ public class NationalTravelDemand {
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
                 for (int stopIndex = 0; stopIndex < obNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
@@ -591,7 +586,7 @@ public class NationalTravelDemand {
                     so = loc;
                 }
                 for (int stopIndex = 0; stopIndex < ibNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
@@ -619,17 +614,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
                 for (int stopLoc : obStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (origin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = origin + "-" + stopLoc;
-                    }
-                    else if(i == obStopLocations.size() - 1) {
+                    } else if (i == obStopLocations.size() - 1) {
                         // last stop, output (stopLoc, dest), type is tour's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
                         odPair = stopLoc + "-" + dest;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
@@ -641,17 +634,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
                 for (int stopLoc : ibStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (dest, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = dest + "-" + stopLoc;
-                    }
-                    else if(i == ibStopLocations.size() - 1) {
+                    } else if (i == ibStopLocations.size() - 1) {
                         // last stop, output (stopLoc, origin), type is HOME
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
                         odPair = stopLoc + "-" + origin;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
@@ -660,8 +651,7 @@ public class NationalTravelDemand {
                     i++;
                 }
             }
-        }
-        else {
+        } else {
             // type == TripType.PLEASURE
             int tour = 0;
             sLog.debug("Total PLEASURE tour: " + p.getrPB());
@@ -711,7 +701,7 @@ public class NationalTravelDemand {
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
                 for (int stopIndex = 0; stopIndex < obNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
@@ -720,7 +710,7 @@ public class NationalTravelDemand {
                     so = loc;
                 }
                 for (int stopIndex = 0; stopIndex < ibNumOfStops; stopIndex++) {
-                    if(stopIndex == 0) {
+                    if (stopIndex == 0) {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
@@ -748,17 +738,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
                 for (int stopLoc : obStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (origin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = origin + "-" + stopLoc;
-                    }
-                    else if(i == obStopLocations.size() - 1) {
+                    } else if (i == obStopLocations.size() - 1) {
                         // last stop, output (stopLoc, dest), type is tour's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
                         odPair = stopLoc + "-" + dest;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                         odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
@@ -770,17 +758,15 @@ public class NationalTravelDemand {
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
                 for (int stopLoc : ibStopLocations) {
-                    if(i == 0) {
+                    if (i == 0) {
                         // first stop, output (dest, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = dest + "-" + stopLoc;
-                    }
-                    else if(i == ibStopLocations.size() - 1) {
+                    } else if (i == ibStopLocations.size() - 1) {
                         // last stop, output (stopLoc, origin), type is HOME
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
                         odPair = stopLoc + "-" + origin;
-                    }
-                    else {
+                    } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
                         key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                         odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
@@ -799,13 +785,13 @@ public class NationalTravelDemand {
             for (int toy = 0; toy < 4; toy++) {
                 for (int type = 0; type < TripType.itemCount; type++) {
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
-                    String fileName = key + ".txt";
+                    String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+                    String fileName = key + "-" + timestamp + ".txt";
                     File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
                     try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-                        if(f.exists()) {
+                        if (f.exists()) {
                             f.delete();
-                        }
-                        else {
+                        } else {
                             f.createNewFile();
                         }
 
@@ -816,8 +802,7 @@ public class NationalTravelDemand {
                             bw.write("\n");
                         }
                         bw.flush();
-                    }
-                    catch (IOException ex) {
+                    } catch (IOException ex) {
                         sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
                         System.exit(1);
                     }
@@ -828,10 +813,9 @@ public class NationalTravelDemand {
 
     private void updateMatrixCell(String key, String odPair) {
         Integer count = results.get(key).get(odPair);
-        if(count == null) {
+        if (count == null) {
             results.get(key).put(odPair, 1);
-        }
-        else {
+        } else {
             results.get(key).put(odPair, count + 1);
         }
     }
