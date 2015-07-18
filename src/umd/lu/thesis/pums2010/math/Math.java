@@ -1189,6 +1189,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         sLog.info("Started pre-calculate logsum.");
         Person2010 p = new Person2010();
         for (int o = 1; o <= Math.alt; o++) {
+            sLog.debug("  " + o + " out of " + Math.alt + " done.");
             for (int d = 1; d <= Math.alt; d++) {
                 if(o == d) {
                     continue;
