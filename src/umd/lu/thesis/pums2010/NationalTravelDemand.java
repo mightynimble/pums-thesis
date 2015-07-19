@@ -176,13 +176,13 @@ public class NationalTravelDemand {
             pMap.put(0.228, 1);
             sLog.debug("    toyP[1]: " + 0.228);
             pList.add(0.297);
-            pMap.put(0.297, 1);
+            pMap.put(0.297, 2);
             sLog.debug("    toyP[2]: " + 0.297);
             pList.add(0.278);
-            pMap.put(0.278, 1);
+            pMap.put(0.278, 3);
             sLog.debug("    toyP[3]: " + 0.278);
             pList.add(0.197);
-            pMap.put(0.197, 1);
+            pMap.put(0.197, 4);
             sLog.debug("    toyP[4]: " + 0.197);
         }
 
@@ -360,14 +360,16 @@ public class NationalTravelDemand {
             uExpList.add(uExp);
         }
         // calculate p
-        for (int z = 0; z < Math.alt; z++) {
-            double pSt = uExpList.get(z) / expSum;
-            sLog.debug("    pSt[" + z + "]: " + pSt);
-            pMap.put(pSt, z);
+        for (int z = 1; z <= Math.alt; z++) {
+            double pSt = uExpList.get(z - 1) / expSum;
+            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
+                sLog.debug("    pSt[" + (z - 1) + "]: " + pSt);
+            }
+            pMap.put(pSt, z - 1);
             pList.add(pSt);
         }
 
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        return math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
     }
 
     private HashMap<Integer, Integer[]> initZoneId() {
@@ -460,6 +462,7 @@ public class NationalTravelDemand {
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
                 }
@@ -469,6 +472,7 @@ public class NationalTravelDemand {
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
                 }
@@ -582,6 +586,7 @@ public class NationalTravelDemand {
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
                 }
@@ -591,6 +596,7 @@ public class NationalTravelDemand {
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
                 }
@@ -706,6 +712,7 @@ public class NationalTravelDemand {
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
                 }
@@ -715,6 +722,7 @@ public class NationalTravelDemand {
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
                 }

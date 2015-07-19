@@ -1038,8 +1038,13 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             return 0.0;
         }
         double gtc = generailizedTravelCost(p, so, o, d, s, mc, type, toy);
-        sLog.debug("      gtc[" + s + "]: " + gtc);
-        double dist = businessCarMap.get(getKey(so, d))[3];
+//        sLog.debug("      gtc[" + s + "]: " + gtc);
+        double dist = 0.0;
+        try {
+            dist = businessCarMap.get(getKey(so, d))[3];
+        } catch (NullPointerException e) {
+            sLog.error(e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy);
+        }
         if(gtc == Double.NEGATIVE_INFINITY) {
             // meaning some key pair couldn't be found in train/car/air files.
             return 0.0;
