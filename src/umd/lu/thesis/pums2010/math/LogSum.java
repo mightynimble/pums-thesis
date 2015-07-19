@@ -153,8 +153,8 @@ public class LogSum {
         try {
             if(type == TripType.BUSINESS) {
                 double tcc = tourCarCost(p.getIncLevel(), o, d, type);
-                if(tcc == Double.NEGATIVE_INFINITY) {
-                    return tcc;
+                if(tcc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-cost1") * tcc * (tcc <= 188 ? 1 : 0)
                        + coefs.get(type.name() + "-cost2") * tcc * (tcc <= 332 && tcc > 188 ? 1 : 0)
@@ -165,8 +165,8 @@ public class LogSum {
             }
             else if(type == TripType.PLEASURE) {
                 double tcc = tourCarCost(p.getIncLevel(), o, d, type);
-                if(tcc == Double.NEGATIVE_INFINITY) {
-                    return tcc;
+                if(tcc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-cost1") * tcc * (tcc <= 188 ? 1 : 0)
                        + coefs.get(type.name() + "-cost2") * tcc * (tcc <= 312 && tcc > 188 ? 1 : 0)
@@ -176,8 +176,8 @@ public class LogSum {
             }
             else if(type == TripType.PERSONAL_BUSINESS) {
                 double tcc = tourCarCost(p.getIncLevel(), o, d, type);
-                if(tcc == Double.NEGATIVE_INFINITY) {
-                    return tcc;
+                if(tcc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-cost1") * tcc * (tcc <= 188 ? 1 : 0)
                        + coefs.get(type.name() + "-cost2") * tcc * (tcc <= 312 && tcc > 188 ? 1 : 0)
@@ -206,8 +206,8 @@ public class LogSum {
         try {
             if(type == TripType.BUSINESS) {
                 double ttc = tourTrainCost(o, d);
-                if(ttc == Double.NEGATIVE_INFINITY) {
-                    return ttc;
+                if(ttc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascTrain")
                        + coefs.get(type.name() + "-cost1") * ttc * (ttc <= 188 ? 1 : 0)
@@ -219,8 +219,8 @@ public class LogSum {
             }
             else if(type == TripType.PLEASURE) {
                 double ttc = tourTrainCost(o, d);
-                if(ttc == Double.NEGATIVE_INFINITY) {
-                    return ttc;
+                if(ttc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascTrain")
                        + coefs.get(type.name() + "-cost1") * ttc * (ttc <= 188 ? 1 : 0)
@@ -231,8 +231,8 @@ public class LogSum {
             }
             else if(type == TripType.PERSONAL_BUSINESS) {
                 double ttc = tourTrainCost(o, d);
-                if(ttc == Double.NEGATIVE_INFINITY) {
-                    return ttc;
+                if(ttc == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascTrain")
                        + coefs.get(type.name() + "-cost1") * ttc * (ttc <= 188 ? 1 : 0)
@@ -262,8 +262,8 @@ public class LogSum {
         try {
             if(type == TripType.BUSINESS) {
                 double tac = tourAirCost(o, d, quarter);
-                if(tac == Double.NEGATIVE_INFINITY) {
-                    return tac;
+                if(tac == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascAir")
                        + coefs.get(type.name() + "-cost1") * tac * (tac <= 188 ? 1 : 0)
@@ -275,8 +275,8 @@ public class LogSum {
             }
             else if(type == TripType.PLEASURE) {
                 double tac = tourAirCost(o, d, quarter);
-                if(tac == Double.NEGATIVE_INFINITY) {
-                    return tac;
+                if(tac == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascAir")
                        + coefs.get(type.name() + "-cost1") * tac * (tac <= 188 ? 1 : 0)
@@ -287,8 +287,8 @@ public class LogSum {
             }
             else if(type == TripType.PERSONAL_BUSINESS) {
                 double tac = tourAirCost(o, d, quarter);
-                if(tac == Double.NEGATIVE_INFINITY) {
-                    return tac;
+                if(tac == Double.POSITIVE_INFINITY) {
+                    return Double.NEGATIVE_INFINITY;
                 }
                 return coefs.get(type.name() + "-ascAir")
                        + coefs.get(type.name() + "-cost1") * tac * (tac <= 188 ? 1 : 0)
@@ -318,7 +318,7 @@ public class LogSum {
         else {
             if(quarterAirMap.get(getKey(o, d)) == null) {
                 if(airMap.get(getKey(o, d)) == null) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 else {
                     return airMap.get(getKey(o, d))[1] * 2;
@@ -327,7 +327,7 @@ public class LogSum {
             else {
                 if (quarterAirMap.get(getKey(o, d))[quarter] == null) {
                     if (airMap.get(getKey(o,d))[1] == null) {
-                        return Double.NEGATIVE_INFINITY;
+                        return Double.POSITIVE_INFINITY;
                     }
                     return airMap.get(getKey(o,d))[1] * 2;
                 }
@@ -339,7 +339,7 @@ public class LogSum {
     //  Tour_AirTime=AirTime*2
     public double tourAirTime(int o, int d) {
         if(airMap.get(getKey(o, d)) == null) {
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         else {
             return airMap.get(getKey(o, d))[0] * 2;
@@ -353,7 +353,7 @@ public class LogSum {
         try {
             if(type == TripType.BUSINESS) {
                 if(businessCarMap.get(getKey(o, d)) == null || businessCarMap.get(getKey(o, d))[1] == 99999999) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 else {
                     driveCost = businessCarMap.get(getKey(o, d))[1];
@@ -361,7 +361,7 @@ public class LogSum {
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
                 if(otherCarMap.get(getKey(o, d)) == null  || otherCarMap.get(getKey(o, d))[1] == 99999999) {
-                    driveCost = Double.NEGATIVE_INFINITY;
+                    driveCost = Double.POSITIVE_INFINITY;
                 }
                 else {
                     driveCost = otherCarMap.get(getKey(o, d))[1];
@@ -379,14 +379,14 @@ public class LogSum {
             sLog.error(e.getLocalizedMessage(), e);
             System.exit(1);
         }
-        return Double.NEGATIVE_INFINITY;
+        return Double.POSITIVE_INFINITY;
     }
 
     public double tourCarTime(int o, int d, TripType type) {
         try {
             if(type == TripType.BUSINESS) {
                 if(businessCarMap.get(getKey(o, d)) == null || businessCarMap.get(getKey(o, d))[0] == 99999999) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 else {
                     return (businessCarMap.get(getKey(o, d))[0] + stopNights(o, d, type) * 12) * 2;
@@ -394,7 +394,7 @@ public class LogSum {
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
                 if(otherCarMap.get(getKey(o, d)) == null || otherCarMap.get(getKey(o, d))[0] == 99999999) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 else {
                     return (otherCarMap.get(getKey(o, d))[0] + stopNights(o, d, type) * 11) * 2;
@@ -415,7 +415,7 @@ public class LogSum {
     //  Cost_2000*2  (Cost_2000 from OD_SKIM_Train.csv)
     public double tourTrainCost(int o, int d) {
         if(trainMap.get(getKey(o, d)) == null) {
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         else {
             return trainMap.get(getKey(o, d))[1] * 2;
@@ -425,7 +425,7 @@ public class LogSum {
     //  Tour_TrainTime=Time*2        (Time from OD_SKIM_Train.csv)
     public double tourTrainTime(int o, int d) {
         if(trainMap.get(getKey(o, d)) == null) {
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         else {
             return trainMap.get(getKey(o, d))[0] * 2;
@@ -443,13 +443,13 @@ public class LogSum {
         try {
             if(type == TripType.BUSINESS) {
                 if (businessCarMap.get(getKey(o, d))[2] == 99999999) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 return businessCarMap.get(getKey(o, d))[2];
             }
             else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
                 if (otherCarMap.get(getKey(o, d))[2] == 99999999) {
-                    return Double.NEGATIVE_INFINITY;
+                    return Double.POSITIVE_INFINITY;
                 }
                 return otherCarMap.get(getKey(o, d))[2];
             }

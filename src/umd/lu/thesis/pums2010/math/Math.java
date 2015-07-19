@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -651,7 +652,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             sLog.error(e.getLocalizedMessage(), e);
             System.exit(1);
         }
-        return Double.NEGATIVE_INFINITY;
+        return 0.0;
     }
 
     public double toyUDExp(Person2010 p, int o, int d, TripType type, int quarter) {
@@ -662,7 +663,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             sLog.error(e.getLocalizedMessage(), e);
             System.exit(1);
         }
-        return Double.NEGATIVE_INFINITY;
+        return 0.0;
     }
 
     public double toyUD(Person2010 p, int o, int d, TripType type, int quarter) throws InvalidValueException {
@@ -899,7 +900,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     public double mcUcarExp(Person2010 p, TripType type, int d, int o) {
         double tourCarCost = logsum.tourCarCost(p.getIncLevel(), o, d, type);
-        if(tourCarCost == Double.NEGATIVE_INFINITY) {
+        if(tourCarCost == Double.POSITIVE_INFINITY) {
             return 0.0;
         }
         if(type == TripType.BUSINESS) {
@@ -930,7 +931,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     public double mcUairExp(Person2010 p, TripType type, int d, int o, int toy) {
         double tourAirCost = logsum.tourAirCost(o, d, toy);
-        if(tourAirCost == Double.NEGATIVE_INFINITY) {
+        if(tourAirCost == Double.POSITIVE_INFINITY) {
             return 0.0;
         }
         if(type == TripType.BUSINESS) {
@@ -964,7 +965,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     public double mcUtrainExp(Person2010 p, TripType type, int d, int o) {
         double tourTrainCost = logsum.tourTrainCost(o, d);
-        if(tourTrainCost == Double.NEGATIVE_INFINITY) {
+        if(tourTrainCost == Double.POSITIVE_INFINITY) {
             return 0.0;
         }
         if(type == TripType.BUSINESS) {
@@ -1045,11 +1046,11 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         } catch (NullPointerException e) {
             sLog.error(e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy);
         }
-        if(gtc == Double.NEGATIVE_INFINITY) {
+        if(gtc == Double.POSITIVE_INFINITY) {
             // meaning some key pair couldn't be found in train/car/air files.
             return 0.0;
         }
-        return exp(stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_det_dist") * detDist(so, d, s)
+        double u = stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_det_dist") * detDist(so, d, s)
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_gtc_s") * (dist < 150 ? gtc : 0)
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_gtc_m") * (dist >= 150 && dist < 550 ? gtc : 0)
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_gtc_l") * (dist >= 550 ? gtc : 0)
@@ -1057,7 +1058,11 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                      * (isOutBound ? (dist >= 550 ? gtc : 0) : (dist >= 150 && dist < 550 ? gtc : 0)) * (mc == ModeChoice.CAR ? 1 : 0)
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_emp") * msaEmpMap.get(s)[0]
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_hh") * msaEmpMap.get(s)[1]
-                   + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_nmsa") * (1 - zonIdMap.get(idMsaMap.get(s))[1]));
+                   + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_nmsa") * (1 - zonIdMap.get(idMsaMap.get(s))[1]);
+        if (u == Double.NaN || u == Double.POSITIVE_INFINITY) {
+            return 0.0;
+        }
+        return exp(u);
     }
 
     private double generailizedTravelCost(Person2010 p, int so, int o, int d, int s, ModeChoice mc, TripType type, int toy) {
@@ -1065,46 +1070,52 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     private double detourTravelCost(Person2010 p, int so, int d, int s, ModeChoice mc, TripType type, int toy) {
-        if(mc == ModeChoice.CAR) {
-            return (logsum.tourCarCost(p.getIncLevel(), so, s, type)
-                    + logsum.tourCarCost(p.getIncLevel(), s, d, type)
-                    - logsum.tourCarCost(p.getIncLevel(), so, d, type)) / 2;
-        }
-        else if(mc == ModeChoice.AIR) {
-            return (logsum.tourAirCost(so, s, toy)
-                    + logsum.tourAirCost(s, d, toy)
-                    - logsum.tourAirCost(so, d, toy)) / 2;
-        }
-        else {
+        double tmp1;
+        double tmp2;
+        double tmp3;
+        if (mc == ModeChoice.CAR) {
+            tmp1 = logsum.tourCarCost(p.getIncLevel(), so, s, type);
+            tmp2 = logsum.tourCarCost(p.getIncLevel(), s, d, type);
+            tmp3 = logsum.tourCarCost(p.getIncLevel(), so, d, type);
+
+        } else if (mc == ModeChoice.AIR) {
+            tmp1 = logsum.tourAirCost(so, s, toy);
+            tmp2 = logsum.tourAirCost(s, d, toy);
+            tmp3 = logsum.tourAirCost(so, d, toy);
+        } else {
             // mc == ModeChoice.TRAIN
-            if((logsum.tourTrainCost(so, s) == Double.NEGATIVE_INFINITY
-                || logsum.tourTrainCost(s, d) == Double.NEGATIVE_INFINITY)
-               && logsum.tourTrainCost(so, d) == Double.NEGATIVE_INFINITY) {
-                return Double.NEGATIVE_INFINITY;
-            }
-            return (logsum.tourTrainCost(so, s) + logsum.tourTrainCost(s, d) - logsum.tourTrainCost(so, d)) / 2;
+            tmp1 = logsum.tourTrainCost(so, s);
+            tmp2 = logsum.tourTrainCost(s, d);
+            tmp3 = logsum.tourTrainCost(so, d);
+        }
+
+        if (tmp1 == Double.POSITIVE_INFINITY || tmp2 == Double.POSITIVE_INFINITY || tmp3 == Double.POSITIVE_INFINITY) {
+            return Double.POSITIVE_INFINITY;
+        } else {
+            return (tmp1 + tmp2 - tmp3) / 2;
         }
     }
 
     private double detourTravelTime(Person2010 p, int so, int d, int s, ModeChoice mc, TripType type) {
-        if(mc == ModeChoice.CAR) {
-            return (logsum.tourCarTime(so, s, type)
-                    + logsum.tourCarTime(s, d, type)
-                    - logsum.tourCarTime(so, d, type)) / 2;
-        }
-        else if(mc == ModeChoice.AIR) {
-            return (logsum.tourAirTime(so, s)
-                    + logsum.tourAirTime(s, d)
-                    - logsum.tourAirTime(s, d)) / 2;
-        }
-        else {
+        double tmp1, tmp2, tmp3;
+        if (mc == ModeChoice.CAR) {
+            tmp1 = logsum.tourCarTime(so, s, type);
+            tmp2 = logsum.tourCarTime(s, d, type);
+            tmp3 = logsum.tourCarTime(so, d, type);
+        } else if (mc == ModeChoice.AIR) {
+            tmp1 = logsum.tourAirTime(so, s);
+            tmp2 = logsum.tourAirTime(s, d);
+            tmp3 = logsum.tourAirTime(s, d);
+        } else {
             // mc == ModeChoice.TRAIN
-            if((logsum.tourTrainTime(so, s) == Double.NEGATIVE_INFINITY
-                || logsum.tourTrainTime(s, d) == Double.NEGATIVE_INFINITY)
-               && logsum.tourTrainTime(so, d) == Double.NEGATIVE_INFINITY) {
-                return Double.NEGATIVE_INFINITY;
-            }
-            return (logsum.tourTrainTime(so, s) + logsum.tourTrainTime(s, d) - logsum.tourTrainTime(so, d)) / 2;
+            tmp1 = logsum.tourTrainTime(so, s);
+            tmp2 = logsum.tourTrainTime(s, d);
+            tmp3 = logsum.tourTrainTime(so, d);
+        }
+        if (tmp1 == Double.POSITIVE_INFINITY || tmp2 == Double.POSITIVE_INFINITY || tmp3 == Double.POSITIVE_INFINITY) {
+            return Double.POSITIVE_INFINITY;
+        } else {
+            return (tmp1 + tmp2 - tmp3) / 2;
         }
     }
 
@@ -1142,7 +1153,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             if(cost > 620) {
                 return 12.8057554;
             }
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         if(type == TripType.PLEASURE) {
             if(cost <= 188) {
@@ -1157,7 +1168,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             if(cost > 436) {
                 return 176.119403;
             }
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         if(type == TripType.PERSONAL_BUSINESS) {
             if(cost <= 188) {
@@ -1175,9 +1186,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             if(cost > 560) {
                 return 30.37037037;
             }
-            return Double.NEGATIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
-        return Double.NEGATIVE_INFINITY;
+        return Double.POSITIVE_INFINITY;
     }
 
     private double detDist(int so, int d, int s) {
@@ -1329,7 +1340,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         return logsum;
     }
 
-    public Integer MonteCarloMethod(List<Double> pList, Map<Double, Integer> pMap, double smpl) {
+    public Integer MonteCarloMethod(List<Double> pList, Map<Double, List<Integer>> pMap, double smpl) {
         sLog.debug("    Monte carlo rand: " + smpl);
         Collections.sort(pList);
         double tmpSum = 0.0;
@@ -1345,7 +1356,21 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         if(pickedIndex == -1) {
             pickedIndex = pList.size() - 1;
         }
-        return pMap.get(pList.get(pickedIndex));
+        sLog.debug("        pickedIndex: " + pickedIndex);
+        sLog.debug("        pList.get(pickedIndex): " + pList.get(pickedIndex));
+        List<Integer> rtn = pMap.get(pList.get(pickedIndex));
+//        if (rtn == null) {
+//            sLog.error("        rtn is null. pMap dump: ");
+//            for (Double key : pMap.keySet()) {
+//                sLog.error("        pMap[" + key + "]: " + pMap.get(key));
+//            }
+//            System.exit(1);
+//        }
+        if (rtn.size() > 1) {
+            int rand = (int) (System.currentTimeMillis() % rtn.size());
+            return rtn.get(rand);
+        }
+        return rtn.get(0);
     }
 
     /**

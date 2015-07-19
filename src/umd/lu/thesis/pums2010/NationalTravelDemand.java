@@ -142,7 +142,7 @@ public class NationalTravelDemand {
     private Integer findDestinationChoice(Person2010 p, int o, TripType tripType, int quarter) {
         sLog.debug("Find Dest Choice - p: " + p.getPid() + ", o: " + o
                 + ", Trip Purpose:  " + tripType.name() + ", quarter: " + quarter);
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         double uDExpSum = math.destUDExpSum(p, o, tripType, quarter);
         sLog.debug("    destUDExpSum: " + uDExpSum);
@@ -150,7 +150,14 @@ public class NationalTravelDemand {
             double pU = math.destUDExp(p, o, d, tripType, quarter) / uDExpSum;
 //            sLog.debug("    destP[" + d + "]: " + pU);
             pList.add(pU);
-            pMap.put(pU, d);
+            if (pMap.get(pU) != null) {
+                List tmp = pMap.get(pU);
+                tmp.add(d);
+            } else {
+                List<Integer> tmp = new ArrayList<>();
+                tmp.add(d);
+                pMap.put(pU, tmp);
+            }
         }
 
         return math.MonteCarloMethod(pList, pMap, rand.sample());
@@ -160,7 +167,7 @@ public class NationalTravelDemand {
     private Integer findToY(Person2010 p, int o, int d, TripType type) {
         sLog.debug("Find Time of Year - p: " + p.getPid() + ", o: " + o
                 + ", d: " + d + ", Trip Purpose:  " + type.name());
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         if (type == TripType.BUSINESS || type == TripType.PLEASURE) {
             double uDExpSum = math.toyUDExpSum(p, o, d, type);
@@ -169,20 +176,35 @@ public class NationalTravelDemand {
                 double pU = math.toyUDExp(p, o, d, type, q) / uDExpSum;
                 sLog.debug("    toyP[" + q + "]: " + pU);
                 pList.add(pU);
-                pMap.put(pU, q);
+                if (pMap.get(pU) != null) {
+                    List tmp = pMap.get(pU);
+                    tmp.add(q);
+                } else {
+                    List tmp = new ArrayList<>();
+                    tmp.add(q);
+                    pMap.put(pU, tmp);
+                }
             }
         } else {
             pList.add(0.228);
-            pMap.put(0.228, 1);
+            List<Integer> tmp1 = new ArrayList<>();
+            tmp1.add(1);
+            pMap.put(0.228, tmp1);
             sLog.debug("    toyP[1]: " + 0.228);
             pList.add(0.297);
-            pMap.put(0.297, 2);
+            List<Integer> tmp2 = new ArrayList<>();
+            tmp2.add(2);
+            pMap.put(0.297, tmp2);
             sLog.debug("    toyP[2]: " + 0.297);
+            List<Integer> tmp3 = new ArrayList<>();
+            tmp3.add(3);
             pList.add(0.278);
-            pMap.put(0.278, 3);
+            pMap.put(0.278, tmp3);
             sLog.debug("    toyP[3]: " + 0.278);
+            List<Integer> tmp4 = new ArrayList<>();
+            tmp4.add(4);
             pList.add(0.197);
-            pMap.put(0.197, 4);
+            pMap.put(0.197, tmp4);
             sLog.debug("    toyP[4]: " + 0.197);
         }
 
@@ -232,17 +254,25 @@ public class NationalTravelDemand {
         double p4 = tspU4Exp / expSum;
         sLog.debug("    p4: " + p4);
 
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
 
         pList.add(p1);
-        pMap.put(p1, 1);
+        List<Integer> tmp1 = new ArrayList<>();
+        tmp1.add(1);
+        pMap.put(p1, tmp1);
         pList.add(p2);
-        pMap.put(p2, 2);
+        List<Integer> tmp2 = new ArrayList<>();
+        tmp2.add(2);
+        pMap.put(p2, tmp2);
         pList.add(p3);
-        pMap.put(p3, 3);
+        List<Integer> tmp3 = new ArrayList<>();
+        tmp3.add(3);
+        pMap.put(p3, tmp3);
         pList.add(p4);
-        pMap.put(p4, 4);
+        List<Integer> tmp4 = new ArrayList<>();
+        tmp4.add(4);
+        pMap.put(p4, tmp4);
 
         // monte carlo method
         return math.MonteCarloMethod(pList, pMap, rand.sample());
@@ -266,14 +296,20 @@ public class NationalTravelDemand {
         double pTrain = uTrainExp / sum;
         sLog.debug("    pTrain: " + pTrain);
 
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         pList.add(pCar);
         pList.add(pAir);
         pList.add(pTrain);
-        pMap.put(pCar, ModeChoice.CAR.getValue());
-        pMap.put(pAir, ModeChoice.AIR.getValue());
-        pMap.put(pTrain, ModeChoice.TRAIN.getValue());
+        List<Integer> tmp1 = new ArrayList<>();
+        tmp1.add(ModeChoice.CAR.getValue());
+        pMap.put(pCar, tmp1);
+        List<Integer> tmp2 = new ArrayList<>();
+        tmp2.add(ModeChoice.AIR.getValue());
+        pMap.put(pAir, tmp2);
+        List<Integer> tmp3 = new ArrayList<>();
+        tmp3.add(ModeChoice.TRAIN.getValue());
+        pMap.put(pTrain, tmp3);
 
         // monte carlo method
         int modeChoiceValue = math.MonteCarloMethod(pList, pMap, rand.sample());
@@ -297,12 +333,14 @@ public class NationalTravelDemand {
         sLog.debug("    stopFreqUSum: " + sum);
 
         List<Double> pList = new ArrayList<>();
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         for (int i = 0; i < 5; i++) {
             double p = uExpList.get(i) / sum;
             sLog.debug("    stopFreqP[" + i + "]: " + p);
             pList.add(p);
-            pMap.put(p, i);
+            List<Integer> tmp = new ArrayList<>();
+            tmp.add(i);
+            pMap.put(p, tmp);
         }
 
         return math.MonteCarloMethod(pList, pMap, rand.sample());
@@ -326,20 +364,26 @@ public class NationalTravelDemand {
             double pPB = uPBExp / sum;
             sLog.debug("    pPB: " + pPB);
 
-            Map<Double, Integer> pMap = new HashMap<>();
+            Map<Double, List<Integer>> pMap = new HashMap<>();
             List<Double> pList = new ArrayList<>();
             pList.add(pB);
             pList.add(pP);
             pList.add(pPB);
 
-            pMap.put(pB, TripType.BUSINESS.getValue());
-            pMap.put(pP, TripType.PLEASURE.getValue());
-            pMap.put(pPB, TripType.PERSONAL_BUSINESS.getValue());
+            List<Integer> tmp1 = new ArrayList<>();
+            tmp1.add(TripType.BUSINESS.getValue());
+            pMap.put(pB, tmp1);
+            List<Integer> tmp2 = new ArrayList<>();
+            tmp2.add(TripType.PLEASURE.getValue());
+            pMap.put(pP, tmp2);
+            List<Integer> tmp3 = new ArrayList<>();
+            tmp3.add(TripType.PERSONAL_BUSINESS.getValue());
+            pMap.put(pPB, tmp3);
 
             int typeValue = math.MonteCarloMethod(pList, pMap, rand.sample());
             stopTypes.add((typeValue == TripType.BUSINESS.getValue() ? TripType.BUSINESS
                     : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
-                    : TripType.PERSONAL_BUSINESS)));
+                            : TripType.PERSONAL_BUSINESS)));
         }
         return stopTypes;
     }
@@ -349,7 +393,7 @@ public class NationalTravelDemand {
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
                 + ", outbound?: " + isOutBound);
-        Map<Double, Integer> pMap = new HashMap<>();
+        Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         List<Double> uExpList = new ArrayList<>();
         double expSum = 0.0;
@@ -365,7 +409,14 @@ public class NationalTravelDemand {
             if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
                 sLog.debug("    pSt[" + (z - 1) + "]: " + pSt);
             }
-            pMap.put(pSt, z - 1);
+            if (pMap.get(pSt) != null) {
+                List tmp = pMap.get(pSt);
+                tmp.add(z - 1);
+            } else {
+                List tmp = new ArrayList<>();
+                tmp.add(z - 1);
+                pMap.put(pSt, tmp);
+            }
             pList.add(pSt);
         }
 
