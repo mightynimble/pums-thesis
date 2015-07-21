@@ -465,13 +465,13 @@ public class LogSum {
     int unitLodgeCost(int incLevel, TripType type) throws InvalidValueException {
         if(type == TripType.BUSINESS) {
             if(incLevel == 1) {
-                return 70;
+                return 100;
             }
             else if(incLevel == 2) {
-                return 90;
+                return 129;
             }
             else if(incLevel == 3) {
-                return 110;
+                return 157;
             }
             else {
                 throw new InvalidValueException("Invalid incLevel: " + incLevel
@@ -481,13 +481,13 @@ public class LogSum {
         }
         else if(type == TripType.PLEASURE || type == TripType.PERSONAL_BUSINESS) {
             if(incLevel == 1) {
-                return 30;
+                return 43;
             }
             else if(incLevel == 2) {
-                return 50;
+                return 72;
             }
             else if(incLevel == 3) {
-                return 70;
+                return 100;
             }
             else {
                 throw new InvalidValueException("Invalid incLevel: " + incLevel
