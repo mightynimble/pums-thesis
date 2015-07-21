@@ -69,13 +69,12 @@ public class NationalTravelDemand {
         pumsDao = new Pums2010DAOImpl();
         math = new Math();
         results = new HashMap<>();
-        HashMap<String, Integer> subset = new HashMap<>();
         for (int m = 0; m < TravelMode.itemCount; m++) {
             for (int q = 0; q < Quarter.itemCount; q++) {
                 for (int t = 0; t < TripType.itemCount; t++) {
                     results.put(TravelMode.values()[m] + "-"
                             + Quarter.values()[q] + "-"
-                            + TripType.values()[t], subset);
+                            + TripType.values()[t], new HashMap<String, Integer>());
                 }
             }
         }
