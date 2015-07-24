@@ -113,8 +113,8 @@ public class NationalTravelDemand {
             }
 
             int o = lookupAlt(p);
-            if (o == 0) {
-                // can't find origin from msapmsa, skip
+            if (o == -1) {
+                sLog.error("  -ERROR- MSAPMSA " + p.getMsapmsa() + " can't be mapped to a zone. Skipped. (p.id=" + p.getPid() + ")");
                 continue;
             }
 
@@ -444,15 +444,18 @@ public class NationalTravelDemand {
     }
 
     private int lookupAlt(Person2010 p) {
-        int alt = 0;
+        int alt = -1;
         if (p.getMsapmsa() == 9999) {
             int msapmsa = Integer.parseInt(p.getSt() + "99");
             if (zoneIdMap.get(msapmsa) == null) {
-                return Integer.MIN_VALUE;
+                return -1;
             }
             p.setTmpMsapmsa(msapmsa);
             alt = zoneIdMap.get(msapmsa)[0];
         } else {
+            if (zoneIdMap.get(p.getMsapmsa()) == null) {
+                return -1;
+            }
             alt = zoneIdMap.get(p.getMsapmsa())[0];
         }
         return alt;
