@@ -68,7 +68,7 @@ public class OutputMatricesProcessing {
                         val = ExcelUtils.getColumnValue(col, line).equalsIgnoreCase("null")
                               ? 0 : Integer.parseInt(ExcelUtils.getColumnValue(col, line));
                         subKey = col + "-" + row;
-                        if(results.get(key).get(subKey) == null) {
+                        if(results.get(key).get(subKey) == null || results.get(key).get(subKey) == 0) {
                             results.get(key).put(subKey, val);
                         }
                         else {
