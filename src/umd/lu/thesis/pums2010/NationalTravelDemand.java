@@ -382,7 +382,7 @@ public class NationalTravelDemand {
             int typeValue = math.MonteCarloMethod(pList, pMap, rand.sample());
             stopTypes.add((typeValue == TripType.BUSINESS.getValue() ? TripType.BUSINESS
                     : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
-                            : TripType.PERSONAL_BUSINESS)));
+                    : TripType.PERSONAL_BUSINESS)));
         }
         return stopTypes;
     }
@@ -545,46 +545,58 @@ public class NationalTravelDemand {
                  */
                 String key;
                 String odPair;
+                int prevStop = -1;
                 // outbound
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
-                for (int stopLoc : obStopLocations) {
+                for (int currentStop : obStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (origin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = origin + "-" + stopLoc;
-                    } else if (i == obStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, dest), type is tour's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
-                        odPair = stopLoc + "-" + dest;
+                        // origin to first stop
+                        odPair = origin + "-" + currentStop;
                     } else {
-                        // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
+                        // other stops
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (obStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = origin + "-" + dest;
+                } else {
+                    // handle last stop to dest
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = prevStop + "-" + dest;
+                }
+                updateMatrixCell(key, odPair);
                 // inbound
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
-                for (int stopLoc : ibStopLocations) {
+                prevStop = -1;
+                for (int currentStop : ibStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (dest, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = dest + "-" + stopLoc;
-                    } else if (i == ibStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, origin), type is HOME
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
-                        odPair = stopLoc + "-" + origin;
+                        // first stop, output (dest, stopLoc)
+                        odPair = dest + "-" + currentStop;
                     } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (ibStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = dest + "-" + origin;
+                } else {
+                    // handle last stop to origin
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = prevStop + "-" + origin;
+                }
+                updateMatrixCell(key, odPair);
             }
         } else if (type == TripType.PERSONAL_BUSINESS) {
             sLog.debug("Total PERSONAL_BUSINESS tour: " + p.getrPB());
@@ -669,46 +681,58 @@ public class NationalTravelDemand {
                  */
                 String key;
                 String odPair;
+                int prevStop = -1;
                 // outbound
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
-                for (int stopLoc : obStopLocations) {
+                for (int currentStop : obStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (origin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = origin + "-" + stopLoc;
-                    } else if (i == obStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, dest), type is tour's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
-                        odPair = stopLoc + "-" + dest;
+                        // origin to first stop
+                        odPair = origin + "-" + currentStop;
                     } else {
-                        // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
+                        // other stops
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (obStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = origin + "-" + dest;
+                } else {
+                    // handle last stop to dest
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = prevStop + "-" + dest;
+                }
+                updateMatrixCell(key, odPair);
                 // inbound
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
-                for (int stopLoc : ibStopLocations) {
+                prevStop = -1;
+                for (int currentStop : ibStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (dest, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = dest + "-" + stopLoc;
-                    } else if (i == ibStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, origin), type is HOME
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
-                        odPair = stopLoc + "-" + origin;
+                        // first stop, output (dest, stopLoc)
+                        odPair = dest + "-" + currentStop;
                     } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (ibStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = dest + "-" + origin;
+                } else {
+                    // handle last stop to origin
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = prevStop + "-" + origin;
+                }
+                updateMatrixCell(key, odPair);
             }
         } else {
             // type == TripType.PLEASURE
@@ -795,46 +819,59 @@ public class NationalTravelDemand {
                  */
                 String key;
                 String odPair;
+                int prevStop = -1;
                 // outbound
                 sLog.debug("  *. Populate od result matrices.");
                 int i = 0;
-                for (int stopLoc : obStopLocations) {
+                for (int currentStop : obStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (origin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = origin + "-" + stopLoc;
-                    } else if (i == obStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, dest), type is tour's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
-                        odPair = stopLoc + "-" + dest;
+                        // origin to first stop
+                        odPair = origin + "-" + currentStop;
                     } else {
-                        // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i);
-                        odPair = obStopLocations.get(i - 1) + "-" + stopLoc;
+                        // other stops
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (obStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = origin + "-" + dest;
+                } else {
+                    // handle last stop to dest
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+                    odPair = prevStop + "-" + dest;
+                }
+                updateMatrixCell(key, odPair);
                 // inbound
                 sLog.debug("  *. Populate id result matrices.");
                 i = 0;
-                for (int stopLoc : ibStopLocations) {
+                prevStop = -1;
+                for (int currentStop : ibStopLocations) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
                     if (i == 0) {
-                        // first stop, output (dest, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = dest + "-" + stopLoc;
-                    } else if (i == ibStopLocations.size() - 1) {
-                        // last stop, output (stopLoc, origin), type is HOME
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
-                        odPair = stopLoc + "-" + origin;
+                        // first stop, output (dest, stopLoc)
+                        odPair = dest + "-" + currentStop;
                     } else {
                         // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-                        key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i);
-                        odPair = ibStopLocations.get(i - 1) + "-" + stopLoc;
+                        odPair = prevStop + "-" + currentStop;
                     }
+                    prevStop = currentStop;
                     updateMatrixCell(key, odPair);
                     i++;
                 }
+                if (ibStopLocations.isEmpty()) {
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = dest + "-" + origin;
+                } else {
+                    // handle last stop to origin
+                    key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
+                    odPair = prevStop + "-" + origin;
+                }
+                updateMatrixCell(key, odPair);
+
                 tour++;
             }
         }
