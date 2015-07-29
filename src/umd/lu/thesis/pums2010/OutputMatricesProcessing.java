@@ -65,7 +65,7 @@ public class OutputMatricesProcessing {
                         val = ExcelUtils.getColumnValue(col, line).equalsIgnoreCase("null")
                               ? 0 : Integer.parseInt(ExcelUtils.getColumnValue(col, line));
                         subKey = row + "-" + col;
-                        if(results.get(key).get(subKey) == null) {
+                        if(results.get(key).get(subKey) == null || results.get(key).get(subKey) == 0) {
                             results.get(key).put(subKey, val);
                         }
                         else {
@@ -97,9 +97,9 @@ public class OutputMatricesProcessing {
                             f.createNewFile();
                         }
 
-                        for (int i = 0; i < Math.alt; i++) {
-                            for (int j = 0; j < Math.alt; j++) {
-                                bw.write(results.get(key).get(j + "-" + i) + "\t");
+                        for (int i = 1; i <= Math.alt; i++) {
+                            for (int j = 1; j <= Math.alt; j++) {
+                                bw.write(results.get(key).get(i + "-" + j) + "\t");
                             }
                             bw.write("\n");
                         }

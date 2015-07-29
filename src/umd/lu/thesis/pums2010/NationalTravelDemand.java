@@ -856,8 +856,8 @@ public class NationalTravelDemand {
                             f.createNewFile();
                         }
 
-                        for (int i = 0; i < Math.alt; i++) {
-                            for (int j = 0; j < Math.alt; j++) {
+                        for (int i = 1; i <= Math.alt; i++) {
+                            for (int j = 1; j <= Math.alt; j++) {
                                 bw.write(results.get(key).get(j + "-" + i) + "\t");
                             }
                             bw.write("\n");
