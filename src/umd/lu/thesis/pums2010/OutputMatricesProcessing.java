@@ -11,8 +11,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import umd.lu.thesis.common.ThesisProperties;
@@ -64,7 +67,7 @@ public class OutputMatricesProcessing {
                     for (int col = 1; col <= Math.alt; col++) {
                         val = ExcelUtils.getColumnValue(col, line).equalsIgnoreCase("null")
                               ? 0 : Integer.parseInt(ExcelUtils.getColumnValue(col, line));
-                        subKey = row + "-" + col;
+                        subKey = col + "-" + row;
                         if(results.get(key).get(subKey) == null) {
                             results.get(key).put(subKey, val);
                         }
@@ -82,28 +85,73 @@ public class OutputMatricesProcessing {
         }
 
         sLog.info("  Write results to file.");
+
+
+        Map<String, List<Integer>> subtotalRowMap = new HashMap<>();
+        Map<String, List<Integer>> subtotalColMap = new HashMap<>();
+        for (int i = 0; i <= Math.alt; i++) {
+        }
+
+        int totalTrips = 0;
+        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        String totalTripsFilename = timestamp + "-statistic-total-trips.txt";
+        File totalTripsFile = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + totalTripsFilename);
+        String subtotalColFilename = timestamp + "-statistic-subtotal-col.txt";
+        File subtotalColFile = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + subtotalColFilename);
+        String subtotalRowFilename = timestamp + "-statistic-subtotal-row.txt";
+        File subtotalRowFile = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + subtotalRowFilename);
         for (int mc = 0; mc < ModeChoice.itemCount; mc++) {
             for (int toy = 0; toy < 4; toy++) {
                 for (int type = 0; type < TripType.itemCount; type++) {
+                    int[] subtotalRow = new int[380];
+                    int[] subtotalCol = new int[380];
+                    totalTrips = 0;
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
-                    String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+
+                    if(subtotalRowMap.get(key) == null) {
+                        List<Integer> tmpList = new ArrayList<>();
+                        for (int tmp = 0; tmp < Math.alt; tmp++) {
+                            tmpList.add(0);
+                        }
+                        subtotalRowMap.put(key, tmpList);
+
+                    }
+                    if(subtotalColMap.get(key) == null) {
+                        List<Integer> tmpList = new ArrayList<>();
+                        for (int tmp = 0; tmp < Math.alt; tmp++) {
+                            tmpList.add(0);
+                        }
+                        subtotalColMap.put(key, tmpList);
+                    }
+
                     String fileName = timestamp + "-final-" + key + ".txt";
                     File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
-                    try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-                        if(f.exists()) {
-                            f.delete();
-                        }
-                        else {
-                            f.createNewFile();
-                        }
+                    try (FileWriter fw = new FileWriter(f);
+                         BufferedWriter bw = new BufferedWriter(fw);
+                         FileWriter totalFw = new FileWriter(totalTripsFile, true);
+                         BufferedWriter totalBw = new BufferedWriter(totalFw);) {
 
-                        for (int i = 0; i < Math.alt; i++) {
-                            for (int j = 0; j < Math.alt; j++) {
-                                bw.write(results.get(key).get(j + "-" + i) + "\t");
+                        // matrix
+                        for (int row = 0; row < Math.alt; row++) {
+                            for (int col = 0; col < Math.alt; col++) {
+                                bw.write(results.get(key).get(col + "-" + row) + "\t");
+                                subtotalRowMap.get(key).set(row, subtotalRowMap.get(key).get(row) + results.get(key).get(col + "-" + row));
+                                subtotalColMap.get(key).set(col, subtotalRowMap.get(key).get(col) + results.get(key).get(col + "-" + row));
+                                totalTrips += results.get(key).get(col + "-" + row);
                             }
+                            bw.write(subtotalRow[row]);
                             bw.write("\n");
                         }
+                        for (int i = 0; i < Math.alt; i++) {
+                            bw.write(subtotalCol[i] + "\t");
+                        }
+                        bw.write("\n");
                         bw.flush();
+
+                        // total trips
+                        totalBw.write(key + "\t" + totalTrips + "\n");
+                        totalBw.flush();
+
                     }
                     catch (IOException ex) {
                         sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
@@ -111,6 +159,42 @@ public class OutputMatricesProcessing {
                     }
                 }
             }
+        }
+
+        // subtotal cols and rows
+        String[] colContent = new String[Math.alt + 1];
+        String[] rowContent = new String[Math.alt + 1];
+        for (int mc = 0; mc < ModeChoice.itemCount; mc++) {
+            for (int toy = 0; toy < 4; toy++) {
+                for (int type = 0; type < TripType.itemCount; type++) {
+                    String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
+                    for (int lineNum = 0; lineNum <= Math.alt; lineNum++) {
+                        if(lineNum == 0) {
+                            colContent[lineNum] += key;
+                            rowContent[lineNum] += key;
+                        }
+                        colContent[lineNum] += subtotalColMap.get(key).get(lineNum) + "\t";
+                        rowContent[lineNum] += subtotalRowMap.get(key).get(lineNum) + "\t";
+                    }
+                }
+            }
+        }
+        try (FileWriter subtotalColFw = new FileWriter(subtotalColFile, true);
+             BufferedWriter subtotalColBw = new BufferedWriter(subtotalColFw);
+             FileWriter subtotalRowFw = new FileWriter(subtotalRowFile, true);
+             BufferedWriter subtotalRowBw = new BufferedWriter(subtotalRowFw);) {
+            for (String content:colContent) {
+                subtotalColBw.write(content + "\n");
+            }
+            subtotalColBw.flush();
+            for (String content:rowContent) {
+                subtotalRowBw.write(content + "\n");
+            }
+            subtotalRowBw.flush();
+        }
+        catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
         }
         sLog.info("Completed processing output files from NationalTravelDemand.");
     }
