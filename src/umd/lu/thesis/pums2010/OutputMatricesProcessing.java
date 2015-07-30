@@ -19,8 +19,8 @@ import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import umd.lu.thesis.common.ThesisProperties;
-import umd.lu.thesis.pums2010.math.Math;
 import umd.lu.thesis.helper.ExcelUtils;
+import umd.lu.thesis.pums2010.math.Math;
 import umd.lu.thesis.pums2010.objects.ModeChoice;
 import umd.lu.thesis.pums2010.objects.Quarter;
 import umd.lu.thesis.pums2010.objects.TravelMode;
@@ -103,14 +103,12 @@ public class OutputMatricesProcessing {
         for (int mc = 0; mc < ModeChoice.itemCount; mc++) {
             for (int toy = 0; toy < 4; toy++) {
                 for (int type = 0; type < TripType.itemCount; type++) {
-                    int[] subtotalRow = new int[380];
-                    int[] subtotalCol = new int[380];
                     totalTrips = 0;
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
 
                     if(subtotalRowMap.get(key) == null) {
                         List<Integer> tmpList = new ArrayList<>();
-                        for (int tmp = 0; tmp < Math.alt; tmp++) {
+                        for (int tmp = 0; tmp <= Math.alt; tmp++) {
                             tmpList.add(0);
                         }
                         subtotalRowMap.put(key, tmpList);
@@ -118,7 +116,7 @@ public class OutputMatricesProcessing {
                     }
                     if(subtotalColMap.get(key) == null) {
                         List<Integer> tmpList = new ArrayList<>();
-                        for (int tmp = 0; tmp < Math.alt; tmp++) {
+                        for (int tmp = 0; tmp <= Math.alt; tmp++) {
                             tmpList.add(0);
                         }
                         subtotalColMap.put(key, tmpList);
@@ -132,20 +130,15 @@ public class OutputMatricesProcessing {
                          BufferedWriter totalBw = new BufferedWriter(totalFw);) {
 
                         // matrix
-                        for (int row = 0; row < Math.alt; row++) {
-                            for (int col = 0; col < Math.alt; col++) {
+                        for (int row = 1; row <= Math.alt; row++) {
+                            for (int col = 1; col <= Math.alt; col++) {
                                 bw.write(results.get(key).get(col + "-" + row) + "\t");
                                 subtotalRowMap.get(key).set(row, subtotalRowMap.get(key).get(row) + results.get(key).get(col + "-" + row));
-                                subtotalColMap.get(key).set(col, subtotalRowMap.get(key).get(col) + results.get(key).get(col + "-" + row));
+                                subtotalColMap.get(key).set(col, subtotalColMap.get(key).get(col) + results.get(key).get(col + "-" + row));
                                 totalTrips += results.get(key).get(col + "-" + row);
                             }
-                            bw.write(subtotalRow[row]);
                             bw.write("\n");
                         }
-                        for (int i = 0; i < Math.alt; i++) {
-                            bw.write(subtotalCol[i] + "\t");
-                        }
-                        bw.write("\n");
                         bw.flush();
 
                         // total trips
@@ -163,18 +156,26 @@ public class OutputMatricesProcessing {
 
         // subtotal cols and rows
         String[] colContent = new String[Math.alt + 1];
+        for (int tmp = 0; tmp < colContent.length; tmp++) {
+            colContent[tmp] = "";
+        }
         String[] rowContent = new String[Math.alt + 1];
+        for (int tmp = 0; tmp < rowContent.length; tmp++) {
+            rowContent[tmp] = "";
+        }
         for (int mc = 0; mc < ModeChoice.itemCount; mc++) {
             for (int toy = 0; toy < 4; toy++) {
                 for (int type = 0; type < TripType.itemCount; type++) {
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
                     for (int lineNum = 0; lineNum <= Math.alt; lineNum++) {
                         if(lineNum == 0) {
-                            colContent[lineNum] += key;
-                            rowContent[lineNum] += key;
+                            colContent[lineNum] += key + "\t";
+                            rowContent[lineNum] += key + "\t";
                         }
-                        colContent[lineNum] += subtotalColMap.get(key).get(lineNum) + "\t";
-                        rowContent[lineNum] += subtotalRowMap.get(key).get(lineNum) + "\t";
+                        else {
+                            colContent[lineNum] += subtotalColMap.get(key).get(lineNum) + "\t";
+                            rowContent[lineNum] += subtotalRowMap.get(key).get(lineNum) + "\t";
+                        }
                     }
                 }
             }
@@ -183,11 +184,11 @@ public class OutputMatricesProcessing {
              BufferedWriter subtotalColBw = new BufferedWriter(subtotalColFw);
              FileWriter subtotalRowFw = new FileWriter(subtotalRowFile, true);
              BufferedWriter subtotalRowBw = new BufferedWriter(subtotalRowFw);) {
-            for (String content:colContent) {
+            for (String content : colContent) {
                 subtotalColBw.write(content + "\n");
             }
             subtotalColBw.flush();
-            for (String content:rowContent) {
+            for (String content : rowContent) {
                 subtotalRowBw.write(content + "\n");
             }
             subtotalRowBw.flush();
