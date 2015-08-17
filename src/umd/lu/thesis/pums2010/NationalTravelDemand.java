@@ -25,6 +25,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import umd.lu.thesis.common.ThesisProperties;
 import umd.lu.thesis.helper.ExcelUtils;
+import umd.lu.thesis.pums2010.math.LogSum;
 import umd.lu.thesis.pums2010.math.Math;
 import umd.lu.thesis.pums2010.objects.ModeChoice;
 import umd.lu.thesis.pums2010.objects.Person2010;
@@ -277,7 +278,7 @@ public class NationalTravelDemand {
         return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
 
-    private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy) {
+    private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy, int days) {
         sLog.debug("Find Mode Choice - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy);
         double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p));
@@ -288,11 +289,25 @@ public class NationalTravelDemand {
         sLog.debug("    uTrainExp: " + uTrainExp);
         double sum = uCarExp + uAirExp + uTrainExp;
         sLog.debug("    sum: " + sum);
-        double pCar = uCarExp / sum;
+
+        double pCar, pAir, pTrain;
+        if(math.tourCarTime(lookupAlt(p), d, type) > days * 24 / 2) {
+            pCar = 0.0;
+        }
+        else {
+            pCar = uCarExp / sum;
+        }
         sLog.debug("    pCar: " + pCar);
-        double pAir = uAirExp / sum;
+
+        pAir = uAirExp / sum;
         sLog.debug("    pAir: " + pAir);
-        double pTrain = uTrainExp / sum;
+
+        if(math.tourTrainTime(lookupAlt(p), d) > days * 24 / 2) {
+            pTrain = 0.0;
+        }
+        else {
+            pTrain = uTrainExp / sum;
+        }
         sLog.debug("    pTrain: " + pTrain);
 
         Map<Double, List<Integer>> pMap = new HashMap<>();
@@ -387,7 +402,7 @@ public class NationalTravelDemand {
         return stopTypes;
     }
 
-    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, boolean isOutBound) {
+    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound) {
         sLog.debug("Find Stop Location - p: " + p.getPid() + ", stop origin: " + so
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
@@ -398,7 +413,7 @@ public class NationalTravelDemand {
         double expSum = 0.0;
         // cache uExp in a List
         for (int z = 1; z <= Math.alt; z++) {
-            double uExp = math.stopLocUExp(p, so, o, d, z, mc, type, toy, isOutBound);
+            double uExp = math.stopLocUExp(p, so, o, d, z, mc, type, toy, days, numOfStops, isOutBound);
             expSum += uExp;
             uExpList.add(uExp);
         }
@@ -482,7 +497,7 @@ public class NationalTravelDemand {
                 int party = findTravelPartySize(p, dest, type);
                 sLog.debug("    Party Size: " + party);
                 // 5. Mode Choice
-                ModeChoice mode = findModeChoice(p, dest, type, toy);
+                ModeChoice mode = findModeChoice(p, dest, type, toy, days);
                 sLog.debug("    Mode: " + mode.name());
                 /**
                  * Stop Level
@@ -514,7 +529,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -524,7 +539,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -606,7 +621,7 @@ public class NationalTravelDemand {
                 int party = findTravelPartySize(p, dest, type);
                 sLog.debug("    Party Size: " + party);
                 // 5. Mode Choice
-                ModeChoice mode = findModeChoice(p, dest, type, toy);
+                ModeChoice mode = findModeChoice(p, dest, type, toy, days);
                 sLog.debug("    Mode: " + mode.name());
                 /**
                  * Stop Level
@@ -638,7 +653,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -648,7 +663,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -732,7 +747,7 @@ public class NationalTravelDemand {
                 toy = findToY(p, origin, dest, type);
                 sLog.debug("    Time of Year (Full): " + toy);
                 // 6. Mode Choice
-                ModeChoice mode = findModeChoice(p, dest, type, toy);
+                ModeChoice mode = findModeChoice(p, dest, type, toy, days);
                 sLog.debug("    Mode: " + mode.name());
                 /**
                  * Now stop level
@@ -764,7 +779,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -774,7 +789,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;

@@ -928,6 +928,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + mcCoefs.get("Coef_" + type.name() + "_Time") * logsum.tourCarTime(o, d, type));
         }
     }
+    
+    public double tourCarTime(int o, int d, TripType type) {
+        return logsum.tourCarTime(o, d, type);
+    }
 
     public double mcUairExp(Person2010 p, TripType type, int d, int o, int toy) {
         double tourAirCost = logsum.tourAirCost(o, d, toy);
@@ -962,6 +966,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + mcCoefs.get("Coef_" + type.name() + "_Time") * logsum.tourAirTime(o, d));
         }
     }
+    
+    public double tourAirTime(int o, int d) {
+        return logsum.tourAirTime(o, d);
+    }
 
     public double mcUtrainExp(Person2010 p, TripType type, int d, int o) {
         double tourTrainCost = logsum.tourTrainCost(o, d);
@@ -995,6 +1003,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + mcCoefs.get("Coef_" + type.name() + "_cost5") * tourTrainCost * (tourTrainCost > 560 ? 1 : 0)
                        + mcCoefs.get("Coef_" + type.name() + "_Time") * logsum.tourTrainTime(o, d));
         }
+    }
+    
+    public double tourTrainTime(int o, int d) {
+        return logsum.tourTrainTime(o, d);
     }
 
     public double stopFreqUExp(int o, int d, int td, int tps, ModeChoice mc, TripType type, int toy, int numOfStops, boolean isOutBound) {
@@ -1034,10 +1046,32 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         }
     }
 
-    public double stopLocUExp(Person2010 p, int so, int o, int d, int s, ModeChoice mc, TripType type, int toy, boolean isOutBound) {
+    public double stopLocUExp(Person2010 p, int so, int o, int d, int s, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound) {
         if(s == so || s == d || s == o) {
             return 0.0;
         }
+        
+        double tripTime = 0.0;
+        if (mc == ModeChoice.CAR) {
+            tripTime = logsum.tourCarTime(so, s, type);
+            if (tripTime > days * 24 / 2 / 2 / (numOfStops + 1)) {
+                return 0.0;
+            }
+        }
+        else if (mc == ModeChoice.TRAIN) {
+            tripTime = logsum.tourTrainTime(so, s);
+            if (tripTime > days * 24 / 2 / 2 / (numOfStops + 1)) {
+                return 0.0;
+            }
+        }
+        else {
+            tripTime = logsum.tourAirTime(so, s);
+            if (tripTime > days * 24 / 2 / 2 / (numOfStops + 1)) {
+                return 0.0;
+            }
+        }
+        
+        
         double gtc = generailizedTravelCost(p, so, o, d, s, mc, type, toy);
 //        sLog.debug("      gtc[" + s + "]: " + gtc);
         double dist = 0.0;
