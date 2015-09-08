@@ -898,7 +898,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         }
     }
 
-    public double mcUcarExp(Person2010 p, TripType type, int d, int o) {
+    public double mcUcarExp(Person2010 p, TripType type, int d, int o, int days) {
+        if(tourCarTime(o, d, type) > days * 24 / 2) {
+            return 0.0;
+        }
         double tourCarCost = logsum.tourCarCost(p.getIncLevel(), o, d, type);
         if(tourCarCost == Double.POSITIVE_INFINITY) {
             return 0.0;
@@ -971,7 +974,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         return logsum.tourAirTime(o, d);
     }
 
-    public double mcUtrainExp(Person2010 p, TripType type, int d, int o) {
+    public double mcUtrainExp(Person2010 p, TripType type, int d, int o, int days) {
+        if(tourTrainTime(o, d) > days * 24 / 2) {
+            return 0.0;
+        }
         double tourTrainCost = logsum.tourTrainCost(o, d);
         if(tourTrainCost == Double.POSITIVE_INFINITY) {
             return 0.0;

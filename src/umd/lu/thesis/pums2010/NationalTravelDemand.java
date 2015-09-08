@@ -25,7 +25,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import umd.lu.thesis.common.ThesisProperties;
 import umd.lu.thesis.helper.ExcelUtils;
-import umd.lu.thesis.pums2010.math.LogSum;
 import umd.lu.thesis.pums2010.math.Math;
 import umd.lu.thesis.pums2010.objects.ModeChoice;
 import umd.lu.thesis.pums2010.objects.Person2010;
@@ -281,33 +280,23 @@ public class NationalTravelDemand {
     private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy, int days) {
         sLog.debug("Find Mode Choice - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy);
-        double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p));
+        double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p), days);
         sLog.debug("    uCarExp: " + uCarExp);
         double uAirExp = math.mcUairExp(p, type, d, lookupAlt(p), toy);
         sLog.debug("    uAirExp: " + uAirExp);
-        double uTrainExp = math.mcUtrainExp(p, type, d, lookupAlt(p));
+        double uTrainExp = math.mcUtrainExp(p, type, d, lookupAlt(p), days);
         sLog.debug("    uTrainExp: " + uTrainExp);
         double sum = uCarExp + uAirExp + uTrainExp;
         sLog.debug("    sum: " + sum);
 
         double pCar, pAir, pTrain;
-        if(math.tourCarTime(lookupAlt(p), d, type) > days * 24 / 2) {
-            pCar = 0.0;
-        }
-        else {
-            pCar = uCarExp / sum;
-        }
+        pCar = uCarExp / sum;
         sLog.debug("    pCar: " + pCar);
 
         pAir = uAirExp / sum;
         sLog.debug("    pAir: " + pAir);
 
-        if(math.tourTrainTime(lookupAlt(p), d) > days * 24 / 2) {
-            pTrain = 0.0;
-        }
-        else {
-            pTrain = uTrainExp / sum;
-        }
+        pTrain = uTrainExp / sum;
         sLog.debug("    pTrain: " + pTrain);
 
         Map<Double, List<Integer>> pMap = new HashMap<>();
