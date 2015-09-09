@@ -898,8 +898,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         }
     }
 
-    public double mcUcarExp(Person2010 p, TripType type, int d, int o, int days) {
-        if(logsum.tourCarTime(o, d, type) > days * 24 / 2) {
+    public double mcUcarExp(Person2010 p, TripType type, int d, int o, int days, boolean retry) {
+        if(!retry && logsum.tourCarTime(o, d, type) > days * 24 / 2) {
             return 0.0;
         }
         double tourCarCost = logsum.tourCarCost(p.getIncLevel(), o, d, type);
@@ -966,8 +966,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         }
     }
 
-    public double mcUtrainExp(Person2010 p, TripType type, int d, int o, int days) {
-        if(logsum.tourTrainTime(o, d) > days * 24 / 2) {
+    public double mcUtrainExp(Person2010 p, TripType type, int d, int o, int days, boolean retry) {
+        if(!retry && logsum.tourTrainTime(o, d) > days * 24 / 2) {
             return 0.0;
         }
         double tourTrainCost = logsum.tourTrainCost(o, d);
@@ -1078,7 +1078,11 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         try {
             dist = businessCarMap.get(getKey(so, d))[3];
         } catch (NullPointerException e) {
-            sLog.error(e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy);
+            String msg = e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy + ", outBound: " + isOutBound + ", days: " + days + ", num of stops:  " + numOfStops + ") Stop Locations: ";
+            for (int loc: stopLocations) {
+                msg += loc + ", ";
+            }
+            sLog.error(msg);
         }
         if(gtc == Double.POSITIVE_INFINITY) {
             // meaning some key pair couldn't be found in train/car/air files.

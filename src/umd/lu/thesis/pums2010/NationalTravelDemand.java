@@ -280,14 +280,21 @@ public class NationalTravelDemand {
     private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy, int days) {
         sLog.debug("Find Mode Choice - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy);
-        double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p), days);
+        double uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p), days, false);
         sLog.debug("    uCarExp: " + uCarExp);
         double uAirExp = math.mcUairExp(p, type, d, lookupAlt(p), toy);
         sLog.debug("    uAirExp: " + uAirExp);
-        double uTrainExp = math.mcUtrainExp(p, type, d, lookupAlt(p), days);
+        double uTrainExp = math.mcUtrainExp(p, type, d, lookupAlt(p), days, false);
         sLog.debug("    uTrainExp: " + uTrainExp);
         double sum = uCarExp + uAirExp + uTrainExp;
         sLog.debug("    sum: " + sum);
+        
+        if (sum == 0.0) {
+            sLog.warn(" Sum == 0.0! Remove time constraint and recalculating... (p: " + p.getPid() + ", d: " + d + ", type: " + type.name() + ", toy: " + toy + ", days: " + days);
+            uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p), days, true);
+            uTrainExp = math.mcUtrainExp(p, type, d, lookupAlt(p), days, true);
+            sum = uCarExp + uTrainExp;
+        }
 
         double pCar, pAir, pTrain;
         pCar = uCarExp / sum;
