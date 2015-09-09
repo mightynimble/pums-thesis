@@ -298,6 +298,11 @@ public class NationalTravelDemand {
 
         pTrain = uTrainExp / sum;
         sLog.debug("    pTrain: " + pTrain);
+        
+        if (pAir == 0.0 && pCar == 0.0 && pTrain == 0.0) {
+            sLog.error("    pCar, pTrain, and pAir ALL == 0. p: pid = " + p.getPid());
+            System.exit(1);
+        }
 
         Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
@@ -391,7 +396,7 @@ public class NationalTravelDemand {
         return stopTypes;
     }
 
-    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound) {
+    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound, List<Integer> stopLocations) {
         sLog.debug("Find Stop Location - p: " + p.getPid() + ", stop origin: " + so
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
@@ -402,7 +407,7 @@ public class NationalTravelDemand {
         double expSum = 0.0;
         // cache uExp in a List
         for (int z = 1; z <= Math.alt; z++) {
-            double uExp = math.stopLocUExp(p, so, o, d, z, mc, type, toy, days, numOfStops, isOutBound);
+            double uExp = math.stopLocUExp(p, so, o, d, z, mc, type, toy, days, numOfStops, isOutBound, stopLocations);
             expSum += uExp;
             uExpList.add(uExp);
         }
@@ -518,7 +523,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -528,7 +533,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -642,7 +647,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -652,7 +657,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -768,7 +773,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'o'
                         so = origin;
                     }
-                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true);
+                    int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -778,7 +783,7 @@ public class NationalTravelDemand {
                         // first stop, its stop origin is 'd'
                         so = dest;
                     }
-                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false);
+                    int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
