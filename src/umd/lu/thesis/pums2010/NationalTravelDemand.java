@@ -945,7 +945,8 @@ public class NationalTravelDemand {
             }
         }
         sLog.info("Output statistical info to files.");
-        String fileName = "tours.by.purpose.and.stop.frequency.inbound.txt";
+        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        String fileName = "tours.by.purpose.and.stop.frequency.inbound-" + timestamp + ".txt";
         File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if(f.exists()) {
@@ -967,7 +968,7 @@ public class NationalTravelDemand {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
-        fileName = "tours.by.purpose.and.stop.frequency.outbound.txt";
+        fileName = "tours.by.purpose.and.stop.frequency.outbound-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if(f.exists()) {
@@ -990,7 +991,7 @@ public class NationalTravelDemand {
             System.exit(1);
         }
         
-        fileName = "tours.by.purpose.and.mode.choice.txt";
+        fileName = "tours.by.purpose.and.mode.choice-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if(f.exists()) {
@@ -1013,7 +1014,7 @@ public class NationalTravelDemand {
             System.exit(1);
         }
         
-        fileName = "tours.by.mode.choice.and.dest.txt";
+        fileName = "tours.by.mode.choice.and.dest-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if(f.exists()) {
