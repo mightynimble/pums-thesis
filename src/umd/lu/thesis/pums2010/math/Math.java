@@ -130,9 +130,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_Age_1", 0.0224959);
         aMap.put("Coef_Age_2", 0.0203469);
         aMap.put("Coef_Age_3", 0.0126859);
-        aMap.put("coef_School_1", 0.3201603);
-        aMap.put("coef_School_2", 0.0748973);
-        aMap.put("coef_School_3", 0.8341451);
+        aMap.put("Coef_School_1", 0.3201603);
+        aMap.put("Coef_School_2", 0.0748973);
+        aMap.put("Coef_School_3", 0.8341451);
         aMap.put("Asc_1", -1.469728);
         aMap.put("Asc_2", -0.7446439);
         aMap.put("Asc_3", -0.3704078);
@@ -1010,18 +1010,20 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         if(numOfStops == 0) {
             return exp(0.0);
         }
-        else {
-            return exp(stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_dist" + numOfStops) * dist
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_dura" + numOfStops) * td
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_party" + numOfStops) * tps
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_car" + numOfStops) * (mc == ModeChoice.CAR ? 1 : 0)
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_busi" + numOfStops) * (type == TripType.BUSINESS ? 1 : 0)
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_plea" + numOfStops) * (type == TripType.PLEASURE ? 1 : 0)
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart2_" + numOfStops) * (toy == 2 ? 1 : 0)
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart3_" + numOfStops) * (toy == 3 ? 1 : 0)
-                       + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart4_" + numOfStops) * (toy == 4 ? 1 : 0)
-                       + stopFreqCoefs.get("cons" + (isOutBound ? "o" : "i") + numOfStops));
+        if (numOfStops >= 5) {
+            sLog.error("-- ERROR -- numOfStops >= 5. numOfStops: " + numOfStops + ", o: " + o + ", d: " + d + ", td: " + td + ", tps: " + tps + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy + ", outbound?: " + isOutBound);
+            System.exit(-1);
         }
+        return exp(stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_dist" + numOfStops) * dist
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_dura" + numOfStops) * td
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_party" + numOfStops) * tps
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_car" + numOfStops) * (mc == ModeChoice.CAR ? 1 : 0)
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_busi" + numOfStops) * (type == TripType.BUSINESS ? 1 : 0)
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_plea" + numOfStops) * (type == TripType.PLEASURE ? 1 : 0)
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart2_" + numOfStops) * (toy == 2 ? 1 : 0)
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart3_" + numOfStops) * (toy == 3 ? 1 : 0)
+                   + stopFreqCoefs.get("p" + (isOutBound ? "o" : "i") + "_quart4_" + numOfStops) * (toy == 4 ? 1 : 0)
+                   + stopFreqCoefs.get("cons" + (isOutBound ? "o" : "i") + numOfStops));
     }
 
     public double stopTypeUExp(int numOfStop, TripType type, int tps, ModeChoice mc, boolean isOutBound) {
