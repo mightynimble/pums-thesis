@@ -1026,7 +1026,7 @@ public class NationalTravelDemand {
 
             for (int i = 0; i < ModeChoice.itemCount; i++) {
                 for (int j = 0; j < Math.alt; j++) {
-                    bw.write(toursByPurposeAndModeChoice[i][j] + "\t");
+                    bw.write(toursByModeChoiceAndDest[i][j] + "\t");
                 }
                 bw.write("\n");
             }
