@@ -4,6 +4,7 @@
  */
 package umd.lu.thesis.pums2010;
 
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -45,6 +46,9 @@ public class Pums2010DAOImpl implements DbThesisDAO {
             Class.forName(driver);
             connect = DriverManager.getConnection(url + db, user, password);
             connect.setAutoCommit(true);
+        }
+        catch (com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
+            System.err.println("Not using database. Ignore this error and continue...");
         }
         catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();

@@ -10,7 +10,7 @@ package umd.lu.thesis.pums2010.objects;
  */
 public enum Quarter {
 
-    FIRST(1), SECOND(2), THIRD(3), FOURTH(4);
+    FIRST(0), SECOND(1), THIRD(2), FOURTH(3);
 
     private int value;
 

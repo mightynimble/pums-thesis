@@ -579,8 +579,6 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         logsumCacheQ2 = new HashMap<>();
         logsumCacheQ3 = new HashMap<>();
         logsumCacheQ4 = new HashMap<>();
-
-        preCalculateLogsum();
     }
 
     public double destUD(Person2010 p, int o, int d, TripType type, int quarter) throws InvalidValueException {
@@ -1239,7 +1237,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         return businessCarMap.get(getKey(so, s))[3] + businessCarMap.get(getKey(s, d))[3] - businessCarMap.get(getKey(so, d))[3];
     }
 
-    private void preCalculateLogsum() {
+    public void preCalculateLogsum() {
         sLog.info("Started pre-calculate logsum.");
         Person2010 p = new Person2010();
         for (int o = 1; o <= Math.alt; o++) {

@@ -46,9 +46,7 @@ public class NationalTravelDemand {
 
     private static int startRow;  /* inclusive */
 
-
     private static int endRow;    /* exclusive */
-
 
     private static int currentRow;
 
@@ -63,22 +61,34 @@ public class NationalTravelDemand {
     private final HashMap<Integer, Integer[]> zoneIdMap;
 
     private UniformRealDistribution rand;
+    
+    private static int[][] toursByPurposeAndStopFrequencyIB;
+    private static int[][] toursByPurposeAndStopFrequencyOB;
+    private static int[][] toursByPurposeAndModeChoice;
+    private static int[][] toursByModeChoiceAndDest;
+    
+    public NationalTravelDemand(Pums2010DAOImpl dao) {
+        pumsDao = dao;
+        zoneIdMap = initZoneId();
+        math = new Math();
+        results = new HashMap<>();
+        rand = new UniformRealDistribution();
+        toursByPurposeAndStopFrequencyIB = new int[TripType.itemCount - 1][5];
+        toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
+        toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
+        toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
+    }
 
     public NationalTravelDemand() {
         zoneIdMap = initZoneId();
         pumsDao = new Pums2010DAOImpl();
         math = new Math();
         results = new HashMap<>();
-        for (int m = 0; m < TravelMode.itemCount; m++) {
-            for (int q = 0; q < Quarter.itemCount; q++) {
-                for (int t = 0; t < TripType.itemCount; t++) {
-                    results.put(TravelMode.values()[m] + "-"
-                            + Quarter.values()[q] + "-"
-                            + TripType.values()[t], new HashMap<String, Integer>());
-                }
-            }
-        }
         rand = new UniformRealDistribution();
+        toursByPurposeAndStopFrequencyIB = new int[TripType.itemCount - 1][5];
+        toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
+        toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
+        toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
     }
 
     public void run(int start, int end) {
@@ -87,6 +97,18 @@ public class NationalTravelDemand {
         currentRow = start;
         sLog.info("NationalTravelDemand Simulation Started. Start Row: " + startRow + ", End Row: " + endRow + ", bulkSize: " + bulkSize);
 
+        math.preCalculateLogsum();
+        
+        for (int m = 0; m < TravelMode.itemCount; m++) {
+            for (int q = 0; q < Quarter.itemCount; q++) {
+                for (int t = 0; t < TripType.itemCount; t++) {
+                    results.put(TravelMode.values()[m] + "-"
+                                + Quarter.values()[q] + "-"
+                                + TripType.values()[t], new HashMap<String, Integer>());
+                }
+            }
+        }
+        
         int rowCount = pumsDao.getTotalRecordsByMaxId("PERSON_HOUSEHOLD_EXPANDED");
         sLog.info("Total rows: " + rowCount);
 
@@ -158,8 +180,12 @@ public class NationalTravelDemand {
                 pMap.put(pU, tmp);
             }
         }
-
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        
+        int dest = math.MonteCarloMethod(pList, pMap, rand.sample());
+        
+        // For statistical purpose. Note that dest is from 1 to 380. Hence the minus 1.
+//        toursByDestination[dest - 1] ++;
+        return dest;
 
     }
 
@@ -208,10 +234,14 @@ public class NationalTravelDemand {
         }
 
         // monte carlo method
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        int toy = math.MonteCarloMethod(pList, pMap, rand.sample());
+        
+        // For statistical purpose.
+//        toursByToY[toy] ++;
+        return toy;
     }
 
-    private Integer findTourDuration(Person2010 p, int d, TripType tripType, int toy) {
+    protected Integer findTourDuration(Person2010 p, int d, TripType tripType, int toy) {
         sLog.debug("Find Trip Duration - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
         // Note that S(T) gets smaller when T increase. So the loop can break
@@ -330,7 +360,11 @@ public class NationalTravelDemand {
         int modeChoiceValue = math.MonteCarloMethod(pList, pMap, rand.sample());
         sLog.debug("    modeChoiceValue: " + modeChoiceValue);
 
-        return (modeChoiceValue == 0 ? ModeChoice.CAR : (modeChoiceValue == 1 ? ModeChoice.AIR : ModeChoice.TRAIN));
+        ModeChoice mc = (modeChoiceValue == 0 ? ModeChoice.CAR : (modeChoiceValue == 1 ? ModeChoice.AIR : ModeChoice.TRAIN));
+        
+        // For statistical purpose
+//        toursByTravelMode[mc.getValue()] ++;
+        return mc;
     }
 
     private Integer findStopFrequency(int o, int d, Integer toy, Integer td, Integer tps, ModeChoice mc, TripType type, boolean isOutBound) {
@@ -358,7 +392,15 @@ public class NationalTravelDemand {
             pMap.put(p, tmp);
         }
 
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        int stops = math.MonteCarloMethod(pList, pMap, rand.sample());
+        // For statistical purpose
+        if(isOutBound) {
+            toursByPurposeAndStopFrequencyOB[type.getValue()][stops]++;
+        }
+        else {
+            toursByPurposeAndStopFrequencyIB[type.getValue()][stops]++;
+        }
+        return stops;
     }
 
     private List<TripType> findStopTypes(Integer stops, TripType tripType, Integer tps, ModeChoice mc, boolean isOutBound) {
@@ -400,6 +442,14 @@ public class NationalTravelDemand {
                     : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
                             : TripType.PERSONAL_BUSINESS)));
         }
+        
+        // For statistical purpose
+        for (TripType t : stopTypes) {
+            toursByPurposeAndModeChoice[mc.getValue()][t.getValue()] ++;
+        }
+        // Plus trip purpose of destination. (Trip purpose of origin is ignored since it is always HOME.)
+        toursByPurposeAndModeChoice[mc.getValue()][tripType.getValue()] ++;
+                
         return stopTypes;
     }
 
@@ -435,7 +485,12 @@ public class NationalTravelDemand {
             pList.add(pSt);
         }
 
-        return math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
+        int loc = math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
+        
+        // For statistical purpose.
+        toursByModeChoiceAndDest[mc.getValue()][loc] ++;
+        
+        return loc;
     }
 
     private HashMap<Integer, Integer[]> initZoneId() {
@@ -481,6 +536,7 @@ public class NationalTravelDemand {
         if (type == TripType.BUSINESS) {
             sLog.debug("Total BUSINESS tour: " + p.getrB());
             for (int tour = 0; tour < p.getrP(); tour++) {
+//                toursByPurpose[type.getValue()] ++;
                 sLog.debug("Tour #" + tour);
                 /**
                  * Tour Level
@@ -605,6 +661,7 @@ public class NationalTravelDemand {
         } else if (type == TripType.PERSONAL_BUSINESS) {
             sLog.debug("Total PERSONAL_BUSINESS tour: " + p.getrPB());
             for (int tour = 0; tour < p.getrPB(); tour++) {
+//                toursByPurpose[type.getValue()] ++;
                 sLog.debug("Tour #" + tour);
                 /**
                  * Tour Level
@@ -731,6 +788,7 @@ public class NationalTravelDemand {
             int tour = 0;
             sLog.debug("Total PLEASURE tour: " + p.getrPB());
             while (tour < p.getrP()) {
+//                toursByPurpose[type.getValue()] ++;
                 sLog.debug("Tour #" + tour);
                 // 1. Trip Duration
                 int days = findTourDuration(p, NIL_INT, type, NIL_INT);
@@ -885,6 +943,97 @@ public class NationalTravelDemand {
                     }
                 }
             }
+        }
+        sLog.info("Output statistical info to files.");
+        String fileName = "tours.by.purpose.and.stop.frequency.inbound.txt";
+        File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+            if(f.exists()) {
+                f.delete();
+            }
+            else {
+                f.createNewFile();
+            }
+
+            for (int i = 0; i < TripType.itemCount - 1; i++) {
+                for (int j = 0; j < 5; j++) {
+                    bw.write(toursByPurposeAndStopFrequencyIB[i][j] + "\t");
+                }
+                bw.write("\n");
+            }
+            bw.flush();
+        }
+        catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
+        }
+        fileName = "tours.by.purpose.and.stop.frequency.outbound.txt";
+        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+            if(f.exists()) {
+                f.delete();
+            }
+            else {
+                f.createNewFile();
+            }
+
+            for (int i = 0; i < TripType.itemCount - 1; i++) {
+                for (int j = 0; j < 5; j++) {
+                    bw.write(toursByPurposeAndStopFrequencyOB[i][j] + "\t");
+                }
+                bw.write("\n");
+            }
+            bw.flush();
+        }
+        catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
+        }
+        
+        fileName = "tours.by.purpose.and.mode.choice.txt";
+        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+            if(f.exists()) {
+                f.delete();
+            }
+            else {
+                f.createNewFile();
+            }
+
+            for (int i = 0; i < TripType.itemCount - 1; i++) {
+                for (int j = 0; j < ModeChoice.itemCount; j++) {
+                    bw.write(toursByPurposeAndModeChoice[i][j] + "\t");
+                }
+                bw.write("\n");
+            }
+            bw.flush();
+        }
+        catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
+        }
+        
+        fileName = "tours.by.mode.choice.and.dest.txt";
+        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+            if(f.exists()) {
+                f.delete();
+            }
+            else {
+                f.createNewFile();
+            }
+
+            for (int i = 0; i < ModeChoice.itemCount; i++) {
+                for (int j = 0; j < Math.alt; j++) {
+                    bw.write(toursByPurposeAndModeChoice[i][j] + "\t");
+                }
+                bw.write("\n");
+            }
+            bw.flush();
+        }
+        catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
         }
     }
 

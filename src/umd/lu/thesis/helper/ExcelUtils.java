@@ -125,4 +125,22 @@ public class ExcelUtils {
     public static final int am = 39;
 
     public static final int an = 40;
+    
+    public static final int bo = 67;
+    
+    public static final int br = 70;
+    
+    public static final int bw = 75;
+    
+    public static final int by = 77;
+    
+    public static final int bz = 78;
+        
+    public static final int cg = 85;
+    
+    public static final int cp = 94;
+    
+    public static final int cz = 104;
+    
+    public static final int eg = 137;
 }
