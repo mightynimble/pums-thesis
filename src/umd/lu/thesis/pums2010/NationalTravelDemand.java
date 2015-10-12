@@ -488,7 +488,7 @@ public class NationalTravelDemand {
         int loc = math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
         
         // For statistical purpose.
-        toursByModeChoiceAndDest[mc.getValue()][loc] ++;
+        toursByModeChoiceAndDest[mc.getValue()][loc - 1] ++;
         
         return loc;
     }
