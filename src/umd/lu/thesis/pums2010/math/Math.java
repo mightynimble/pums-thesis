@@ -117,22 +117,25 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("Coef_Lgs", 0.0504287);
-        aMap.put("Coef_Inc_1", 8.02e-06);
-        aMap.put("Coef_Inc_2", -1.39e-06);
-        aMap.put("Coef_Inc_3", 3.61e-06);
-        aMap.put("Coef_emp_1", 0.5858141);
-        aMap.put("Coef_emp_2", 0.2450074);
-        aMap.put("Coef_emp_3", -0.3848681);
-        aMap.put("Coef_hhchd_1", 0.3763038);
-        aMap.put("Coef_hhchd_2", 0.2898711);
-        aMap.put("Coef_hhchd_3", 0.0015771);
-        aMap.put("Coef_Age_1", 0.0298472);
-        aMap.put("Coef_Age_2", 0.0371919);
-        aMap.put("Coef_Age_3", 0.0002595);
-        aMap.put("Asc_1", -2.330421);
-        aMap.put("Asc_2", -2.677752);
-        aMap.put("Asc_3", -1.527069);
+        aMap.put("Coef_Lgs", 0.05);
+        aMap.put("Coef_Inc_1", 7.63e-06);
+        aMap.put("Coef_Inc_2", 4.40e-07);
+        aMap.put("Coef_Inc_3", 1.40e-06);
+        aMap.put("Coef_emp_1", 0.4816896);
+        aMap.put("Coef_emp_2", 0.1557063);
+        aMap.put("Coef_emp_3", -0.0948035);
+        aMap.put("Coef_hhchd_1", 0.4217099);
+        aMap.put("Coef_hhchd_2", 0.3083643);
+        aMap.put("Coef_hhchd_3", 0.0781339);
+        aMap.put("Coef_Age_1", 0.0224959);
+        aMap.put("Coef_Age_2", 0.0203469);
+        aMap.put("Coef_Age_3", 0.0126859);
+        aMap.put("coef_School_1", 0.3201603);
+        aMap.put("coef_School_2", 0.0748973);
+        aMap.put("coef_School_3", 0.8341451);
+        aMap.put("Asc_1", -1.469728);
+        aMap.put("Asc_2", -0.7446439);
+        aMap.put("Asc_3", -0.3704078);
 
         toyBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -142,30 +145,30 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("Coef_Inc_1", 8.67e-06);
-        aMap.put("Coef_Inc_2", 4.02e-06);
-        aMap.put("Coef_Inc_3", 8.09e-07);
-        aMap.put("Coef_emp_1", 0.308);
-        aMap.put("Coef_emp_2", 0.458);
-        aMap.put("Coef_emp_3", 0.236);
-        aMap.put("Coef_unemp_1", 0.062);
-        aMap.put("Coef_unemp_2", 0.374);
-        aMap.put("Coef_unemp_3", 0.019);
-        aMap.put("Coef_sig_1", 0.137);
-        aMap.put("Coef_sig_2", 0.28);
-        aMap.put("Coef_sig_3", 0.124);
-        aMap.put("Coef_Age_1", 0.010);
-        aMap.put("Coef_Age_2", 0.010);
-        aMap.put("Coef_Age_3", 0.006);
-        aMap.put("Coef_hhochd_1", 0.312);
-        aMap.put("Coef_hhochd_2", 0.468);
-        aMap.put("Coef_hhochd_3", 0.42);
-        aMap.put("Coef_hhchd_1", 0.539);
-        aMap.put("Coef_hhchd_2", 0.842);
-        aMap.put("Coef_hhchd_3", 0.825);
-        aMap.put("Asc_1", 0.119);
-        aMap.put("Asc_2", -0.39);
-        aMap.put("Asc_3", -0.005);
+        aMap.put("Coef_Inc_1", 7.96e-06);
+        aMap.put("Coef_Inc_2", 3.41e-06);
+        aMap.put("Coef_Inc_3", 2.54e-07);
+        aMap.put("Coef_emp_1", 0.1535123);
+        aMap.put("Coef_emp_2", 0.3906334);
+        aMap.put("Coef_emp_3", 0.123274);
+        aMap.put("Coef_unemp_1", -0.0554525);
+        aMap.put("Coef_unemp_2", 0.333431);
+        aMap.put("Coef_unemp_3", -0.1062914);
+        aMap.put("Coef_sig_1", 0.1179802);
+        aMap.put("Coef_sig_2", 0.3194204);
+        aMap.put("Coef_sig_3", 0.157738);
+        aMap.put("Coef_Age_1", 0.0093923);
+        aMap.put("Coef_Age_2", 0.0091673);
+        aMap.put("Coef_Age_3", 0.006373);
+        aMap.put("Coef_hhochd_1", 0.3306901);
+        aMap.put("Coef_hhochd_2", 0.5035874);
+        aMap.put("Coef_hhochd_3", 0.4754719);
+        aMap.put("Coef_hhchd_1", 0.5747832);
+        aMap.put("Coef_hhchd_2", 0.926389);
+        aMap.put("Coef_hhchd_3", 0.8699875);
+        aMap.put("Asc_1", -1.228896);
+        aMap.put("Asc_2", -1.285858);
+        aMap.put("Asc_3", -0.5417412);
 
 
         toySimplePleasureCoefs = Collections.unmodifiableMap(aMap);
@@ -176,25 +179,25 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("Coef_lgs", 0.1472019);
-        aMap.put("Coef_Inc_1", 8.76e-06);
-        aMap.put("Coef_Inc_2", 4.38e-06);
-        aMap.put("Coef_Inc_3", 7.20e-08);
-        aMap.put("Coef_emp_1", 0.3755023);
-        aMap.put("Coef_emp_2", 0.1551358);
-        aMap.put("Coef_emp_3", 0.1543296);
-        aMap.put("Coef_male_1", -0.2563758);
-        aMap.put("Coef_male_2", -0.0662326);
-        aMap.put("Coef_male_3", -0.3575725);
-        aMap.put("Coef_Age_1", 0.0158632);
-        aMap.put("Coef_Age_2", 0.009703);
-        aMap.put("Coef_Age_3", 0.0064103);
-        aMap.put("Coef_hhchd_1", 0.2226236);
-        aMap.put("Coef_hhchd_2", 0.5444753);
-        aMap.put("Coef_hhchd_3", 0.5383717);
-        aMap.put("Asc_1", -1.330353);
-        aMap.put("Asc_2", -0.8946058);
-        aMap.put("Asc_3", -0.43011720);
+        aMap.put("Coef_lgs", 0.1);
+        aMap.put("Coef_Inc_1", 8.98e-06);
+        aMap.put("Coef_Inc_2", 4.40e-06);
+        aMap.put("Coef_Inc_3", 1.69e-06);
+        aMap.put("Coef_emp_1", 0.197132);
+        aMap.put("Coef_emp_2", 0.0443198);
+        aMap.put("Coef_emp_3", 0.2129413);
+        aMap.put("Coef_School_1", 0.0153994);
+        aMap.put("Coef_School_2", -0.3909301);
+        aMap.put("Coef_School_3", 0.0499155);
+        aMap.put("Coef_Age_1", 0.0104505);
+        aMap.put("Coef_Age_2", 0.0108332);
+        aMap.put("Coef_Age_3", 0.0077513);
+        aMap.put("Coef_hhchd_1", 0.337076);
+        aMap.put("Coef_hhchd_2", 0.5335793);
+        aMap.put("Coef_hhchd_3", 0.5243304);
+        aMap.put("Asc_1", -1.120773);
+        aMap.put("Asc_2", -0.6538967);
+        aMap.put("Asc_3", -0.4036146);
 
         toyFullPleasureCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -272,33 +275,33 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("tp2_msa_b", -0.187);
-        aMap.put("tp2_sf_b", -1.207);
-        aMap.put("tp2_cwc_b", -0.474);
-        aMap.put("tp2_size_b", -0.003);
-        aMap.put("tp2_linc_b", 0.66);
-        aMap.put("tp2_minc_b", 0.347);
-        aMap.put("tp2_age_b", 0.02);
-        aMap.put("tp2_femal_b", 0.908);
-        aMap.put("tp2_cons_b", -1.221);
-        aMap.put("tp3_msa_b", -0.327);
-        aMap.put("tp3_sf_b", -0.847);
-        aMap.put("tp3_cwc_b", 0.05);
-        aMap.put("tp3_size_b", -0.051);
-        aMap.put("tp3_linc_b", 1.063);
-        aMap.put("tp3_minc_b", 0.632);
-        aMap.put("tp3_age_b", 0.007);
-        aMap.put("tp3_femal_b", 0.984);
-        aMap.put("tp3_cons_b", -2.052);
-        aMap.put("tp4_msa_b", -0.248);
-        aMap.put("tp4_sf_b", -0.187);
-        aMap.put("tp4_cwc_b", 0.027);
-        aMap.put("tp4_size_b", 0.261);
-        aMap.put("tp4_linc_b", 1.161);
-        aMap.put("tp4_minc_b", 0.606);
-        aMap.put("tp4_age_b", -0.007);
-        aMap.put("tp4_femal_b", 1.046);
-        aMap.put("tp4_cons_b", -2.288);
+        aMap.put("tp2_msa_b", -0.2132348);
+        aMap.put("tp2_sf_b", -1.194334);
+        aMap.put("tp2_cwc_b", -0.4745523);
+        aMap.put("tp2_size_b", 0.0031476);
+        aMap.put("tp2_linc_b", 0.6468207);
+        aMap.put("tp2_minc_b", 0.3557382);
+        aMap.put("tp2_age_b", 0.021452);
+        aMap.put("tp2_femal_b", 0.9040727);
+        aMap.put("tp2_cons_b", -1.253271);
+        aMap.put("tp3_msa_b", -0.3436734);
+        aMap.put("tp3_sf_b", -0.8973103);
+        aMap.put("tp3_cwc_b", 0.0709871);
+        aMap.put("tp3_size_b", -0.0597594);
+        aMap.put("tp3_linc_b", 1.067521);
+        aMap.put("tp3_minc_b", 0.6042227);
+        aMap.put("tp3_age_b", 0.008456);
+        aMap.put("tp3_femal_b", 0.9682016);
+        aMap.put("tp3_cons_b", -2.087201);
+        aMap.put("tp4_msa_b", -0.3218568);
+        aMap.put("tp4_sf_b", -0.0830076);
+        aMap.put("tp4_cwc_b", 0.022077);
+        aMap.put("tp4_size_b", 0.3053654);
+        aMap.put("tp4_linc_b", 1.11747);
+        aMap.put("tp4_minc_b", 0.6137806);
+        aMap.put("tp4_age_b", -0.0072482);
+        aMap.put("tp4_femal_b", 1.048865);
+        aMap.put("tp4_cons_b", -2.39346);
 
         tpsBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -308,30 +311,30 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("tp2_sf_p", -2.505);
-        aMap.put("tp2_cwc_p", 0.088);
-        aMap.put("tp2_size_p", -0.265);
-        aMap.put("tp2_linc_p", 0.119);
-        aMap.put("tp2_minc_p", 0.168);
-        aMap.put("tp2_age_p", 0.023);
-        aMap.put("tp2_femal_p", 0.023);
-        aMap.put("tp2_cons_p", 1.058);
-        aMap.put("tp3_sf_p", -1.754);
-        aMap.put("tp3_cwc_p", 1.588);
-        aMap.put("tp3_size_p", -0.184);
-        aMap.put("tp3_linc_p", 0.199);
-        aMap.put("tp3_minc_p", 0.256);
-        aMap.put("tp3_age_p", 0.013);
-        aMap.put("tp3_femal_p", 0.098);
-        aMap.put("tp3_cons_p", -0.196);
-        aMap.put("tp4_sf_p", -0.921);
-        aMap.put("tp4_cwc_p", 1.370);
-        aMap.put("tp4_size_p", 0.395);
-        aMap.put("tp4_linc_p", 0.467);
-        aMap.put("tp4_minc_p", 0.394);
-        aMap.put("tp4_age_p", 0.016);
-        aMap.put("tp4_femal_p", 0.118);
-        aMap.put("tp4_cons_p", -1.682);
+        aMap.put("tp2_sf_p", -2.519033);
+        aMap.put("tp2_cwc_p", 0.1026147);
+        aMap.put("tp2_size_p", 0.2545038);
+        aMap.put("tp2_linc_p", 0.1770234);
+        aMap.put("tp2_minc_p", 0.1897853);
+        aMap.put("tp2_age_p", 0.022891);
+        aMap.put("tp2_femal_p", 0.0219075);
+        aMap.put("tp2_cons_p", 1.00429);
+        aMap.put("tp3_sf_p", -1.731458);
+        aMap.put("tp3_cwc_p", 1.613627);
+        aMap.put("tp3_size_p", -0.1888752);
+        aMap.put("tp3_linc_p", 0.2370588);
+        aMap.put("tp3_minc_p", 0.2797856);
+        aMap.put("tp3_age_p", 0.012797);
+        aMap.put("tp3_femal_p", 0.0899659);
+        aMap.put("tp3_cons_p", -0.1912607);
+        aMap.put("tp4_sf_p", -0.9936722);
+        aMap.put("tp4_cwc_p", 1.397388);
+        aMap.put("tp4_size_p", 0.3770754);
+        aMap.put("tp4_linc_p", 0.4807467);
+        aMap.put("tp4_minc_p", 0.4158904);
+        aMap.put("tp4_age_p", 0.0156395);
+        aMap.put("tp4_femal_p", 0.1027345);
+        aMap.put("tp4_cons_p", -1.631986);
 
         tpsPleasureCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -341,33 +344,33 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("tp2_msa_pb", -0.086);
-        aMap.put("tp2_sf_pb", -2.095);
-        aMap.put("tp2_cwc_pb", 0.01);
-        aMap.put("tp2_size_pb", -0.174);
-        aMap.put("tp2_linc_pb", 0.382);
-        aMap.put("tp2_minc_pb", 0.268);
-        aMap.put("tp2_age_pb", 0.022);
-        aMap.put("tp2_femal_pb", 0.283);
-        aMap.put("tp2_cons_pb", 0.315);
-        aMap.put("tp3_msa_pb", 0.0004);
-        aMap.put("tp3_sf_pb", -1.385);
-        aMap.put("tp3_cwc_pb", 0.619);
-        aMap.put("tp3_size_pb", -0.017);
-        aMap.put("tp3_linc_pb", 0.699);
-        aMap.put("tp3_minc_pb", 0.335);
-        aMap.put("tp3_age_pb", 0.012);
-        aMap.put("tp3_femal_pb", 0.384);
-        aMap.put("tp3_cons_pb", -0.988);
-        aMap.put("tp4_msa_pb", -0.238);
-        aMap.put("tp4_sf_pb", -0.911);
-        aMap.put("tp4_cwc_pb", 0.842);
-        aMap.put("tp4_size_pb", 0.27);
-        aMap.put("tp4_linc_pb", 0.771);
-        aMap.put("tp4_minc_pb", 0.394);
-        aMap.put("tp4_age_pb", 0.008);
-        aMap.put("tp4_femal_pb", 0.402);
-        aMap.put("tp4_cons_pb", -1.519);
+        aMap.put("tp2_msa_pb", -0.0591476);
+        aMap.put("tp2_sf_pb", -2.150063);
+        aMap.put("tp2_cwc_pb", -0.0114238);
+        aMap.put("tp2_size_pb", -0.1766115);
+        aMap.put("tp2_linc_pb", 0.338039);
+        aMap.put("tp2_minc_pb", 0.2527234);
+        aMap.put("tp2_age_pb", 0.021437);
+        aMap.put("tp2_femal_pb", 0.2995287);
+        aMap.put("tp2_cons_pb", 0.3434581);
+        aMap.put("tp3_msa_pb", 0.0472045);
+        aMap.put("tp3_sf_pb", -1.372581);
+        aMap.put("tp3_cwc_pb", 0.5580346);
+        aMap.put("tp3_size_pb", -0.0115575);
+        aMap.put("tp3_linc_pb", 0.6703549);
+        aMap.put("tp3_minc_pb", 0.3156061);
+        aMap.put("tp3_age_pb", 0.0113649);
+        aMap.put("tp3_femal_pb", 0.4295393);
+        aMap.put("tp3_cons_pb", -0.9980764);
+        aMap.put("tp4_msa_pb", -0.1821842);
+        aMap.put("tp4_sf_pb", -0.8483076);
+        aMap.put("tp4_cwc_pb", 0.8420289);
+        aMap.put("tp4_size_pb", 0.2700369);
+        aMap.put("tp4_linc_pb", 0.7382278);
+        aMap.put("tp4_minc_pb", 0.4141297);
+        aMap.put("tp4_age_pb", 0.0084153);
+        aMap.put("tp4_femal_pb", 0.45848);
+        aMap.put("tp4_cons_pb", -1.606166);
 
         tpsPBCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -410,86 +413,86 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     static {
         Map<String, Double> aMap = new HashMap<>();
-        aMap.put("pi_dist1", 0.001);
-        aMap.put("pi_dura1", 0.025);
-        aMap.put("pi_party1", 0.034);
-        aMap.put("pi_car1", 1.044);
-        aMap.put("pi_busi1", 0.640);
-        aMap.put("pi_plea1", 1.014);
-        aMap.put("pi_quart2_1", -0.659);
-        aMap.put("pi_quart3_1", -0.237);
-        aMap.put("pi_quart4_1", -0.011);
-        aMap.put("consi1", -9.078);
-        aMap.put("pi_dist2", 0.0005);
-        aMap.put("pi_dura2", 0.017);
-        aMap.put("pi_party2", 0.0002);
-        aMap.put("pi_car2", 2.309);
-        aMap.put("pi_busi2", 0.201);
-        aMap.put("pi_plea2", 0.177);
-        aMap.put("pi_quart2_2", 0.06);
-        aMap.put("pi_quart3_2", 0.11);
-        aMap.put("pi_quart4_2", -0.398);
-        aMap.put("consi2", -6.444);
-        aMap.put("pi_dist3", 0.0002);
-        aMap.put("pi_dura3", 0.015);
-        aMap.put("pi_party3", -0.043);
-        aMap.put("pi_car3", -3.09);
-        aMap.put("pi_busi3", 0.365);
-        aMap.put("pi_plea3", 0.185);
-        aMap.put("pi_quart2_3", 1.42);
-        aMap.put("pi_quart3_3", 1.298);
-        aMap.put("pi_quart4_3", 1.582);
-        aMap.put("consi3", -3.344);
-        aMap.put("pi_dist4", 0.001);
-        aMap.put("pi_dura4", 0.031);
-        aMap.put("pi_party4", -0.025);
-        aMap.put("pi_car4", -1.483);
-        aMap.put("pi_busi4", 0.599);
-        aMap.put("pi_plea4", 0.570);
-        aMap.put("pi_quart2_4", 0.393);
-        aMap.put("pi_quart3_4", 0.463);
-        aMap.put("pi_quart4_4", 0.268);
-        aMap.put("consi4", -6.1);
-        aMap.put("po_dist1", 0.001);
-        aMap.put("po_dura1", 0.023);
-        aMap.put("po_party1", -0.003);
-        aMap.put("po_car1", 0.975);
-        aMap.put("po_busi1", -0.527);
-        aMap.put("po_plea1", 0.727);
-        aMap.put("po_quart2_1", -0.368);
-        aMap.put("po_quart3_1", 0.045);
-        aMap.put("po_quart4_1", -1.162);
-        aMap.put("conso1", -8.481);
-        aMap.put("po_dist2", 0.001);
-        aMap.put("po_dura2", 0.017);
-        aMap.put("po_party2", -0.004);
-        aMap.put("po_car2", 3.283);
-        aMap.put("po_busi2", 0.208);
-        aMap.put("po_plea2", 0.434);
-        aMap.put("po_quart2_2", 0.133);
-        aMap.put("po_quart3_2", -0.001);
-        aMap.put("po_quart4_2", -0.096);
-        aMap.put("conso2", -7.512);
-        aMap.put("po_dist3", 0.001);
-        aMap.put("po_dura3", 0.02);
-        aMap.put("po_party3", 0.013);
-        aMap.put("po_car3", 0.185);
-        aMap.put("po_busi3", 0.704);
-        aMap.put("po_plea3", 0.611);
-        aMap.put("po_quart2_3", 0.004);
-        aMap.put("po_quart3_3", 0.094);
-        aMap.put("po_quart4_3", -0.405);
-        aMap.put("conso3", -6.326);
-        aMap.put("po_dist4", 0.001);
-        aMap.put("po_dura4", 0.022);
-        aMap.put("po_party4", 0.005);
-        aMap.put("po_car4", 0.983);
-        aMap.put("po_busi4", 0.298);
-        aMap.put("po_plea4", 0.628);
-        aMap.put("po_quart2_4", 0.176);
-        aMap.put("po_quart3_4", 0.563);
-        aMap.put("po_quart4_4", -0.691);
-        aMap.put("conso4", -8.052);
+        aMap.put("pi_dist1", 0.0015247);
+        aMap.put("pi_dura1", 0.023012);
+        aMap.put("pi_party1", 0.0603076);
+        aMap.put("pi_car1 ", 1.516187);
+        aMap.put("pi_busi1", 0.3918097);
+        aMap.put("pi_plea1", 0.9623766);
+        aMap.put("pi_quart2_1", -0.597106);
+        aMap.put("pi_quart3_1", -0.1543705);
+        aMap.put("pi_quart4_1", -0.2364871);
+        aMap.put("consi1 ", -9.568104);
+        aMap.put("pi_dist2", 0.0004792);
+        aMap.put("pi_dura2", 0.0161129);
+        aMap.put("pi_party2", -0.0064394);
+        aMap.put("pi_car2 ", 2.208714);
+        aMap.put("pi_busi2", 0.1327181);
+        aMap.put("pi_plea2", 0.1237595);
+        aMap.put("pi_quart2_2", 0.0828193);
+        aMap.put("pi_quart3_2", 0.0831211);
+        aMap.put("pi_quart4_2", -0.4385773);
+        aMap.put("consi2 ", -6.267259);
+        aMap.put("pi_dist3", 0.000203);
+        aMap.put("pi_dura3", 0.0144204);
+        aMap.put("pi_party3", -0.0404676);
+        aMap.put("pi_car3", -3.05455);
+        aMap.put("pi_busi3", 0.415034);
+        aMap.put("pi_plea3", 0.190623);
+        aMap.put("pi_quart2_3", 1.396496);
+        aMap.put("pi_quart3_3", 1.251489);
+        aMap.put("pi_quart4_3", 1.555322);
+        aMap.put("consi3 ", -3.374192);
+        aMap.put("pi_dist4", 0.0007112);
+        aMap.put("pi_dura4", 0.0295693);
+        aMap.put("pi_party4", -0.0134412);
+        aMap.put("pi_car4 ", -1.319811);
+        aMap.put("pi_busi4", 0.5741574);
+        aMap.put("pi_plea4", 0.4442947);
+        aMap.put("pi_quart2_4", 0.4472538);
+        aMap.put("pi_quart3_4", 0.4163974);
+        aMap.put("pi_quart4_4", 0.4659111);
+        aMap.put("consi4 ", -6.182341);
+        aMap.put("po_dist1", 0.0012815);
+        aMap.put("po_dura1", 0.0238628);
+        aMap.put("po_party1", -0.006822);
+        aMap.put("po_car1 ", 0.9088002);
+        aMap.put("po_busi1", -0.4902532);
+        aMap.put("po_plea1", 0.7258997);
+        aMap.put("po_quart2_1", -0.4103674);
+        aMap.put("po_quart3_1", -0.0937313);
+        aMap.put("po_quart4_1", -0.9647268);
+        aMap.put("conso1 ", -8.382998);
+        aMap.put("po_dist2", 0.0004824);
+        aMap.put("po_dura2", 0.0182069);
+        aMap.put("po_party2", -0.0095017);
+        aMap.put("po_car2 ", 3.423379);
+        aMap.put("po_busi2", 0.2188791);
+        aMap.put("po_plea2", 0.4077914);
+        aMap.put("po_quart2_2", 0.2187904);
+        aMap.put("po_quart3_2", 0.0145411);
+        aMap.put("po_quart4_2", -0.0265966);
+        aMap.put("conso2 ", -7.644667);
+        aMap.put("po_dist3", 0.0007946);
+        aMap.put("po_dura3", 0.0205631);
+        aMap.put("po_party3", 0.0162793);
+        aMap.put("po_car3 ", 0.2476782);
+        aMap.put("po_busi3", 0.660808);
+        aMap.put("po_plea3", 0.6134739);
+        aMap.put("po_quart2_3", 0.0553138);
+        aMap.put("po_quart3_3", 0.1239214);
+        aMap.put("po_quart4_3", -0.45224);
+        aMap.put("conso3 ", -6.40614);
+        aMap.put("po_dist4", 0.0011343);
+        aMap.put("po_dura4", 0.02196);
+        aMap.put("po_party4", 0.0141095);
+        aMap.put("po_car4 ", 1.137262);
+        aMap.put("po_busi4", 0.2281426);
+        aMap.put("po_plea4", 0.4712899);
+        aMap.put("po_quart2_4", 0.1696806);
+        aMap.put("po_quart3_4", 0.6319622);
+        aMap.put("po_quart4_4", -0.4364023);
+        aMap.put("conso4 ", -8.120939);
         stopFreqCoefs = Collections.unmodifiableMap(aMap);
     }
 
@@ -497,42 +500,40 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     static {
         Map<String, Double> aMap = new HashMap<>();
-        aMap.put("pi_sec_b", -0.061);
-        aMap.put("pi_thir_b", -0.019);
-        aMap.put("pi_fou_b", 0.561);
-        aMap.put("pi_pt_b", -1.735);
-        aMap.put("pi_pbt_b", -1.319);
-        aMap.put("pi_party_b", -0.01);
-        aMap.put("pi_car_b", 0.824);
-        aMap.put("pi_air_b", 0.872);
-        aMap.put("conis_b", -1.92);
-        aMap.put("pi_sec_pb", -0.083);
-        aMap.put("pi_thir_pb", -0.111);
-        aMap.put("pi_fou_pb", 1.719);
-        aMap.put("pi_pt_pb", 1.193);
-        aMap.put("pi_pbt_pb", 2.972);
-        aMap.put("pi_party_pb", 0.067);
-        aMap.put("pi_car_pb", 0.645);
-        aMap.put("pi_air_pb", -0.273);
-        aMap.put("conis_pb", -5.953);
-        aMap.put("po_sec_b", -0.462);
-        aMap.put("po_thir_b", -0.395);
-        aMap.put("po_fou_b", -0.589);
-        aMap.put("po_pt_b", -3.904);
-        aMap.put("po_pbt_b", -2.697);
-        aMap.put("po_party_b", -0.015);
-        aMap.put("po_car_b", -0.067);
-        aMap.put("po_air_b", 1.227);
-        aMap.put("conos_b", 0.666);
-        aMap.put("po_sec_pb", -0.061);
-        aMap.put("po_thir_pb", -0.352);
-        aMap.put("po_fou_pb", 0.048);
-        aMap.put("po_pt_pb", 1.259);
-        aMap.put("po_pbt_pb", 3.662);
-        aMap.put("po_party_pb", -0.123);
-        aMap.put("po_car_pb", -0.547);
-        aMap.put("po_air_pb", 0.007);
-        aMap.put("conos_pb", -3.939);
+        aMap.put("pi_sec_b", -0.0835463);
+        aMap.put("pi_thir_b", -0.0835076);
+        aMap.put("pi_fou_b", 0.6456524);
+        aMap.put("pi_pt_b", -1.68357);
+        aMap.put("pi_pbt_b", -1.262809);
+        aMap.put("pi_party_b", 0.0);
+        aMap.put("pi_car_b", 0.7504028);
+        aMap.put("pi_air_b", 0.7986318);
+        aMap.put("conis_b", -1.883052);
+        aMap.put("pi_sec_pb", -0.0177027);
+        aMap.put("pi_thir_pb", -0.0045039);
+        aMap.put("pi_fou_pb", 1.686615);
+        aMap.put("pi_pt_pb", 1.295783);
+        aMap.put("pi_pbt_pb", 2.978684);
+        aMap.put("pi_party_pb", 0.0);
+        aMap.put("pi_car_pb", 0.6189764);
+        aMap.put("pi_air_pb", -0.3557332);
+        aMap.put("conis_pb", -5.816549);
+        aMap.put("po_sec_b", -0.4766282);
+        aMap.put("po_thir_b", -0.4796777);
+        aMap.put("po_fou_b", -0.4246014);
+        aMap.put("po_pt_b", -3.827447);
+        aMap.put("po_pbt_b", -2.646279);
+        aMap.put("po_car_b", -0.2727584);
+        aMap.put("po_air_b", 1.052367);
+        aMap.put("conos_b", 0.8188961);
+        aMap.put("po_sec_pb", -0.0699327);
+        aMap.put("po_thir_pb", -0.1648464);
+        aMap.put("po_fou_pb", 0.0024075);
+        aMap.put("po_pt_pb", 0.5222961);
+        aMap.put("po_pbt_pb", 3.078477);
+        aMap.put("po_car_pb", -0.1631058);
+        aMap.put("po_air_pb", 0.5699912);
+        aMap.put("conos_pb", -4.019405);
         stopTypeCoefs = Collections.unmodifiableMap(aMap);
     }
 
@@ -672,6 +673,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + toyBusinessCoefs.get("Coef_Inc_1") * p.getHtinc()
                        + toyBusinessCoefs.get("Coef_emp_1") * (p.getEmpStatus() == 1 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_hhchd_1") * (p.getHhType() == 2 ? 1 : 0)
+                       + toyBusinessCoefs.get("Coef_School_1") * (p.getEmpStatus() == 3 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_Age_1") * p.getAge();
 
             }
@@ -681,6 +683,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + toyBusinessCoefs.get("Coef_Inc_2") * p.getHtinc()
                        + toyBusinessCoefs.get("Coef_emp_2") * (p.getEmpStatus() == 1 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_hhchd_2") * (p.getHhType() == 2 ? 1 : 0)
+                       + toyBusinessCoefs.get("Coef_School_2") * (p.getEmpStatus() == 3 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_Age_2") * p.getAge();
             }
             else if(quarter == 3) {
@@ -689,6 +692,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                        + toyBusinessCoefs.get("Coef_Inc_3") * p.getHtinc()
                        + toyBusinessCoefs.get("Coef_emp_3") * (p.getEmpStatus() == 1 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_hhchd_3") * (p.getHhType() == 2 ? 1 : 0)
+                       + toyBusinessCoefs.get("Coef_School_3") * (p.getEmpStatus() == 3 ? 1 : 0)
                        + toyBusinessCoefs.get("Coef_Age_3") * p.getAge();
             }
             else {
@@ -739,7 +743,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                            + toyFullPleasureCoefs.get("Coef_lgs") * logsum.calculateLogsum(p, o, d, type, quarter)
                            + toyFullPleasureCoefs.get("Coef_Inc_1") * p.getHtinc()
                            + toyFullPleasureCoefs.get("Coef_emp_1") * (p.getEmpStatus() == 1 ? 1 : 0)
-                           + toyFullPleasureCoefs.get("Coef_male_1") * (p.getSex() == 1 ? 1 : 0)
+                           + toyFullPleasureCoefs.get("Coef_School_1") * (p.getEmpStatus() == 3 ? 1 : 0)
                            + toyFullPleasureCoefs.get("Coef_Age_1") * p.getAge()
                            + toyFullPleasureCoefs.get("Coef_hhchd_1") * (p.getHhType() == 2 ? 1 : 0);
                 }
@@ -748,7 +752,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                            + toyFullPleasureCoefs.get("Coef_lgs") * logsum.calculateLogsum(p, o, d, type, quarter)
                            + toyFullPleasureCoefs.get("Coef_Inc_2") * p.getHtinc()
                            + toyFullPleasureCoefs.get("Coef_emp_2") * (p.getEmpStatus() == 1 ? 1 : 0)
-                           + toyFullPleasureCoefs.get("Coef_male_2") * (p.getSex() == 1 ? 1 : 0)
+                           + toyFullPleasureCoefs.get("Coef_School_2") * (p.getEmpStatus() == 3 ? 1 : 0)
                            + toyFullPleasureCoefs.get("Coef_Age_2") * p.getAge()
                            + toyFullPleasureCoefs.get("Coef_hhchd_2") * (p.getHhType() == 2 ? 1 : 0);
                 }
@@ -757,7 +761,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                            + toyFullPleasureCoefs.get("Coef_lgs") * logsum.calculateLogsum(p, o, d, type, quarter)
                            + toyFullPleasureCoefs.get("Coef_Inc_3") * p.getHtinc()
                            + toyFullPleasureCoefs.get("Coef_emp_3") * (p.getEmpStatus() == 1 ? 1 : 0)
-                           + toyFullPleasureCoefs.get("Coef_male_3") * (p.getSex() == 1 ? 1 : 0)
+                           + toyFullPleasureCoefs.get("Coef_School_3") * (p.getEmpStatus() == 3 ? 1 : 0)
                            + toyFullPleasureCoefs.get("Coef_Age_3") * p.getAge()
                            + toyFullPleasureCoefs.get("Coef_hhchd_3") * (p.getHhType() == 2 ? 1 : 0);
                 }
