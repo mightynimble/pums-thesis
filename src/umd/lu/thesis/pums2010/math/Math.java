@@ -523,6 +523,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("po_fou_b", -0.4246014);
         aMap.put("po_pt_b", -3.827447);
         aMap.put("po_pbt_b", -2.646279);
+        aMap.put("po_party_b", 0.0);
         aMap.put("po_car_b", -0.2727584);
         aMap.put("po_air_b", 1.052367);
         aMap.put("conos_b", 0.8188961);
@@ -531,6 +532,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("po_fou_pb", 0.0024075);
         aMap.put("po_pt_pb", 0.5222961);
         aMap.put("po_pbt_pb", 3.078477);
+        aMap.put("po_party_pb", 0.0);
         aMap.put("po_car_pb", -0.1631058);
         aMap.put("po_air_pb", 0.5699912);
         aMap.put("conos_pb", -4.019405);
