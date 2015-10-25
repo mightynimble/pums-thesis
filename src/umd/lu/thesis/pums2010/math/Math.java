@@ -207,22 +207,50 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA", -0.18411);
-        aMap.put("p_Cwc", 0.0937814);
-        aMap.put("p_sf", -0.0603107);
-        aMap.put("p_nfh", -0.1520802);
-        aMap.put("p_size", 0.0244346);
-        aMap.put("p_medinc", -0.0376534);
-        aMap.put("p_higinc", -0.1886436);
-        aMap.put("p_unemp", -0.1182348);
-        aMap.put("p_student", -0.0353278);
-        aMap.put("p_quart2", -0.2079426);
-        aMap.put("p_quart3", -0.3365083);
-        aMap.put("p_quart4", -0.1369025);
-        aMap.put("p_age", 0.0051762);
-        aMap.put("p_harf", -0.0828452);
-        aMap.put("p_sect", 0.0005069);
-        aMap.put("cons", -0.8141056);
+        aMap.put("p_MSA", -0.2247229);
+        aMap.put("p_Cwc", 0.097109);
+        aMap.put("p_sf", -0.0847792);
+        aMap.put("p_nfh", -0.1893325);
+        aMap.put("p_size", 0.0248264);
+        aMap.put("p_medinc", -0.0735325);
+        aMap.put("p_higinc", -0.2469187);
+        aMap.put("p_unemp", -0.1199323);
+        aMap.put("p_student", -0.0426591);
+        aMap.put("p_quart2", -0.2185337);
+        aMap.put("p_quart3", -0.371962);
+        aMap.put("p_quart4", -0.1518989);
+        aMap.put("p_age", 0.0053779);
+        aMap.put("p_1", 1.30114);
+        aMap.put("p_2", 0.9602307);
+        aMap.put("p_3", 1.46368);
+        aMap.put("p_4", 1.490755);
+        aMap.put("p_5", 1.6808);
+        aMap.put("p_6", 1.432553);
+        aMap.put("p_7", 1.112458);
+        aMap.put("p_8", 1.34604);
+        aMap.put("p_9", 0.5201958);
+        aMap.put("p_10", 0.1978675);
+        aMap.put("p_11", 0.3503088);
+        aMap.put("p_12", -0.1021809);
+        aMap.put("p_13", 0.3962726);
+        aMap.put("p_14", -0.2014661);
+        aMap.put("p_15", 0.6495763);
+        aMap.put("p_16", 0.0779511);
+        aMap.put("p_17", -1.193471);
+        aMap.put("p_18", -1.162931);
+        aMap.put("p_19", -0.8367909);
+        aMap.put("p_20", -1.094014);
+        aMap.put("p_21", -1.249137);
+        aMap.put("p_22", -0.491158);
+        aMap.put("p_23", -0.5341456);
+        aMap.put("p_24", -2.024665);
+        aMap.put("p_25", -0.5853792);
+        aMap.put("p_26", -0.5293152);
+        aMap.put("p_27", -0.7776228);
+        aMap.put("p_28", -1.864373);
+        aMap.put("p_29", 0.1098826);
+        aMap.put("p_30", -.6122003);
+        aMap.put("cons", -2.26471 );
 
         tdBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -792,8 +820,36 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdBusinessCoefs.get("p_quart3") * (toy == 3 ? 1 : 0)
                    + tdBusinessCoefs.get("p_quart4") * (toy == 4 ? 1 : 0)
                    + tdBusinessCoefs.get("p_age") * (p.getAge())
-                   + tdBusinessCoefs.get("p_harf") * t
-                   + tdBusinessCoefs.get("p_sect") * t * t 
+                   + tdBusinessCoefs.get("p_1") * (t == 1 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_2") * (t == 2 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_3") * (t == 3 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_4") * (t == 4 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_5") * (t == 5 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_6") * (t == 6 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_7") * (t == 7 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_8") * (t == 8 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_9") * (t == 9 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_10") * (t == 10 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_11") * (t == 11 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_12") * (t == 12 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_13") * (t == 13 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_14") * (t == 14 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_15") * (t == 15 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_16") * (t == 16 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_17") * (t == 17 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_18") * (t == 18 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_19") * (t == 19 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_20") * (t == 20 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_21") * (t == 21 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_22") * (t == 22 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_23") * (t == 23 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_24") * (t == 24 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_25") * (t == 25 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_26") * (t == 26 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_27") * (t == 27 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_28") * (t == 28 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_29") * (t == 29 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_30") * (t == 30 ? 1 : 0)
                    + tdBusinessCoefs.get("cons");
         }
         else if(type == TripType.PLEASURE) {
