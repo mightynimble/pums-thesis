@@ -207,22 +207,21 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA",-0.18411 );
-        aMap.put("p_Cwc",0.0937814 );
-        aMap.put("p_sf", -0.0603107);
-        aMap.put("p_nfh", -0.1520802);
-        aMap.put("p_size", 0.0244346 );
-        aMap.put("p_medinc", -0.0376534);
-        aMap.put("p_higinc",-0.1886436);
-        aMap.put("p_unemp", -0.1182348);
-        aMap.put("p_student", -0.0353278);
-        aMap.put("p_quart2", -0.2079426);
-        aMap.put("p_quart3",-0.3365083);
-        aMap.put("p_quart4",-0.1369025);
-        aMap.put("p_age", 0.0051762);
-        aMap.put("p_t", -0.0828452);
-        aMap.put("p_t2", 0.0005069);
-        aMap.put("cons",-0.8141056);
+        aMap.put("p_MSA", -0.1729519);
+        aMap.put("p_Cwc", 0.1351985);
+        aMap.put("p_sf", -0.0602212);
+        aMap.put("p_nfh", -0.1882795);
+        aMap.put("p_size", 0.0335267);
+        aMap.put("p_medinc", 0.0122995);
+        aMap.put("p_higinc", -0.1479759);
+        aMap.put("p_unemp",  -0.1841558);
+        aMap.put("p_student", -0.0348337);
+        aMap.put("p_quart2", -0.2801497);
+        aMap.put("p_quart3", -0.4184759);
+        aMap.put("p_quart4", -0.1700624);
+        aMap.put("p_age", 0.0076454);
+        aMap.put("p_t2", -0.0005338);
+        aMap.put("cons", -1.315608);
 
         tdBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -792,7 +791,6 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdBusinessCoefs.get("p_quart3") * (toy == 3 ? 1 : 0)
                    + tdBusinessCoefs.get("p_quart4") * (toy == 4 ? 1 : 0)
                    + tdBusinessCoefs.get("p_age") * (p.getAge())
-                   + tdBusinessCoefs.get("p_t") * t
                    + tdBusinessCoefs.get("p_t2") * t * t 
                    + tdBusinessCoefs.get("cons");
         }
