@@ -207,21 +207,21 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA", -0.1729519);
-        aMap.put("p_Cwc", 0.1351985);
-        aMap.put("p_sf", -0.0602212);
-        aMap.put("p_nfh", -0.1882795);
-        aMap.put("p_size", 0.0335267);
-        aMap.put("p_medinc", 0.0122995);
-        aMap.put("p_higinc", -0.1479759);
-        aMap.put("p_unemp",  -0.1841558);
-        aMap.put("p_student", -0.0348337);
-        aMap.put("p_quart2", -0.2801497);
-        aMap.put("p_quart3", -0.4184759);
-        aMap.put("p_quart4", -0.1700624);
-        aMap.put("p_age", 0.0076454);
-        aMap.put("p_t2", -0.0005338);
-        aMap.put("cons", -1.315608);
+        aMap.put("p_MSA", -0.1550336);
+        aMap.put("p_Cwc", 0.1153541);
+        aMap.put("p_sf", -0.0546248);
+        aMap.put("p_nfh", -0.1700265);
+        aMap.put("p_size", 0.029566);
+        aMap.put("p_medinc", 0.0054415);
+        aMap.put("p_higinc", -0.1365523);
+        aMap.put("p_unemp", -0.1597453);
+        aMap.put("p_student", -0.0314867);
+        aMap.put("p_quart2", -0.2411486);
+        aMap.put("p_quart3", -0.36848);
+        aMap.put("p_quart4", -0.1493688);
+        aMap.put("p_age", 0.0066631);
+        aMap.put("p_t2", -0.0005295);
+        aMap.put("cons",-1.422225);
 
         tdBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -829,7 +829,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     private double tdPT(Person2010 p, int d, int toy, int t, TripType type) {
-        return 1 / (1 +  exp( 0 - tdHT(p, d, toy, t, type)));
+        return 1 -  exp( 0 - exp (tdHT(p, d, toy, t, type)));
     }
 
     public double tdST(Person2010 p, int d, int toy, int t, TripType type) {
