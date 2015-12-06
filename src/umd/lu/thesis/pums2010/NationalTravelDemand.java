@@ -244,21 +244,24 @@ public class NationalTravelDemand {
     protected Integer findTourDuration(Person2010 p, int d, TripType tripType, int toy) {
         sLog.debug("Find Trip Duration - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
-        // Note that S(T) gets smaller when T increase. So the loop can break
-        // early.
-        double prevAbs = Double.POSITIVE_INFINITY;
-        double abs = Double.POSITIVE_INFINITY;
+        
+        Map<Double, List<Integer>> pMap = new HashMap<>();
+        List<Double> pList = new ArrayList<>();
+        // calculate p
         for (int t = 1; t <= 30; t++) {
-            sLog.debug("    prevAbs: " + prevAbs + ", newAbs: " + abs);
-            abs = abs(math.tdST(p, d, toy, t, tripType) - 0.5);
-            if (abs < prevAbs) {
-                prevAbs = abs;
-                continue;
+            double pSt = math.tdST(p, d, toy, t, tripType);
+            if (pMap.get(pSt) != null) {
+                List tmp = pMap.get(pSt);
+                tmp.add(t - 1);
             } else {
-                return t - 1;
+                List tmp = new ArrayList<>();
+                tmp.add(t - 1);
+                pMap.put(pSt, tmp);
             }
+            pList.add(pSt);
         }
-        return 30;
+        
+        return math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
     }
 
     private Integer findTravelPartySize(Person2010 p, int d, TripType type) {
