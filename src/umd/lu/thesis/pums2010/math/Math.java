@@ -207,32 +207,22 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA", -0.1873494);
-        aMap.put("p_Cwc", 0.0818571);
-        aMap.put("p_sf", -0.073163);
-        aMap.put("p_nfh", -0.156631);
-        aMap.put("p_size", 0.0213208);
-        aMap.put("p_medinc", -0.0599762);
-        aMap.put("p_higinc", -0.2074335 );
-        aMap.put("p_unemp", -0.1037712);
-        aMap.put("p_student", -0.0359808 );
-        aMap.put("p_quart2", -0.1801035);
-        aMap.put("p_quart3", -0.3161908);
-        aMap.put("p_quart4", -0.127993 );
-        aMap.put("p_age", 0.0046262 );
-        aMap.put("p_t1", -0.0622631 );
-        aMap.put("p_t2", -0.3606547);
-        aMap.put("p_t3",  0.0752884);
-        aMap.put("p_t4", 0.0933603);
-        aMap.put("p_t5", 0.2495522);
-        aMap.put("p_t6", 0.043545 );
-        aMap.put("p_t7", -0.2310863 );
-        aMap.put("p_t8", -0.6237526);
-        aMap.put("p_t9", -1.123225);
-        aMap.put("p_t10", -2.16316 );
-        aMap.put("p_t11", -2.005768);
-        aMap.put("p_t12", 0.0);
-        aMap.put("cons", -1.075674);
+        aMap.put("p_MSA", -0.18411);
+        aMap.put("p_Cwc", 0.0937814);
+        aMap.put("p_sf", -0.0603107);
+        aMap.put("p_nfh", -0.1520802);
+        aMap.put("p_size", 0.0244346);
+        aMap.put("p_medinc", -0.0376534);
+        aMap.put("p_higinc", -0.1886436);
+        aMap.put("p_unemp", -0.1182348);
+        aMap.put("p_student", -0.0353278);
+        aMap.put("p_quart2", -0.2079426);
+        aMap.put("p_quart3", -0.3365083);
+        aMap.put("p_quart4", -0.1369025);
+        aMap.put("p_age", 0.0051762);
+        aMap.put("p_t", -0.0828452);
+        aMap.put("p_t2", 0.0005069);
+        aMap.put("cons", -0.8141056);
 
         tdBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -802,37 +792,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdBusinessCoefs.get("p_quart3") * (toy == 3 ? 1 : 0)
                    + tdBusinessCoefs.get("p_quart4") * (toy == 4 ? 1 : 0)
                    + tdBusinessCoefs.get("p_age") * (p.getAge())
-                   + tdBusinessCoefs.get("p_t1") * (t == 1 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t2") * (t == 2 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t3") * (t == 3 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t4") * (t == 4 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t5") * (t == 5 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t6") * (t == 6 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t7") * (t == 7 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t8") * (t == 8 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t8") * (t == 9 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t8") * (t == 10 ? 1 : 0)  
-                   + tdBusinessCoefs.get("p_t8") * (t == 11 ? 1 : 0)  
-                   + tdBusinessCoefs.get("p_t8") * (t == 12 ? 1 : 0)               
-                   + tdBusinessCoefs.get("p_t9") * (t == 13 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t9") * (t == 14 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t9") * (t == 15 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t9") * (t == 16 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t9") * (t == 17 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t10") * (t == 18 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t10") * (t == 19 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t10") * (t == 20 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t10") * (t == 21 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t10") * (t == 22 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t11") * (t == 23 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t11") * (t == 24 ? 1 : 0) 
-                   + tdBusinessCoefs.get("p_t11") * (t == 25 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t11") * (t == 26 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t11") * (t == 27 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t12") * (t == 28 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t12") * (t == 29 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t12") * (t == 30 ? 1 : 0)
-                   + tdBusinessCoefs.get("p_t12") * (t == 31 ? 1 : 0)
+                   + tdBusinessCoefs.get("p_t") * t 
+                   + tdBusinessCoefs.get("p_t2") * t * t
                    + tdBusinessCoefs.get("cons");
         }
         else if(type == TripType.PLEASURE) {
@@ -870,7 +831,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     private double tdPT(Person2010 p, int d, int toy, int t, TripType type) {
-        return 1 - exp(0 - exp(tdHT(p, d, toy, t, type)));
+            return 1 / (1 +  exp( 0 - tdHT(p, d, toy, t, type)));
     }
 
     public double tdST(Person2010 p, int d, int toy, int t, TripType type) {

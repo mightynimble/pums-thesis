@@ -261,7 +261,7 @@ public class NationalTravelDemand {
             pList.add(pSt);
         }
         
-        return math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
+        return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
 
     private Integer findTravelPartySize(Person2010 p, int d, TripType type) {
