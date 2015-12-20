@@ -16,6 +16,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.abs;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -249,19 +250,25 @@ public class NationalTravelDemand {
         List<Double> pList = new ArrayList<>();
         // calculate p
         for (int t = 1; t <= 30; t++) {
-            double pSt = math.tdST(p, d, toy, t, tripType);
-            if (pMap.get(pSt) != null) {
-                List tmp = pMap.get(pSt);
-                tmp.add(t - 1);
-            } else {
-                List tmp = new ArrayList<>();
-                tmp.add(t - 1);
-                pMap.put(pSt, tmp);
-            }
+            double pSt = 1 - math.tdST(p, d, toy, t, tripType);
             pList.add(pSt);
+            List tmp = new ArrayList<>();
+            tmp.add(t);
+            pMap.put(pSt, tmp);
         }
         
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        Collections.sort(pList);
+        double r = rand.sample();
+        double tempSt = 0.0;
+        for (int t = 1; t <= 30; t++) {
+            if (tempSt < r && r <= pList.get(t - 1)) {
+                return t;
+            }
+            tempSt = pList.get(t - 1);
+        }
+        return 30;
+        
+//        return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
 
     private Integer findTravelPartySize(Person2010 p, int d, TripType type) {
