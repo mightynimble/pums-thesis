@@ -31,9 +31,9 @@ public class DurPredictStDev {
 
     private final static Logger sLog = LogManager.getLogger(DurationPrediction.class);
 
-    private final static int runCounts = 10000;
+    private final static int runCounts = 1000;
 
-    private final static int obsCount = 30;
+    private final static int obsCount = 31;
 
     public DurPredictStDev() {
     }
@@ -52,11 +52,12 @@ public class DurPredictStDev {
             double[] tmpList = new double[runCounts];
             predictionDiffs.put(i, tmpList);
         }
+        HashMap<Integer, Double> predictions = new HashMap<>();
         for (int count = 0; count < runCounts; count++) {
             System.out.println("  " + count + "/" + runCounts);
             // init observations and predictions for each run/file
             HashMap<Integer, Double> observations = new HashMap<>();
-            HashMap<Integer, Double> predictions = new HashMap<>();
+            
             for (int i = 0; i < obsCount; i++) {
                 observations.put(i, 0.0);
                 predictions.put(i, 0.0);
@@ -78,16 +79,24 @@ public class DurPredictStDev {
                         Integer durObservation = Integer.parseInt(ExcelUtils.getColumnValue(ExcelUtils.db, line)) > 29 ? 29 : Integer.parseInt(ExcelUtils.getColumnValue(ExcelUtils.db, line));
                         observations.put(durObservation, observations.get(durObservation) + 1);
                         // durPrediction is 1 to 30. Hence the minus 1.
+                        if (durPrediction < 1 || durPrediction > obsCount) {
+                            System.out.println("*** ERROR: durPrediction too large/small: " + durPrediction);
+                            System.exit(1);
+                        }
                         predictions.put(durPrediction - 1, predictions.get(durPrediction - 1) + 1);
                     }
                 }
                 // calculate diffs:
                 for (int i = 0; i < obsCount; i++) {
-                    predictionDiffs.get(i)[count] = Math.abs(observations.get(i) - predictions.get(i));
+                    predictionDiffs.get(i)[count] = predictions.get(i);
                 }
                 br.close();
             } catch (Exception ex) {
                 System.out.println("---------------------" + d);
+                System.out.println("---------- ");
+                for (int key : predictions.keySet()) {
+                    System.out.println("-- key: " + key + ", value: " + predictions.get(key));
+                }
                 sLog.error(ex.getLocalizedMessage(), ex);
                 System.exit(1);
             }
