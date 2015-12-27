@@ -31,9 +31,9 @@ public class DurPredictStDev {
 
     private final static Logger sLog = LogManager.getLogger(DurationPrediction.class);
 
-    private final static int runCounts = 10000;
+    private final static int runCounts = 1000;
 
-    private final static int obsCount = 30;
+    private final static int obsCount = 31;
 
     public DurPredictStDev() {
     }
@@ -83,7 +83,7 @@ public class DurPredictStDev {
                 }
                 // calculate diffs:
                 for (int i = 0; i < obsCount; i++) {
-                    predictionDiffs.get(i)[count] = Math.abs(observations.get(i) - predictions.get(i));
+                    predictionDiffs.get(i)[count] = predictions.get(i);
                 }
                 br.close();
             } catch (Exception ex) {

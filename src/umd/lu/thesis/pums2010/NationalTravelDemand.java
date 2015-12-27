@@ -249,7 +249,7 @@ public class NationalTravelDemand {
         Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         // calculate p
-        for (int t = 1; t <= 30; t++) {
+        for (int t = 1; t <= 31; t++) {
             double pSt = 1 - math.tdST(p, d, toy, t, tripType);
             pList.add(pSt);
             List tmp = new ArrayList<>();
@@ -260,13 +260,13 @@ public class NationalTravelDemand {
         Collections.sort(pList);
         double r = rand.sample();
         double tempSt = 0.0;
-        for (int t = 1; t <= 30; t++) {
+        for (int t = 1; t <= 31; t++) {
             if (tempSt < r && r <= pList.get(t - 1)) {
                 return t;
             }
             tempSt = pList.get(t - 1);
         }
-        return 30;
+        return 31;
         
 //        return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
