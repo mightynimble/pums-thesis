@@ -250,35 +250,25 @@ public class NationalTravelDemand {
         List<Double> pList = new ArrayList<>();
         // calculate p
         for (int t = 1; t <= 31; t++) {
-            double pSt = math.tdGammaP(p, d, toy, t, tripType);
+            double pSt = 1 - math.tdST(p, d, toy, t, tripType);
             pList.add(pSt);
             List tmp = new ArrayList<>();
             tmp.add(t);
             pMap.put(pSt, tmp);
         }
         
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
-    }
-    
-    protected double[] findTourDurationWithProbabilities(Person2010 p, int d, TripType tripType, int toy) {
-        sLog.debug("Find Trip Duration - p: " + p.getPid() + ", d: " + d
-                + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
-
-        Map<Double, List<Integer>> pMap = new HashMap<>();
-        List<Double> pList = new ArrayList<>();
-        double[] results = new double[41];
-        // calculate p
+        Collections.sort(pList);
+        double r = rand.sample();
+        double tempSt = 0.0;
         for (int t = 1; t <= 31; t++) {
-            double pSt = math.tdGammaP(p, d, toy, t, tripType);
-            results[t] = pSt;
-            pList.add(pSt);
-            List tmp = new ArrayList<>();
-            tmp.add(t);
-            pMap.put(pSt, tmp);
+            if (tempSt < r && r <= pList.get(t - 1)) {
+                return t;
+            }
+            tempSt = pList.get(t - 1);
         }
-
-        results[0] = math.MonteCarloMethod(pList, pMap, rand.sample());
-        return results;
+        return 31;
+        
+//        return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
 
     private Integer findTravelPartySize(Person2010 p, int d, TripType type) {

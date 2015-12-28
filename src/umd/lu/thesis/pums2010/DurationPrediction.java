@@ -49,13 +49,7 @@ public class DurationPrediction extends NationalTravelDemand {
                     toy = Integer.parseInt(ExcelUtils.getColumnValue(ExcelUtils.cz, line));
                     p.setAge(Integer.parseInt(ExcelUtils.getColumnValue(ExcelUtils.cg, line)));
                     
-                    double[] results = dp.findTourDurationWithProbabilities(p, d, TripType.PERSONAL_BUSINESS, toy);
-                    line += "\t" + results[0] + "\t";
-                    
-                    for (int i = 1; i < 31; i ++) {
-                        line += results[i] + "\t";
-                    }
-                    line += "\n";
+                    line += "\t" + dp.findTourDuration(p, d, TripType.PERSONAL_BUSINESS, toy) + "\n";
                 }
                 else {
                     line += "\tDURATION_PREDICTION\n";
