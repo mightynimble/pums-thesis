@@ -9,9 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import static java.lang.Math.exp;
-import static java.lang.Math.pow;
 import static java.lang.Math.log;
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.commons.math3.special.Gamma;
 import umd.lu.thesis.common.ThesisProperties;
 import umd.lu.thesis.exceptions.InvalidValueException;
 import umd.lu.thesis.helper.ExcelUtils;
@@ -210,22 +207,22 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA", -0.1816153);
-        aMap.put("p_Cwc", 0.0860959);
-        aMap.put("p_sf", -0.0740024);
-        aMap.put("p_nfh", -0.1685255);
-        aMap.put("p_size", 0.0276247);
-        aMap.put("p_medinc", -0.0445089);
-        aMap.put("p_higinc",  -0.202355);
-        aMap.put("p_unemp", -0.1315379);
-        aMap.put("p_student", -0.0517883);
-        aMap.put("p_quart2", -0.1970428);
-        aMap.put("p_quart3", -0.3270529);
-        aMap.put("p_quart4", -0.1405266);
-        aMap.put("p_age",  0.0057242);
-        aMap.put("p_t", -0.0866409);
-        aMap.put("p_t2", 0.0015994);
-        aMap.put("cons", -0.8477403);
+        aMap.put("p_MSA", -0.1820453);
+        aMap.put("p_Cwc", 0.0858639);
+        aMap.put("p_sf", -0.0747196);
+        aMap.put("p_nfh", -0.16928);
+        aMap.put("p_size", 0.0277908);
+        aMap.put("p_medinc", -0.0449545);
+        aMap.put("p_higinc", -0.203315);
+        aMap.put("p_unemp", -0.1316425);
+        aMap.put("p_student", -0.0520757);
+        aMap.put("p_quart2", -0.1959913);
+        aMap.put("p_quart3", -0.326353);
+        aMap.put("p_quart4", -0.1408615);
+        aMap.put("p_age", 0.0057316);
+        aMap.put("p_t", -0.0844187);
+        aMap.put("p_t2", 0.001577);
+        aMap.put("cons", -0.8541713);
 
         tdBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -235,18 +232,18 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_cwc", 0.0249386);
-        aMap.put("p_sf",  -0.101704);
-        aMap.put("p_nfh", -0.1084567);
-        aMap.put("p_size", 0.0153536);
-        aMap.put("p_medinc", -0.0579595);
-        aMap.put("p_higinc", -0.1895206);
-        aMap.put("p_unemp", -0.2627857);
-        aMap.put("p_student", -0.2607679);
-        aMap.put("p_age", -0.0049195);
-        aMap.put("p_t", 0.0049396);
-        aMap.put("p_t2", -0.001061);
-        aMap.put("cons", -0.8995064);
+        aMap.put("p_cwc", 0.0246723);
+        aMap.put("p_sf", -0.1016066);
+        aMap.put("p_nfh", -0.1085404);
+        aMap.put("p_size", 0.0153954);
+        aMap.put("p_medinc", -0.0579756);
+        aMap.put("p_higinc", -0.1895153);
+        aMap.put("p_unemp", -0.2625184);
+        aMap.put("p_student", -0.2606127);
+        aMap.put("p_age", -0.0049123);
+        aMap.put("p_t", 0.0069086);
+        aMap.put("p_t2", -0.0011164);
+        aMap.put("cons", -0.9054559);
 
         tdPleasureCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -256,22 +253,22 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     static {
         Map<String, Double> aMap = new HashMap<>();
 
-        aMap.put("p_MSA", -0.096153);
-        aMap.put("p_Cwc", 0.1494351  );
-        aMap.put("p_sf", -0.1479881);
-        aMap.put("p_nfh",  0.2028233 );
-        aMap.put("p_size",  0.0301547);
-        aMap.put("p_medinc", -0.0821755);
-        aMap.put("p_higinc", -0.2784809);
-        aMap.put("p_unemp", -0.1931261);
-        aMap.put("p_student", -0.6697315);
-        aMap.put("p_quart2",  -0.0628629 );
-        aMap.put("p_quart3", -0.1274327);
-        aMap.put("p_quart4",  -0.0836786);
-        aMap.put("p_age",  0.0033237);
-        aMap.put("p_t", -0.1865749 );
-        aMap.put("p_t2",  0.0052671);
-        aMap.put("cons", -0.5024421);
+        aMap.put("p_MSA", -0.0964579);
+        aMap.put("p_Cwc", 0.1492781 );
+        aMap.put("p_sf", -0.1478411);
+        aMap.put("p_nfh", 0.2036903);
+        aMap.put("p_size", 0.0303087);
+        aMap.put("p_medinc", -0.0824961);
+        aMap.put("p_higinc", -0.2792192 );
+        aMap.put("p_unemp", -0.1939502);
+        aMap.put("p_student", -0.669031);
+        aMap.put("p_quart2", -0.0623819 );
+        aMap.put("p_quart3", -0.1278243);
+        aMap.put("p_quart4", -0.0837726);
+        aMap.put("p_age", 0.003318);
+        aMap.put("p_t", -0.1878537);
+        aMap.put("p_t2", 0.0054924);
+        aMap.put("cons", -0.5018215);
 
         tdPBCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -567,6 +564,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("pi_nmsa", 1.780490);
         stopLocCoefs = Collections.unmodifiableMap(aMap);
     }
+    
+    public double pStStatic[] = {0.19762014, 0.13426513, 0.217641186, 0.125522787, 0.083564933, 0.047732117, 0.035185235, 0.053263538, 0.019859151, 0.013302393, 0.013572219, 0.006907531, 0.005288578, 0.005396508, 0.008688379, 0.003696608, 0.002806184, 0.002293516, 0.001726883, 0.001295162, 0.001645935, 0.002320499, 0.000917406, 0.000755511, 0.000782494, 0.000566633, 0.000620598, 0.000728529, 0.001025337, 0.000647581, 0.010361296};
 
     private LogSum logsum;
 
@@ -797,20 +796,12 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdBusinessCoefs.get("p_quart3") * (toy == 3 ? 1 : 0)
                    + tdBusinessCoefs.get("p_quart4") * (toy == 4 ? 1 : 0)
                    + tdBusinessCoefs.get("p_age") * (p.getAge())
+                   + tdBusinessCoefs.get("p_t") * t 
+                   + tdBusinessCoefs.get("p_t2") * t * t
                    + tdBusinessCoefs.get("cons");
         }
         else if(type == TripType.PLEASURE) {
-            return tdPleasureCoefs.get("p_cwc") * (p.getHhType() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_sf") * (p.getHhType() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_nfh") * (p.getHhType() == 4 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_size") * p.getNp()
-                   + tdPleasureCoefs.get("p_medinc") * (p.getIncLevel() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_higinc") * (p.getIncLevel() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_unemp") * (p.getEmpStatus() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_student") * (p.getEmpStatus() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_age") * (p.getAge())
-                   + tdPleasureCoefs.get("cons");
-
+            return 0.0;
         }
         else {
             // TripType.PERSONAL_BUSINESS
@@ -827,6 +818,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdPBCoefs.get("p_quart3") * (toy == 3 ? 1 : 0)
                    + tdPBCoefs.get("p_quart4") * (toy == 4 ? 1 : 0)
                    + tdPBCoefs.get("p_age") * (p.getAge())
+                   + tdPBCoefs.get("p_t") * t
+                   + tdPBCoefs.get("p_t2") * t * t
                    + tdPBCoefs.get("cons");
         }
     }
@@ -1736,40 +1729,6 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     private String getKey(int o, int d) {
-  
         return Integer.toString(o) + "-" + Integer.toString(d);
-    }
-
-    public double tdGammaP(Person2010 p, int d, int toy, int t, TripType tripType) {
-        double alpha = 0.0;
-        if (tripType == TripType.BUSINESS) {
-            alpha = 1.796751;
-        }
-        if (tripType == TripType.PERSONAL_BUSINESS) {
-            alpha =  4.523092 ;
-        }
-        if (tripType == TripType.PLEASURE) {
-            alpha = 0.9350667;
-        }
-       
-        double factor1, factor2, factor3, factor4;
-        
-        factor1 = 1 / (1 - pow(1 + alpha * betaX(p, d, toy, t, tripType), -1 / alpha));
-        factor2 = Gamma.gamma(1 / alpha + t) / (Gamma.gamma(t + 1) * Gamma.gamma(1 / alpha));
-        factor3 = pow(1 / (1 + alpha * betaX(p, d, toy, t, tripType)), 1 / alpha);
-        factor4 = pow(1 - 1 / (1 + alpha * betaX(p, d, toy, t, tripType)), t);
-
-        if (factor1 == Double.NaN ||factor2 == Double.NaN || factor3 == Double.NaN || factor4 == Double.NaN) {
-            System.out.println("LLLLLLLLLLLLLLL: NaN: " + factor1 + ", " + factor2 + ", " + factor3 + ", " + factor4);
-        }
-        if (factor1 * factor2 * factor3 * factor4 == Double.NaN) {
-            System.out.println("LLLLLLLLLLLLLLL: NaN: " + factor1 + ", " + factor2 + ", " + factor3 + ", " + factor4);
-        }
-        return factor1 * factor2 * factor3 * factor4;
-        
-    }
-
-    private double betaX(Person2010 p, int d, int toy, int t, TripType tripType) {
-        return tdHT(p, d, toy, t, tripType);
     }
 }

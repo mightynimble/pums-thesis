@@ -248,24 +248,48 @@ public class NationalTravelDemand {
         
         Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
-        // calculate p
-        for (int t = 1; t <= 31; t++) {
-            double pSt = 1 - math.tdST(p, d, toy, t, tripType);
-            pList.add(pSt);
-            List tmp = new ArrayList<>();
-            tmp.add(t);
-            pMap.put(pSt, tmp);
-        }
         
-        Collections.sort(pList);
-        double r = rand.sample();
-        double tempSt = 0.0;
-        for (int t = 1; t <= 31; t++) {
-            if (tempSt < r && r <= pList.get(t - 1)) {
-                return t;
+        if (tripType == TripType.PLEASURE) {
+            for (int t = 1; t <= 31; t++) {
+                double pSt = math.pStStatic[t - 1];
+                pList.add(pSt);
+                List tmp = new ArrayList<>();
+                tmp.add(t);
+                pMap.put(pSt, tmp);
             }
-            tempSt = pList.get(t - 1);
+            
+            Collections.sort(pList);
+//            double r = rand.sample();
+//            double tempSt = 0.0;
+//            for (int t = 1; t <= 31; t++) {
+//                if (tempSt < r && r <= tempSt + pList.get(t - 1)) {
+//                    return t; 
+//                }
+//                tempSt += pList.get(t - 1);
+//            }
+//            
+            return math.MonteCarloMethod(pList, pMap, rand.sample());
+        } else {
+            // calculate p
+            for (int t = 1; t <= 31; t++) {
+                double pSt = 1 - math.tdST(p, d, toy, t, tripType);
+                pList.add(pSt);
+                List tmp = new ArrayList<>();
+                tmp.add(t);
+                pMap.put(pSt, tmp);
+            }
+            
+            Collections.sort(pList);
+            double r = rand.sample();
+            double tempSt = 0.0;
+            for (int t = 1; t <= 31; t++) {
+                if (tempSt < r && r <= pList.get(t - 1)) {
+                    return t;
+                }
+                tempSt = pList.get(t - 1);
+            }
         }
+
         return 31;
         
 //        return math.MonteCarloMethod(pList, pMap, rand.sample());
