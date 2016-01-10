@@ -564,6 +564,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("pi_nmsa", 1.780490);
         stopLocCoefs = Collections.unmodifiableMap(aMap);
     }
+    
+    public double pStStatic[] = {0.19762014, 0.13426513, 0.217641186, 0.125522787, 0.083564933, 0.047732117, 0.035185235, 0.053263538, 0.019859151, 0.013302393, 0.013572219, 0.006907531, 0.005288578, 0.005396508, 0.008688379, 0.003696608, 0.002806184, 0.002293516, 0.001726883, 0.001295162, 0.001645935, 0.002320499, 0.000917406, 0.000755511, 0.000782494, 0.000566633, 0.000620598, 0.000728529, 0.001025337, 0.000647581, 0.010361296};
 
     private LogSum logsum;
 
@@ -799,19 +801,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + tdBusinessCoefs.get("cons");
         }
         else if(type == TripType.PLEASURE) {
-            return tdPleasureCoefs.get("p_cwc") * (p.getHhType() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_sf") * (p.getHhType() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_nfh") * (p.getHhType() == 4 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_size") * p.getNp()
-                   + tdPleasureCoefs.get("p_medinc") * (p.getIncLevel() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_higinc") * (p.getIncLevel() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_unemp") * (p.getEmpStatus() == 2 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_student") * (p.getEmpStatus() == 3 ? 1 : 0)
-                   + tdPleasureCoefs.get("p_age") * (p.getAge())
-                   + tdPleasureCoefs.get("p_t") * t
-                   + tdPleasureCoefs.get("p_t2") * t * t
-                   + tdPleasureCoefs.get("cons");
-
+            return 0.0;
         }
         else {
             // TripType.PERSONAL_BUSINESS
