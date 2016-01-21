@@ -955,7 +955,7 @@ public class NationalTravelDemand {
                 for (int type = 0; type < TripType.itemCount; type++) {
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
                     String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-                    String fileName = key + "-" + timestamp + ".txt";
+                    String fileName = key + "-" + timestamp + "-" + rand.sample() + ".txt";
                     File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
                     try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
                         if (f.exists()) {
