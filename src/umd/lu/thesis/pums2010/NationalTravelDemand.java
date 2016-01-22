@@ -184,6 +184,10 @@ public class NationalTravelDemand {
         
         int dest = math.MonteCarloMethod(pList, pMap, rand.sample());
         
+//        if (dest ==1) {
+//            sLog.info("--- destChoice: dest == 1, o: " + o);
+//        }
+        
         // For statistical purpose. Note that dest is from 1 to 380. Hence the minus 1.
 //        toursByDestination[dest - 1] ++;
         return dest;
@@ -505,9 +509,9 @@ public class NationalTravelDemand {
         // calculate p
         for (int z = 1; z <= Math.alt; z++) {
             double pSt = uExpList.get(z - 1) / expSum;
-            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
-                sLog.debug("    pSt[" + (z - 1) + "]: " + pSt);
-            }
+//            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
+//                sLog.error("  ERROR: uExpList.get(" + (z - 1) + "): " + uExpList.get(z - 1) + ", expSum: " + expSum + ", pSt: " + pSt);
+//            }
             if (pMap.get(pSt) != null) {
                 List tmp = pMap.get(pSt);
                 tmp.add(z - 1);
@@ -521,6 +525,14 @@ public class NationalTravelDemand {
 
         int loc = math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
         
+//        if (loc == Math.alt + 1) {
+//            sLog.error("  ERROR: loc too large! (loc=" + loc + ")");
+//        }
+//        
+//        if (so == 1) {
+//            sLog.info("--- so: 1, loc: " + loc + ", (o, d) = (" + o + ", " + d + ")");
+//        }
+//        
         // For statistical purpose.
         toursByModeChoiceAndDest[mc.getValue()][loc - 1] ++;
         
@@ -964,8 +976,8 @@ public class NationalTravelDemand {
                             f.createNewFile();
                         }
 
-                        for (int i = 0; i < Math.alt; i++) {
-                            for (int j = 0; j < Math.alt; j++) {
+                        for (int i = 1; i <= Math.alt; i++) {
+                            for (int j = 1; j <= Math.alt; j++) {
                                 bw.write(results.get(key).get(j + "-" + i) + "\t");
                             }
                             bw.write("\n");

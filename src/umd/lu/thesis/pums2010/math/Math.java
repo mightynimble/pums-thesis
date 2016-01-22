@@ -1075,6 +1075,12 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         
         
         double gtc = generailizedTravelCost(p, so, o, d, s, mc, type, toy);
+//        if (gtc == Double.NaN) {
+//            sLog.error(" ERROR: gtc NaN. p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy);
+//            for (int loc : stopLocations) {
+//                sLog.error("        already picked stop location: " + loc);
+//            }
+//        }
 //        sLog.debug("      gtc[" + s + "]: " + gtc);
         double dist = 0.0;
         try {
@@ -1099,7 +1105,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_emp") * msaEmpMap.get(s)[0]
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_hh") * msaEmpMap.get(s)[1]
                    + stopLocCoefs.get("p" + (isOutBound ? "o" : "i") + "_nmsa") * (1 - zonIdMap.get(idMsaMap.get(s))[1]);
-        if (u == Double.NaN || u == Double.POSITIVE_INFINITY) {
+        if (u == Double.NaN || u == Double.POSITIVE_INFINITY || u == Double.NEGATIVE_INFINITY) {
             return 0.0;
         }
         return exp(u);
