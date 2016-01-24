@@ -899,7 +899,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     public double mcUcarExp(Person2010 p, TripType type, int d, int o, int days, boolean retry) {
-        if(!retry && logsum.tourCarTime(o, d, type) > days * 24 / 2) {
+        if(!retry && logsum.tourCarTime(o, d, type) > days * 24) {
             return 0.0;
         }
         double tourCarCost = logsum.tourCarCost(p.getIncLevel(), o, d, type);
