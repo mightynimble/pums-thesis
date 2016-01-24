@@ -967,7 +967,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     }
 
     public double mcUtrainExp(Person2010 p, TripType type, int d, int o, int days, boolean retry) {
-        if(!retry && logsum.tourTrainTime(o, d) > days * 24 / 2) {
+        if(!retry && logsum.tourTrainTime(o, d) > days * 24) {
             return 0.0;
         }
         double tourTrainCost = logsum.tourTrainCost(o, d);
@@ -1052,7 +1052,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                 return 0.0;
             }
         }
-        
+                
 //        double tripTime = 0.0;
 //        if (mc == ModeChoice.CAR) {
 //            tripTime = logsum.tourCarTime(so, s, type);
@@ -1084,7 +1084,7 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 //        sLog.debug("      gtc[" + s + "]: " + gtc);
         double dist = 0.0;
         try {
-            dist = businessCarMap.get(getKey(so, d))[3];
+                dist = businessCarMap.get(getKey(so, d))[3];
         } catch (NullPointerException e) {
             String msg = e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy + ", outBound: " + isOutBound + ", days: " + days + ", num of stops:  " + numOfStops + ") Stop Locations: ";
             for (int loc: stopLocations) {
