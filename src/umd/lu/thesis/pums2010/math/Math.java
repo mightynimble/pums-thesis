@@ -1084,14 +1084,12 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 //        sLog.debug("      gtc[" + s + "]: " + gtc);
         double dist = 0.0;
         try {
-            if (isOutBound) {
-                dist = businessCarMap.get(getKey(so, d))[3];
-            }
-            else {
-                dist = businessCarMap.get(getKey(so, o))[3];
-            }
+            dist = businessCarMap.get(getKey(so, d))[3];
             
-            if (businessCarMap.get(getKey(s, o))[3] > businessCarMap.get(getKey(o, d))[3]) {
+            if (isOutBound && businessCarMap.get(getKey(s, o))[3] > businessCarMap.get(getKey(o, d))[3]) {
+                return 0.0;
+            }
+            else if (!isOutBound && businessCarMap.get(getKey(s, d))[3] > businessCarMap.get(getKey(o, d))[3]) {
                 return 0.0;
             }
         } catch (NullPointerException e) {
