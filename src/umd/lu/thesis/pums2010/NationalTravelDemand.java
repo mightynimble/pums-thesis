@@ -4,6 +4,7 @@
  */
 package umd.lu.thesis.pums2010;
 
+import umd.lu.thesis.common.ThesisBase;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,9 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import static java.lang.Math.abs;
-import static java.lang.Math.abs;
-import static java.lang.Math.abs;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +35,7 @@ import umd.lu.thesis.simulation.app2000.objects.TripType;
  *
  * @author Home
  */
-public class NationalTravelDemand {
+public class NationalTravelDemand extends ThesisBase{
 
     private final static Logger sLog = LogManager.getLogger(NationalTravelDemand.class);
 
