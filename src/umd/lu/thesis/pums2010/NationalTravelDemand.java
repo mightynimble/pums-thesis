@@ -4,7 +4,6 @@
  */
 package umd.lu.thesis.pums2010;
 
-import umd.lu.thesis.common.ThesisBase;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,7 +34,7 @@ import umd.lu.thesis.simulation.app2000.objects.TripType;
  *
  * @author Home
  */
-public class NationalTravelDemand extends ThesisBase{
+public class NationalTravelDemand{
 
     private final static Logger sLog = LogManager.getLogger(NationalTravelDemand.class);
 
@@ -65,6 +64,7 @@ public class NationalTravelDemand extends ThesisBase{
     private static int[][] toursByPurposeAndStopFrequencyOB;
     private static int[][] toursByPurposeAndModeChoice;
     private static int[][] toursByModeChoiceAndDest;
+    private static HashMap<Integer, Integer[]> sortedODDistMap;
     
     public NationalTravelDemand(Pums2010DAOImpl dao) {
         pumsDao = dao;
@@ -76,6 +76,7 @@ public class NationalTravelDemand extends ThesisBase{
         toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
         toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
+        sortedODDistMap = math.sortODDist();
     }
 
     public NationalTravelDemand() {
@@ -88,6 +89,7 @@ public class NationalTravelDemand extends ThesisBase{
         toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
         toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
+        sortedODDistMap = math.sortODDist();
     }
 
     public void run(int start, int end) {
@@ -110,7 +112,7 @@ public class NationalTravelDemand extends ThesisBase{
         
         int rowCount = pumsDao.getTotalRecordsByMaxId("PERSON_HOUSEHOLD_EXPANDED");
         sLog.info("Total rows: " + rowCount);
-
+        
         currentRow = startRow;
         while (currentRow < endRow) {
             batchProcessRecord();
@@ -410,7 +412,17 @@ public class NationalTravelDemand extends ThesisBase{
                 + ", outbound?: " + isOutBound);
         List<Double> uExpList = new ArrayList<>();
         double sum = 0.0;
-        for (int i = 0; i < 5; i++) {
+
+        int maxStops = 5;
+        Integer[] oNeighbors = sortedODDistMap.get(o);
+        for (int i = 0; i < oNeighbors.length; i ++) {
+            if (oNeighbors[i] == d) {
+                maxStops = i;
+                break;
+            }
+        }
+        
+        for (int i = 0; i < maxStops; i++) {
             double uExp = math.stopFreqUExp(o, d, td, tps, mc, type, toy, i, isOutBound);
             uExpList.add(uExp);
             sum += uExp;
@@ -419,7 +431,7 @@ public class NationalTravelDemand extends ThesisBase{
 
         List<Double> pList = new ArrayList<>();
         Map<Double, List<Integer>> pMap = new HashMap<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < maxStops; i++) {
             double p = uExpList.get(i) / sum;
             sLog.debug("    stopFreqP[" + i + "]: " + p);
             pList.add(p);
@@ -522,6 +534,23 @@ public class NationalTravelDemand extends ThesisBase{
         }
 
         int loc = math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
+        // By adding the dist condition in stopLocUExp(math.java), an error will
+        // occur when the dist is already the smallest so that all pSt will be
+        // 0.0. In this case, the loc is chosen randomly from 1-380 and o/d/so
+        // could be picked up. A mechanism in stopFreq calculation has been 
+        // implemented to try to fix this issue. However, if it fails, we need
+        // the following code block to catch it and terminate the execution for
+        // further debugging.
+        if (loc == o || loc == d || loc == so) {
+            sLog.error("ERROR: loc == " + loc + ", o = " + o + ", d = " + d);
+            int t = 0;
+            for (double v : uExpList) {
+                sLog.error("  exp(" + t + "): " + v);
+                t++;
+            }
+            sLog.error(" -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR- ");
+            System.exit(-1);
+        }
         
 //        if (loc == Math.alt + 1) {
 //            sLog.error("  ERROR: loc too large! (loc=" + loc + ")");

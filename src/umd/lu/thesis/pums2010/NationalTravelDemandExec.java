@@ -4,11 +4,13 @@
  */
 package umd.lu.thesis.pums2010;
 
+import umd.lu.thesis.common.ThesisBase;
+
 /**
  *
  * @author Home
  */
-public class NationalTravelDemandExec {
+public class NationalTravelDemandExec extends ThesisBase{
     
     public static void main(String[] args) throws Exception {
         int start = Integer.parseInt(args[0]);

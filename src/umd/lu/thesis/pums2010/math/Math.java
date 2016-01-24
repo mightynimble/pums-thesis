@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1743,5 +1744,30 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
 
     private String getKey(int o, int d) {
         return Integer.toString(o) + "-" + Integer.toString(d);
+    }
+
+    public HashMap<Integer, Integer[]> sortODDist() {
+        HashMap<Integer, Integer[]> sortedODDistMap = new HashMap<>();
+        
+        for (int o = 0; o < alt; o ++) {
+            List<Double> tmpDistList = new ArrayList<>();
+            Map<Double, Integer> tmpDistZoneIdMap = new HashMap<>();
+            for (int d = 0; d < alt; d ++) {
+                if (d != o) {
+                    Double dist = businessCarMap.get(getKey(o, d))[3];
+                    tmpDistList.add(dist);
+                    tmpDistZoneIdMap.put(dist, d);
+                }
+            }
+            Collections.sort(tmpDistList);
+            
+            // store top 5 (shortest) sorted dist to the returning object
+            Integer[] tops = new Integer[5];
+            for (int t = 0; t < 5; t ++) {
+                tops[t] = tmpDistZoneIdMap.get(tmpDistList.get(t));
+            }
+            sortedODDistMap.put(o, tops);
+        }
+        return sortedODDistMap;
     }
 }
