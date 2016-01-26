@@ -415,11 +415,19 @@ public class NationalTravelDemand{
 
         int maxStops = 5;
         Integer[] oNeighbors = sortedODDistMap.get(o);
-        for (int i = 0; i < oNeighbors.length; i ++) {
-            if (oNeighbors[i] == d) {
-                maxStops = i;
+        for (int i = 0; i < oNeighbors.length; i++) {
+            if (i < 5) {
+                if (oNeighbors[i] == d) {
+                    maxStops = i;
+                    break;
+                }
+            } else {
+                maxStops = 5;
                 break;
             }
+        }
+        if (maxStops == 0) {
+            return 0;
         }
         
         for (int i = 0; i < maxStops; i++) {
@@ -441,6 +449,10 @@ public class NationalTravelDemand{
         }
 
         int stops = math.MonteCarloMethod(pList, pMap, rand.sample());
+        if (stops == -1) {
+            return 0;
+        }
+        
         // For statistical purpose
         if(isOutBound) {
             toursByPurposeAndStopFrequencyOB[type.getValue()][stops]++;
@@ -510,14 +522,24 @@ public class NationalTravelDemand{
         List<Double> pList = new ArrayList<>();
         List<Double> uExpList = new ArrayList<>();
         double expSum = 0.0;
-        // cache uExp in a List
-        for (int z = 1; z <= Math.alt; z++) {
-            double uExp = math.stopLocUExp(p, so, o, d, z, mc, type, toy, days, numOfStops, isOutBound, stopLocations);
-            expSum += uExp;
-            uExpList.add(uExp);
+        
+        // Find the possible locations first
+        Integer[] candidateLocations = sortedODDistMap.get(o);
+        int candidateLocationSize = -1;
+        for (int i = 0; i < candidateLocations.length; i++) {
+            if (candidateLocations[i] != d) {
+                double uExp = math.stopLocUExp(p, so, o, d, candidateLocations[i], mc, type, toy, days, numOfStops, isOutBound, stopLocations);
+                expSum += uExp;
+                uExpList.add(uExp);
+            }
+            else {
+                candidateLocationSize = i;
+                break;
+            }
         }
+        
         // calculate p
-        for (int z = 1; z <= Math.alt; z++) {
+        for (int z = 1; z <= candidateLocationSize; z++) {
             double pSt = uExpList.get(z - 1) / expSum;
 //            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
 //                sLog.error("  ERROR: uExpList.get(" + (z - 1) + "): " + uExpList.get(z - 1) + ", expSum: " + expSum + ", pSt: " + pSt);
@@ -533,7 +555,8 @@ public class NationalTravelDemand{
             pList.add(pSt);
         }
 
-        int loc = math.MonteCarloMethod(pList, pMap, rand.sample()) + 1;
+        int indx = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int loc = candidateLocations[indx];
         // By adding the dist condition in stopLocUExp(math.java), an error will
         // occur when the dist is already the smallest so that all pSt will be
         // 0.0. In this case, the loc is chosen randomly from 1-380 and o/d/so
@@ -542,8 +565,22 @@ public class NationalTravelDemand{
         // the following code block to catch it and terminate the execution for
         // further debugging.
         if (loc == o || loc == d || loc == so) {
-            sLog.error("ERROR: loc == " + loc + ", o = " + o + ", d = " + d);
+            sLog.error("ERROR: loc == " + loc + ", o = " + o + ", d = " + d + ", numOfStops: " + numOfStops
+                    + ", Mode: " + mc.name() + ", Trip Purpose:  " + type.name()
+                    + ", toy: " + toy + ", outbound?: " + isOutBound);
             int t = 0;
+            for (int l: stopLocations) {
+                sLog.error("  stop loc: " + l);
+            }
+            if (candidateLocations.length != 0) {
+                for (int l : candidateLocations) {
+                    sLog.error("  possible location: " + l);
+                    if (l == d) break; 
+                }
+            } else {
+                sLog.info("  --possible location length == 0");
+            }
+            
             for (double v : uExpList) {
                 sLog.error("  exp(" + t + "): " + v);
                 t++;
