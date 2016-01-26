@@ -1087,12 +1087,12 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         try {
             dist = businessCarMap.get(getKey(so, d))[3];
             
-            if (isOutBound && businessCarMap.get(getKey(s, o))[3] > businessCarMap.get(getKey(o, d))[3]) {
+            if (businessCarMap.get(getKey(s, o))[3] > businessCarMap.get(getKey(o, d))[3]) {
                 return 0.0;
             }
-            else if (!isOutBound && businessCarMap.get(getKey(s, d))[3] > businessCarMap.get(getKey(o, d))[3]) {
-                return 0.0;
-            }
+//            else if (!isOutBound && businessCarMap.get(getKey(s, d))[3] > businessCarMap.get(getKey(o, d))[3]) {
+//                return 0.0;
+//            }
         } catch (NullPointerException e) {
             String msg = e.getLocalizedMessage() + ". (p: " + p.getPid() + ", so: " + so + ", o: " + o + ", d: " + d + ", s: " + s + ", mc: " + mc.name() + ", type: " + type.name() + ", toy: " + toy + ", outBound: " + isOutBound + ", days: " + days + ", num of stops:  " + numOfStops + ") Stop Locations: ";
             for (int loc: stopLocations) {
@@ -1407,6 +1407,11 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
                 break;
             }
         }
+        // all probability values are 0.0.
+        if (tmpSum == 0) {
+            return -1;
+        }
+        
         if(pickedIndex == -1) {
             pickedIndex = pList.size() - 1;
         }
@@ -1749,10 +1754,10 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
     public HashMap<Integer, Integer[]> sortODDist() {
         HashMap<Integer, Integer[]> sortedODDistMap = new HashMap<>();
         
-        for (int o = 0; o < alt; o ++) {
+        for (int o = 1; o <= alt; o ++) {
             List<Double> tmpDistList = new ArrayList<>();
             Map<Double, Integer> tmpDistZoneIdMap = new HashMap<>();
-            for (int d = 0; d < alt; d ++) {
+            for (int d = 1; d <= alt; d ++) {
                 if (d != o) {
                     Double dist = businessCarMap.get(getKey(o, d))[3];
                     tmpDistList.add(dist);
@@ -1761,9 +1766,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
             }
             Collections.sort(tmpDistList);
             
-            // store top 5 (shortest) sorted dist to the returning object
-            Integer[] tops = new Integer[5];
-            for (int t = 0; t < 5; t ++) {
+            Integer[] tops = new Integer[alt];
+            // alt - 1 since o == d is excluded
+            for (int t = 0; t < alt - 1; t ++) {
                 tops[t] = tmpDistZoneIdMap.get(tmpDistList.get(t));
             }
             sortedODDistMap.put(o, tops);
