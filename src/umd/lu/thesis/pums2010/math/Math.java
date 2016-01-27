@@ -589,6 +589,18 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         logsumCacheQ3 = new HashMap<>();
         logsumCacheQ4 = new HashMap<>();
     }
+    
+    public HashMap<String, Double[]> getTrainMap() {
+        return trainMap;
+    }
+    
+    public HashMap<String, Double[]> getAirMap() {
+        return airMap;
+    }
+    
+    public HashMap<String, Double[]> getCarMap() {
+        return businessCarMap;
+    }
 
     public double destUD(Person2010 p, int o, int d, TripType type, int quarter) throws InvalidValueException {
         double dist = o == d ? Double.NEGATIVE_INFINITY : businessCarMap.get(getKey(o, d))[3];

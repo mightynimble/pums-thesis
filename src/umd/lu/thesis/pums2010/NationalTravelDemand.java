@@ -513,7 +513,7 @@ public class NationalTravelDemand{
         return stopTypes;
     }
 
-    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound, List<Integer> stopLocations) {
+    private Integer findStopLocation(Person2010 p, int so, int o, int d, ModeChoice mc, TripType type, int toy, int days, int numOfStops, boolean isOutBound, List<Integer> pickedStopLocations) {
         sLog.debug("Find Stop Location - p: " + p.getPid() + ", stop origin: " + so
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
@@ -523,23 +523,82 @@ public class NationalTravelDemand{
         List<Double> uExpList = new ArrayList<>();
         double expSum = 0.0;
         
-        // Find the possible locations first
-        Integer[] candidateLocations = sortedODDistMap.get(o);
-        int candidateLocationSize = -1;
-        for (int i = 0; i < candidateLocations.length; i++) {
-            if (candidateLocations[i] != d) {
-                double uExp = math.stopLocUExp(p, so, o, d, candidateLocations[i], mc, type, toy, days, numOfStops, isOutBound, stopLocations);
+        // 1. Find all candidates first.
+        Integer[] allZonesSorted = sortedODDistMap.get(o);
+        List<Integer> candidates = new ArrayList<>();
+        HashMap<String, Double[]> trainMap = math.getTrainMap();
+        HashMap<String, Double[]> airMap = math.getAirMap();
+        HashMap<String, Double[]> carMap = math.getCarMap();
+        
+        // 1-1. Find zone IDs z such that dist(o, z) < dist(o, d)
+        for (int i = 0; i < allZonesSorted.length; i++) {
+            if (allZonesSorted[i] != d) {
+                candidates.add(allZonesSorted[i]);
+                // calculate uExp for convenience
+                double uExp = math.stopLocUExp(p, so, o, d, allZonesSorted[i], mc, type, toy, days, numOfStops, isOutBound, pickedStopLocations);
                 expSum += uExp;
                 uExpList.add(uExp);
             }
-            else {
-                candidateLocationSize = i;
-                break;
+            break;
+        }
+        
+        // 1-2. Among all these primary candidates, if tripType is TRAIN/AIR, 
+        //      remove those which don't have a train station/airport
+        if (mc == ModeChoice.TRAIN) {
+            for (Integer candidate : candidates) {
+                if (trainMap.get(o + "-" + candidate) == null) {
+                    int indx = candidates.indexOf(candidate);
+                    candidates.remove(indx);
+                    // also remove uExp
+                    uExpList.remove(indx);
+                }
+            }
+        }
+        if (mc == ModeChoice.AIR) {
+            for (Integer candidate : candidates) {
+                if (airMap.get(o + "-" + candidate) == null) {
+                    int indx = candidates.indexOf(candidate);
+                    candidates.remove(indx);
+                    // also remove uExp
+                    uExpList.remove(indx);
+                }
             }
         }
         
+        // 1-3. Start picking stop locations from candidates. If tripType is AIR,
+        //      the dist from picked zone ID to all other zone IDs must larger
+        //      than 100 miles. If no such zone ID exists, set number of stops
+        //      to the number of picked zone IDs and ignore the unassigned 
+        //      trip purpose.
+        if (mc == ModeChoice.AIR) {
+            for (Integer candidate : candidates) {
+                int indx = candidates.indexOf(candidate);
+                if (carMap.get(o + "-" + candidate)[3] < 100.0) {
+                    candidates.remove(indx);
+                    // also remove uExp
+                    uExpList.remove(indx);
+                } else if (carMap.get(d + "-" + candidate)[3] < 100.0) {
+                    candidates.remove(indx);
+                    // also remove uExp
+                    uExpList.remove(indx);
+                }
+                for (int picked : pickedStopLocations) {
+                    if (carMap.get(picked + "-" + candidate)[3] < 100.0) {
+                        candidates.remove(indx);
+                        // also remove uExp
+                        uExpList.remove(indx);
+                    }
+                }
+            }
+        }
+        
+        if (candidates.size() == 0) {
+            return -1;
+        }
+        
+        
         // calculate p
-        for (int z = 1; z <= candidateLocationSize; z++) {
+        for (int z = 1; z <= candidates.size(); z++) {
             double pSt = uExpList.get(z - 1) / expSum;
 //            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
 //                sLog.error("  ERROR: uExpList.get(" + (z - 1) + "): " + uExpList.get(z - 1) + ", expSum: " + expSum + ", pSt: " + pSt);
@@ -556,7 +615,7 @@ public class NationalTravelDemand{
         }
 
         int indx = math.MonteCarloMethod(pList, pMap, rand.sample());
-        int loc = candidateLocations[indx];
+        int loc = allZonesSorted[indx];
         // By adding the dist condition in stopLocUExp(math.java), an error will
         // occur when the dist is already the smallest so that all pSt will be
         // 0.0. In this case, the loc is chosen randomly from 1-380 and o/d/so
@@ -569,11 +628,11 @@ public class NationalTravelDemand{
                     + ", Mode: " + mc.name() + ", Trip Purpose:  " + type.name()
                     + ", toy: " + toy + ", outbound?: " + isOutBound);
             int t = 0;
-            for (int l: stopLocations) {
+            for (int l: pickedStopLocations) {
                 sLog.error("  stop loc: " + l);
             }
-            if (candidateLocations.length != 0) {
-                for (int l : candidateLocations) {
+            if (allZonesSorted.length != 0) {
+                for (int l : allZonesSorted) {
                     sLog.error("  possible location: " + l);
                     if (l == d) break; 
                 }
@@ -687,7 +746,12 @@ public class NationalTravelDemand{
                 }
                 debug += "]";
                 sLog.debug(debug);
+                //
+                //
                 // 8. Stop Location (exclude origin and dest)
+                // Super complex...
+                //
+                //
                 List<Integer> obStopLocations = new ArrayList<>();
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
@@ -697,6 +761,9 @@ public class NationalTravelDemand{
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -707,6 +774,9 @@ public class NationalTravelDemand{
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -768,7 +838,12 @@ public class NationalTravelDemand{
                 }
                 debug += "]";
                 sLog.debug(debug);
+                //
+                //
                 // 8. Stop Location (exclude origin and dest)
+                // Super complex...
+                //
+                //
                 List<Integer> obStopLocations = new ArrayList<>();
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
@@ -778,6 +853,9 @@ public class NationalTravelDemand{
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -788,6 +866,9 @@ public class NationalTravelDemand{
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
@@ -854,7 +935,12 @@ public class NationalTravelDemand{
                 }
                 debug += "]";
                 sLog.debug(debug);
-                // 9. Stop Location
+                //
+                //
+                // 8. Stop Location (exclude origin and dest)
+                // Super complex...
+                //
+                //
                 List<Integer> obStopLocations = new ArrayList<>();
                 List<Integer> ibStopLocations = new ArrayList<>();
                 int so = -1;
@@ -864,6 +950,9 @@ public class NationalTravelDemand{
                         so = origin;
                     }
                     int loc = findStopLocation(p, so, origin, dest, mode, type, toy, days, obNumOfStops, true, obStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     obStopLocations.add(loc);
                     so = loc;
@@ -874,6 +963,9 @@ public class NationalTravelDemand{
                         so = dest;
                     }
                     int loc = findStopLocation(p, so, dest, origin, mode, type, toy, days, ibNumOfStops, false, ibStopLocations);
+                    if (loc == -1) {
+                        break;
+                    }
                     sLog.debug("    loc: " + loc);
                     ibStopLocations.add(loc);
                     so = loc;
