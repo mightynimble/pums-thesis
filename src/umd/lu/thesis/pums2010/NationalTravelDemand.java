@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
@@ -40,7 +41,7 @@ public class NationalTravelDemand{
 
     private static final int INVALID_QUARTER = -1;
 
-    private static final int bulkSize = 2000;
+    private static final int bulkSize = 100000;
 
     private static int startRow;  /* inclusive */
 
@@ -518,10 +519,6 @@ public class NationalTravelDemand{
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
                 + ", outbound?: " + isOutBound);
-        Map<Double, List<Integer>> pMap = new HashMap<>();
-        List<Double> pList = new ArrayList<>();
-        List<Double> uExpList = new ArrayList<>();
-        double expSum = 0.0;
         
         // 1. Find all candidates first.
         Integer[] allZonesSorted = sortedODDistMap.get(o);
@@ -534,10 +531,6 @@ public class NationalTravelDemand{
         for (int i = 0; i < allZonesSorted.length; i++) {
             if (allZonesSorted[i] != d) {
                 candidates.add(allZonesSorted[i]);
-                // calculate uExp for convenience
-                double uExp = math.stopLocUExp(p, so, o, d, allZonesSorted[i], mc, type, toy, days, numOfStops, isOutBound, pickedStopLocations);
-                expSum += uExp;
-                uExpList.add(uExp);
             }
             break;
         }
@@ -545,22 +538,18 @@ public class NationalTravelDemand{
         // 1-2. Among all these primary candidates, if tripType is TRAIN/AIR, 
         //      remove those which don't have a train station/airport
         if (mc == ModeChoice.TRAIN) {
-            for (Integer candidate : candidates) {
+            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+                Integer candidate = iterator.next();
                 if (trainMap.get(o + "-" + candidate) == null) {
-                    int indx = candidates.indexOf(candidate);
-                    candidates.remove(indx);
-                    // also remove uExp
-                    uExpList.remove(indx);
+                    iterator.remove();
                 }
             }
         }
         if (mc == ModeChoice.AIR) {
-            for (Integer candidate : candidates) {
+            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+                Integer candidate = iterator.next();
                 if (airMap.get(o + "-" + candidate) == null) {
-                    int indx = candidates.indexOf(candidate);
-                    candidates.remove(indx);
-                    // also remove uExp
-                    uExpList.remove(indx);
+                    iterator.remove();
                 }
             }
         }
@@ -571,33 +560,62 @@ public class NationalTravelDemand{
         //      to the number of picked zone IDs and ignore the unassigned 
         //      trip purpose.
         if (mc == ModeChoice.AIR) {
-            for (Integer candidate : candidates) {
-                int indx = candidates.indexOf(candidate);
+            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+                Integer candidate = iterator.next();
                 if (carMap.get(o + "-" + candidate)[3] < 100.0) {
-                    candidates.remove(indx);
-                    // also remove uExp
-                    uExpList.remove(indx);
-                } else if (carMap.get(d + "-" + candidate)[3] < 100.0) {
-                    candidates.remove(indx);
-                    // also remove uExp
-                    uExpList.remove(indx);
+                    // no need to null-check o-candidate, see step 1-2.
+                    iterator.remove();
+                } else if (carMap.get(d + "-" + candidate) == null || carMap.get(d + "-" + candidate)[3] < 100.0) {
+                    iterator.remove();
                 }
                 for (int picked : pickedStopLocations) {
-                    if (carMap.get(picked + "-" + candidate)[3] < 100.0) {
-                        candidates.remove(indx);
-                        // also remove uExp
-                        uExpList.remove(indx);
+                    if (carMap.get(picked + "-" + candidate) == null || carMap.get(picked + "-" + candidate)[3] < 100.0) {
+                        iterator.remove();
                     }
                 }
+            }            
+        }
+        
+        // 1-4. Further remove so, o, d, and already picked zone IDs from 
+        //      candidates
+        List<Integer> readyToRemove = new ArrayList<>();
+        for (Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+            Integer candidate = iterator.next();
+            if (candidate == o || candidate == d || candidate == so) {
+                iterator.remove();
             }
+            for (Integer picked : pickedStopLocations) {
+                if (candidate.intValue() == picked.intValue()) {
+                    // store to-be-removed candidate in an array then remove
+                    // all together to prevent an invalidStateException
+                    readyToRemove.add(candidate);
+                }
+            }
+        }
+        if (readyToRemove.size() > 1) {
+            candidates.removeAll(readyToRemove);
         }
         
         if (candidates.size() == 0) {
             return -1;
         }
         
+        // 2. If there are candidates left, calculate uExp and stop zone ID
+                
+        Map<Double, List<Integer>> pMap = new HashMap<>();
+        List<Double> pList = new ArrayList<>();
+        double expSum = 0.0;
+        List<Double> uExpList = new ArrayList<>();
         
-        // calculate p
+        // 2-1. Calculate uExp.
+        for (Integer candidate : candidates) {
+            double uExp = math.stopLocUExp(p, so, o, d, candidate, mc, type, toy, days, numOfStops, isOutBound, pickedStopLocations);
+            expSum += uExp;
+            uExpList.add(uExp);
+        }
+                
+        
+        // 2-2. Calculate p
         for (int z = 1; z <= candidates.size(); z++) {
             double pSt = uExpList.get(z - 1) / expSum;
 //            if (pSt == Double.NEGATIVE_INFINITY || pSt == Double.POSITIVE_INFINITY || pSt == Double.NaN) {
@@ -614,8 +632,12 @@ public class NationalTravelDemand{
             pList.add(pSt);
         }
 
+        // 2-3. Monte Carlo simulation
         int indx = math.MonteCarloMethod(pList, pMap, rand.sample());
-        int loc = allZonesSorted[indx];
+        int loc = candidates.get(indx);
+        
+        // 3. The end. Sanity check.
+        //
         // By adding the dist condition in stopLocUExp(math.java), an error will
         // occur when the dist is already the smallest so that all pSt will be
         // 0.0. In this case, the loc is chosen randomly from 1-380 and o/d/so
@@ -648,14 +670,6 @@ public class NationalTravelDemand{
             System.exit(-1);
         }
         
-//        if (loc == Math.alt + 1) {
-//            sLog.error("  ERROR: loc too large! (loc=" + loc + ")");
-//        }
-//        
-//        if (so == 1) {
-//            sLog.info("--- so: 1, loc: " + loc + ", (o, d) = (" + o + ", " + d + ")");
-//        }
-//        
         // For statistical purpose.
         toursByModeChoiceAndDest[mc.getValue()][loc - 1] ++;
         
@@ -996,12 +1010,12 @@ public class NationalTravelDemand{
         */
         String key;
         String odPair;
-        if (obStopPurposes.isEmpty()) {
+        if (obStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = origin + "-" + dest;
             updateMatrixCell(key, odPair);
         }
-        else if (obStopPurposes.size() == 1) {
+        else if (obStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(0);
             odPair = origin + "-" + obStopLocations.get(0);
             updateMatrixCell(key, odPair);
@@ -1018,7 +1032,7 @@ public class NationalTravelDemand{
             odPair = obStopLocations.get(obStopLocations.size() - 1) + "-" + dest;
             updateMatrixCell(key, odPair);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-            for (int i = 0; i < obStopPurposes.size() - 1; i++) {
+            for (int i = 0; i < obStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i + 1);
                 odPair = obStopLocations.get(i) + "-" + obStopLocations.get(i + 1);
                 updateMatrixCell(key, odPair);
@@ -1027,12 +1041,12 @@ public class NationalTravelDemand{
         /*
         inbound
         */
-        if (ibStopPurposes.isEmpty()) {
+        if (ibStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = dest + "-" + origin;
             updateMatrixCell(key, odPair);
         }
-        else if (ibStopPurposes.size() == 1) {
+        else if (ibStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(0);
             odPair = dest + "-" + ibStopLocations.get(0);
             updateMatrixCell(key, odPair);
@@ -1049,7 +1063,7 @@ public class NationalTravelDemand{
             odPair = ibStopLocations.get(ibStopLocations.size() - 1) + "-" + origin;
             updateMatrixCell(key, odPair);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
-            for (int i = 0; i < ibStopPurposes.size() - 1; i++) {
+            for (int i = 0; i < ibStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i + 1);
                 odPair = ibStopLocations.get(i) + "-" + ibStopLocations.get(i + 1);
                 updateMatrixCell(key, odPair);
