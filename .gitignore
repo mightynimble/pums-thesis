@@ -10,3 +10,4 @@ resources/outputs
 master.log
 /nbproject/
 logsmaster.log
+resources/config.properties
