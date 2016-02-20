@@ -20,7 +20,7 @@ class CalculateDummyVarsSet1 {
 
     private static final int batchSize = 50000;
     
-    private static final int cutoffId = 144250000;
+    private static final int cutoffId = 1;
 
     private static final String insertSqlPrefix = "INSERT INTO ID_EXPAND1 (ID, EMPLOYMENT, UNEMPLOYMENT,"
             + " STUDENT, MALE, HHCHD, HHOCHD, SINGLE, NON_FAM, LOWINCOME, "
@@ -41,13 +41,14 @@ class CalculateDummyVarsSet1 {
         try {
             Statement insertStmt = dao.getConnection().createStatement();
             Statement st = dao.getConnection().createStatement();
+            int batchCounter = 0;
             for (int id = cutoffId + 1; id <= totalRows; id++) {
                 if (id % 100000 == 1) {
                     log.info("Progress: " + id + " out of " + totalRows);
                 }
 
                 ResultSet rs = st.executeQuery("SELECT * FROM PERSON_HOUSEHOLD_EXPANDED WHERE ID = " + id);
-                while (rs.next()) {
+                if (rs.next()) {
                     dummyValueSet[0] = rs.getInt("EMP_STATUS") == 1 ? 1 : 0;
                     dummyValueSet[1] = rs.getInt("EMP_STATUS") == 2 ? 1 : 0;
                     dummyValueSet[2] = rs.getInt("EMP_STATUS") == 3 ? 1 : 0;
@@ -64,6 +65,7 @@ class CalculateDummyVarsSet1 {
                     dummyValueSet[10] = rs.getInt("INC_LVL") == 3 ? 1 : 0;
 
                     prepareInsertElement(sb, rs.getInt("ID"), dummyValueSet);
+                    batchCounter ++;
                 }
                 if (id % batchSize == 0) {
                     // execute insert
@@ -73,6 +75,7 @@ class CalculateDummyVarsSet1 {
                     sb.setLength(0);
                     insertSql = insertSqlPrefix;
                     sb.append(insertSql);
+                    batchCounter = 0;
                 }
             }
             if (!sb.toString().equals("INSERT INTO ID_RANDS (ID, R_BUSINESS, R_PERSON, R_PB) VALUES ")) {

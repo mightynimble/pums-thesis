@@ -41,7 +41,7 @@ class CalculateRandValues {
 
     private static final int batchSize = 500;
 
-    private static final int cutoffId = 1300000;
+    private static final int cutoffId = 1;
 
     public CalculateRandValues(int totalRows) {
         this.totalRows = totalRows;
@@ -124,24 +124,27 @@ class CalculateRandValues {
         try {
             Statement st = dao.getConnection().createStatement();
             Statement insertStmt = dao.getConnection().createStatement();
+            int batchCounter = 0;
             for (int id = cutoffId; id <= totalRows; id++) {
                 if (id % 100000 == 1) {
                     log.info("Progress: " + id + " out of " + totalRows);
                 }
 
                 ResultSet rs = st.executeQuery("SELECT * FROM PERSON_HOUSEHOLD_EXPANDED WHERE ID = " + id);
-                while (rs.next()) {
+                if (rs.next()) {
                     Double randBusiness = getRandomSample(rs, "business");
                     Double randPerson = getRandomSample(rs, "person");
                     Double randPB = getRandomSample(rs, "pb");
                     insertSql = prepareInsertElement(insertSql, rs.getInt("ID"), randBusiness, randPerson, randPB);
+                    batchCounter ++;
                 }
-                if (id % batchSize == 0) {
+                if (batchCounter == batchSize) {
                     // execute insert
 //                    sb.deleteCharAt(sb.lastIndexOf(","));
                     insertStmt.executeUpdate(insertSql.substring(0, insertSql.length() - 1));
                     insertSql = "INSERT INTO ID_RANDS (ID, R_BUSINESS, R_PERSON, R_PB) VALUES ";
 //                    sb = new StringBuilder(insertSql);
+                    batchCounter = 0;
                 }
 
             }
@@ -152,6 +155,7 @@ class CalculateRandValues {
         } catch (SQLException ex) {
 //                log.error("SQL: " + sb.toString());
             log.error("Error: " + ex.getLocalizedMessage(), ex);
+            log.error("SQL: " + insertSql);
             System.exit(1);
         }
         log.info("Completed. ");
@@ -166,12 +170,13 @@ class CalculateRandValues {
 
     private double getRandomSample(ResultSet rs, String type) {
         try {
+            int id = rs.getInt("ID");
             int msa = rs.getInt("MSAPMSA") == 9999 ? 2 : 1;
             int incLevel = rs.getInt("INC_LVL");
             int sex = rs.getInt("SEX");
             int dumEmp = rs.getInt("EMP_STATUS");
 
-            NormalDistributionParams ndParams = getNormalDistributionParams(msa, incLevel, sex, dumEmp, type);
+            NormalDistributionParams ndParams = getNormalDistributionParams(id, msa, incLevel, sex, dumEmp, type);
             if (ndParams.getSd() == 0.0) {
                 return ndParams.getMean();
             } else {
@@ -186,9 +191,10 @@ class CalculateRandValues {
         return Double.NEGATIVE_INFINITY;
     }
 
-    private NormalDistributionParams getNormalDistributionParams(int msa, int incLevel, int sex, int dumEmp, String type) throws InvalidValueException {
+    private NormalDistributionParams getNormalDistributionParams(int id, int msa, int incLevel, int sex, int dumEmp, String type) throws InvalidValueException {
         NormalDistributionParams params = new NormalDistributionParams();
         String key = msa + "-" + incLevel + "-" + sex + "-" + dumEmp;
+        try {
         if (type.equalsIgnoreCase("business")) {
             params.setMean(tripRateBusiness.get(key)[0]);
             params.setSd(tripRateBusiness.get(key)[1]);
@@ -200,6 +206,10 @@ class CalculateRandValues {
             params.setSd(tripRatePb.get(key)[1]);
         } else {
             throw new InvalidValueException("Invalid type value: " + type);
+        }
+        }
+        catch (Exception e) {
+            log.error("ERROR getNormalDistributionParams: key = " + key + ", ID = " + id, e);
         }
         return params;
     }
