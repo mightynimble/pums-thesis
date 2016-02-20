@@ -1,0 +1,69 @@
+#
+# to make a comment, start the line with '#'
+#
+#
+# for (L)UNIX and Mac OS, use path like "/path/to/foo"
+# for Windows, user path like "C:\\path\\to\\foo"
+
+
+db.username=<database username, e.g. root>
+db.password=<database user's password>
+db.host=<database hostname, e.g. localhost>
+db.port=<database port, for MySQL, default port is 3306>
+
+data.file.path=path/to/foo
+output.file.path=path/to/foo
+output.h.file.path=path/to/foo
+output.p.file.path=path/to/foo
+
+transition.file.path=path/to/foo
+alt.file.path=path/to/foo
+dictionary.file.path=path/to/foo
+airfare.file.path=path/to/foo
+others.file.path=path/to/foo
+output.file.base.name=path/to/foo
+air.fare.by.quarter=path/to/foo
+train.file.path=path/to/foo
+
+p.column.position.input=path/to/foo
+h.column.position.input=path/to/foo
+merged.p.file.path=path/to/foo
+merged.h.file.path=path/to/foo
+pums.output.folder=path/to/foo
+pums.input.folder=path/to/foo
+pums.business.triprate=path/to/foo
+pums.pleasure.triprate=path/to/foo
+pums.pb.triprate=path/to/foo
+pums.puma.msa.perpop=path/to/foo
+pums.db=<database schema name, e.g. thesis>
+
+simulation.app2000.db=<database schema name, e.g. thesis>
+simulation.app2000.zoneid=path/to/foo
+simulation.app2000.odskim_car_business=path/to/foo
+simulation.app2000.odskim_car_other=path/to/foo
+simulation.app2000.air_skim_avg=path/to/foo
+simulation.app2000.odskim_train=path/to/foo
+simulation.app2000.zone_msa=path/to/foo
+simulation.app2000.msa_emp=path/to/foo
+simulation.app2000.msafare_1=path/to/foo
+simulation.app2000.msafare_2=path/to/foo
+simulation.app2000.msafare_3=path/to/foo
+simulation.app2000.msafare_4=path/to/foo
+simulation.app2000.output_basename=path/to/foo
+simulation.app2000.dumpfile_basename=path/to/foo
+simulation.app2000.progress=path/to/foo
+
+
+simulation.pums2010.zoneid=/path/to/foo
+simulation.pums2010.odskim_car_business=/path/to/foo
+simulation.pums2010.odskim_car_other=/path/to/foo
+simulation.pums2010.air_skim_avg=/path/to/foo
+simulation.pums2010.odskim_train=/path/to/foo
+simulation.pums2010.msa_emp=/path/to/foo
+simulation.pums2010.msafare_1=/path/to/foo
+simulation.pums2010.msafare_2=/path/to/foo
+simulation.pums2010.msafare_3=/path/to/foo
+simulation.pums2010.msafare_4=/path/to/foo
+simulation.pums2010.output.dir=/path/to/foo
+simulation.pums2010.duration.prediction.output=/path/to/foo
+simulation.pums2010.duration.prediction.input=/path/to/foo
