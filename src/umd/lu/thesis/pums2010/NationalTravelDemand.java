@@ -132,7 +132,7 @@ public class NationalTravelDemand{
         for (Person2010 p : pList) {
             currentRow = p.getPid();
             sLog.debug("PID: " + currentRow);
-            if (currentRow == endRow) {
+            if (currentRow >= endRow) {
                 break;
             }
 
@@ -1042,7 +1042,7 @@ public class NationalTravelDemand{
         inbound
         */
         if (ibStopLocations.isEmpty()) {
-            key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
+            key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = dest + "-" + origin;
             updateMatrixCell(key, odPair);
         }
