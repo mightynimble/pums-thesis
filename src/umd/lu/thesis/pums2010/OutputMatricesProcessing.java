@@ -72,7 +72,7 @@ public class OutputMatricesProcessing {
                             results.get(key).put(subKey, val);
                         }
                         else {
-                            results.get(key).put(subKey, results.get(key).get(subKey) + 1);
+                            results.get(key).put(subKey, results.get(key).get(subKey) + val);
                         }
                     }
                     row++;
