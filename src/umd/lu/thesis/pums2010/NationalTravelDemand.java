@@ -718,7 +718,7 @@ public class NationalTravelDemand{
     private void runSimulationAndPopulateResults(Person2010 p, int origin, TripType type) {
         if (type == TripType.BUSINESS) {
             sLog.debug("Total BUSINESS tour: " + p.getrB());
-            for (int tour = 0; tour < p.getrP(); tour++) {
+            for (int tour = 0; tour < p.getrB(); tour++) {
 //                toursByPurpose[type.getValue()] ++;
                 sLog.debug("Tour #" + tour);
                 /**
@@ -906,7 +906,7 @@ public class NationalTravelDemand{
         } else {
             // type == TripType.PLEASURE
             int tour = 0;
-            sLog.debug("Total PLEASURE tour: " + p.getrPB());
+            sLog.debug("Total PLEASURE tour: " + p.getrP());
             while (tour < p.getrP()) {
 //                toursByPurpose[type.getValue()] ++;
                 sLog.debug("Tour #" + tour);
