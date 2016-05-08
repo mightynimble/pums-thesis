@@ -532,7 +532,9 @@ public class NationalTravelDemand{
             if (allZonesSorted[i] != d) {
                 candidates.add(allZonesSorted[i]);
             }
-            break;
+            else {
+                break;
+            }
         }
         
         // 1-2. Among all these primary candidates, if tripType is TRAIN/AIR, 
