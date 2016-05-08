@@ -567,15 +567,15 @@ public class NationalTravelDemand{
                 if (carMap.get(o + "-" + candidate)[3] < 100.0) {
                     // no need to null-check o-candidate, see step 1-2.
                     iterator.remove();
-                    candidate = iterator.next();
                 } else if (carMap.get(d + "-" + candidate) == null || carMap.get(d + "-" + candidate)[3] < 100.0) {
                     iterator.remove();
-                    candidate = iterator.next();
                 }
                 for (int picked : pickedStopLocations) {
-                    if (carMap.get(picked + "-" + candidate) == null || carMap.get(picked + "-" + candidate)[3] < 100.0) {
-                        iterator.remove();
+                    if (iterator.hasNext()) {
                         candidate = iterator.next();
+                        if (carMap.get(picked + "-" + candidate) == null || carMap.get(picked + "-" + candidate)[3] < 100.0) {
+                            iterator.remove();
+                        }
                     }
                 }
             }            
@@ -590,7 +590,7 @@ public class NationalTravelDemand{
                 iterator.remove();
             }
             for (Integer picked : pickedStopLocations) {
-                if (candidate == picked.intValue()) {
+                if (candidate.intValue() == picked.intValue()) {
                     // store to-be-removed candidate in an array then remove
                     // all together to prevent an invalidStateException
                     readyToRemove.add(candidate);
