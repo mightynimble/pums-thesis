@@ -11,3 +11,4 @@ master.log
 /nbproject/
 logsmaster.log
 resources/config.properties
+nbproject/project.properties

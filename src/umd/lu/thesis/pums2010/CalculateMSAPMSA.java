@@ -32,8 +32,9 @@ public class CalculateMSAPMSA {
 
     org.apache.log4j.Logger log = org.apache.log4j.LogManager.getLogger(CalculateMSAPMSA.class);
     
-    // can't process all states due to memory issues
-    private int cutoffState = 5;
+    // can't process all states due to memory issues, set the default to 57
+    // (max is 56) when running on the server
+    private int cutoffState = 57;
 
     public CalculateMSAPMSA() {
     }
