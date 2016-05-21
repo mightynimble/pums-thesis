@@ -12,3 +12,4 @@ master.log
 logsmaster.log
 resources/config.properties
 nbproject/project.properties
+outputs/
