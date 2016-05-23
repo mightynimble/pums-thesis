@@ -11,6 +11,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.BatchUpdateException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -29,19 +34,26 @@ import umd.lu.thesis.pums2010.objects.ModeChoice;
 import umd.lu.thesis.pums2010.objects.Person2010;
 import umd.lu.thesis.pums2010.objects.Quarter;
 import umd.lu.thesis.pums2010.objects.TravelMode;
+import umd.lu.thesis.pums2010.objects.Trip;
 import umd.lu.thesis.simulation.app2000.objects.TripType;
 
 /**
  *
  * @author Home
  */
-public class NationalTravelDemand{
+public class NationalTravelDemand {
 
     private final static Logger sLog = LogManager.getLogger(NationalTravelDemand.class);
 
     private static final int INVALID_QUARTER = -1;
 
     private static final int bulkSize = 100000;
+
+    private static final int dbMaxBatchSize = 10000;
+
+    private static List<Trip> tripBuffer;
+
+    private static PreparedStatement pstmt;
 
     private static int startRow;  /* inclusive */
 
@@ -59,16 +71,19 @@ public class NationalTravelDemand{
 
     private final HashMap<Integer, Integer[]> zoneIdMap;
 
+    private final HashMap<Integer, Integer> altMsaMap;
+
     private UniformRealDistribution rand;
-    
+
     private static int[][] toursByPurposeAndStopFrequencyIB;
     private static int[][] toursByPurposeAndStopFrequencyOB;
     private static int[][] toursByPurposeAndModeChoice;
     private static int[][] toursByModeChoiceAndDest;
     private static HashMap<Integer, Integer[]> sortedODDistMap;
-    
+
     public NationalTravelDemand(Pums2010DAOImpl dao) {
         pumsDao = dao;
+        altMsaMap = new HashMap<>();
         zoneIdMap = initZoneId();
         math = new Math();
         results = new HashMap<>();
@@ -78,9 +93,12 @@ public class NationalTravelDemand{
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
         toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
         sortedODDistMap = math.sortODDist();
+        pstmt = null;
+        tripBuffer = new ArrayList<>();
     }
 
     public NationalTravelDemand() {
+        altMsaMap = new HashMap<>();
         zoneIdMap = initZoneId();
         pumsDao = new Pums2010DAOImpl();
         math = new Math();
@@ -91,6 +109,8 @@ public class NationalTravelDemand{
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
         toursByModeChoiceAndDest = new int[ModeChoice.itemCount][Math.alt];
         sortedODDistMap = math.sortODDist();
+        pstmt = null;
+        tripBuffer = new ArrayList<>();
     }
 
     public void run(int start, int end) {
@@ -100,20 +120,20 @@ public class NationalTravelDemand{
         sLog.info("NationalTravelDemand Simulation Started. Start Row: " + startRow + ", End Row: " + endRow + ", bulkSize: " + bulkSize);
 
         math.preCalculateLogsum();
-        
+
         for (int m = 0; m < TravelMode.itemCount; m++) {
             for (int q = 0; q < Quarter.itemCount; q++) {
                 for (int t = 0; t < TripType.itemCount; t++) {
                     results.put(TravelMode.values()[m] + "-"
-                                + Quarter.values()[q] + "-"
-                                + TripType.values()[t], new HashMap<String, Integer>());
+                            + Quarter.values()[q] + "-"
+                            + TripType.values()[t], new HashMap<String, Integer>());
                 }
             }
         }
-        
+
         int rowCount = pumsDao.getTotalRecordsByMaxId("PERSON_HOUSEHOLD_EXPANDED");
         sLog.info("Total rows: " + rowCount);
-        
+
         currentRow = startRow;
         while (currentRow < endRow) {
             batchProcessRecord();
@@ -182,13 +202,12 @@ public class NationalTravelDemand{
                 pMap.put(pU, tmp);
             }
         }
-        
+
         int dest = math.MonteCarloMethod(pList, pMap, rand.sample());
-        
+
 //        if (dest ==1) {
 //            sLog.info("--- destChoice: dest == 1, o: " + o);
 //        }
-        
         // For statistical purpose. Note that dest is from 1 to 380. Hence the minus 1.
 //        toursByDestination[dest - 1] ++;
         return dest;
@@ -241,7 +260,7 @@ public class NationalTravelDemand{
 
         // monte carlo method
         int toy = math.MonteCarloMethod(pList, pMap, rand.sample());
-        
+
         // For statistical purpose.
 //        toursByToY[toy] ++;
         return toy;
@@ -250,10 +269,10 @@ public class NationalTravelDemand{
     protected Integer findTourDuration(Person2010 p, int d, TripType tripType, int toy) {
         sLog.debug("Find Trip Duration - p: " + p.getPid() + ", d: " + d
                 + ", Trip Purpose:  " + tripType.name() + ", toy: " + toy);
-        
+
         Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
-        
+
         if (tripType == TripType.PLEASURE) {
             for (int t = 1; t <= 31; t++) {
                 double pSt = math.pStStatic[t - 1];
@@ -262,7 +281,7 @@ public class NationalTravelDemand{
                 tmp.add(t);
                 pMap.put(pSt, tmp);
             }
-            
+
             Collections.sort(pList);
 //            double r = rand.sample();
 //            double tempSt = 0.0;
@@ -283,7 +302,7 @@ public class NationalTravelDemand{
                 tmp.add(t);
                 pMap.put(pSt, tmp);
             }
-            
+
             Collections.sort(pList);
             double r = rand.sample();
             double tempSt = 0.0;
@@ -296,7 +315,7 @@ public class NationalTravelDemand{
         }
 
         return 31;
-        
+
 //        return math.MonteCarloMethod(pList, pMap, rand.sample());
     }
 
@@ -357,7 +376,7 @@ public class NationalTravelDemand{
         sLog.debug("    uTrainExp: " + uTrainExp);
         double sum = uCarExp + uAirExp + uTrainExp;
         sLog.debug("    sum: " + sum);
-        
+
         if (sum == 0.0) {
 //            sLog.warn(" Sum == 0.0! Remove time constraint and recalculating... (p: " + p.getPid() + ", d: " + d + ", type: " + type.name() + ", toy: " + toy + ", days: " + days);
             uCarExp = math.mcUcarExp(p, type, d, lookupAlt(p), days, true);
@@ -374,7 +393,7 @@ public class NationalTravelDemand{
 
         pTrain = uTrainExp / sum;
         sLog.debug("    pTrain: " + pTrain);
-        
+
         if (pAir == 0.0 && pCar == 0.0 && pTrain == 0.0) {
             sLog.error("    pCar, pTrain, and pAir ALL == 0. p: pid = " + p.getPid());
             System.exit(1);
@@ -400,7 +419,7 @@ public class NationalTravelDemand{
         sLog.debug("    modeChoiceValue: " + modeChoiceValue);
 
         ModeChoice mc = (modeChoiceValue == 0 ? ModeChoice.CAR : (modeChoiceValue == 1 ? ModeChoice.AIR : ModeChoice.TRAIN));
-        
+
         // For statistical purpose
 //        toursByTravelMode[mc.getValue()] ++;
         return mc;
@@ -430,7 +449,7 @@ public class NationalTravelDemand{
         if (maxStops == 0) {
             return 0;
         }
-        
+
         for (int i = 0; i < maxStops; i++) {
             double uExp = math.stopFreqUExp(o, d, td, tps, mc, type, toy, i, isOutBound);
             uExpList.add(uExp);
@@ -453,12 +472,11 @@ public class NationalTravelDemand{
         if (stops == -1) {
             return 0;
         }
-        
+
         // For statistical purpose
-        if(isOutBound) {
+        if (isOutBound) {
             toursByPurposeAndStopFrequencyOB[type.getValue()][stops]++;
-        }
-        else {
+        } else {
             toursByPurposeAndStopFrequencyIB[type.getValue()][stops]++;
         }
         return stops;
@@ -503,14 +521,14 @@ public class NationalTravelDemand{
                     : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
                             : TripType.PERSONAL_BUSINESS)));
         }
-        
+
         // For statistical purpose
         for (TripType t : stopTypes) {
-            toursByPurposeAndModeChoice[mc.getValue()][t.getValue()] ++;
+            toursByPurposeAndModeChoice[mc.getValue()][t.getValue()]++;
         }
         // Plus trip purpose of destination. (Trip purpose of origin is ignored since it is always HOME.)
-        toursByPurposeAndModeChoice[mc.getValue()][tripType.getValue()] ++;
-                
+        toursByPurposeAndModeChoice[mc.getValue()][tripType.getValue()]++;
+
         return stopTypes;
     }
 
@@ -519,28 +537,27 @@ public class NationalTravelDemand{
                 + ", o: " + o + ", d: " + d + ", Mode: " + mc.name()
                 + ", Trip Purpose:  " + type.name() + ", toy: " + toy
                 + ", outbound?: " + isOutBound);
-        
+
         // 1. Find all candidates first.
         Integer[] allZonesSorted = sortedODDistMap.get(o);
         List<Integer> candidates = new ArrayList<>();
         HashMap<String, Double[]> trainMap = math.getTrainMap();
         HashMap<String, Double[]> airMap = math.getAirMap();
         HashMap<String, Double[]> carMap = math.getCarMap();
-        
+
         // 1-1. Find zone IDs z such that dist(o, z) < dist(o, d)
         for (int i = 0; i < allZonesSorted.length; i++) {
             if (allZonesSorted[i] != d) {
                 candidates.add(allZonesSorted[i]);
-            }
-            else {
+            } else {
                 break;
             }
         }
-        
+
         // 1-2. Among all these primary candidates, if tripType is TRAIN/AIR, 
         //      remove those which don't have a train station/airport
         if (mc == ModeChoice.TRAIN) {
-            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+            for (Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
                 Integer candidate = iterator.next();
                 if (trainMap.get(o + "-" + candidate) == null) {
                     iterator.remove();
@@ -548,21 +565,21 @@ public class NationalTravelDemand{
             }
         }
         if (mc == ModeChoice.AIR) {
-            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+            for (Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
                 Integer candidate = iterator.next();
                 if (airMap.get(o + "-" + candidate) == null) {
                     iterator.remove();
                 }
             }
         }
-        
+
         // 1-3. Start picking stop locations from candidates. If tripType is AIR,
         //      the dist from picked zone ID to all other zone IDs must larger
         //      than 100 miles. If no such zone ID exists, set number of stops
         //      to the number of picked zone IDs and ignore the unassigned 
         //      trip purpose.
         if (mc == ModeChoice.AIR) {
-            for(Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
+            for (Iterator<Integer> iterator = candidates.iterator(); iterator.hasNext();) {
                 Integer candidate = iterator.next();
                 if (carMap.get(o + "-" + candidate)[3] < 100.0) {
                     // no need to null-check o-candidate, see step 1-2.
@@ -578,9 +595,9 @@ public class NationalTravelDemand{
                         }
                     }
                 }
-            }            
+            }
         }
-        
+
         // 1-4. Further remove so, o, d, and already picked zone IDs from 
         //      candidates
         List<Integer> readyToRemove = new ArrayList<>();
@@ -600,26 +617,24 @@ public class NationalTravelDemand{
         if (readyToRemove.size() > 1) {
             candidates.removeAll(readyToRemove);
         }
-        
+
         if (candidates.size() == 0) {
             return -1;
         }
-        
+
         // 2. If there are candidates left, calculate uExp and stop zone ID
-                
         Map<Double, List<Integer>> pMap = new HashMap<>();
         List<Double> pList = new ArrayList<>();
         double expSum = 0.0;
         List<Double> uExpList = new ArrayList<>();
-        
+
         // 2-1. Calculate uExp.
         for (Integer candidate : candidates) {
             double uExp = math.stopLocUExp(p, so, o, d, candidate, mc, type, toy, days, numOfStops, isOutBound, pickedStopLocations);
             expSum += uExp;
             uExpList.add(uExp);
         }
-                
-        
+
         // 2-2. Calculate p
         for (int z = 1; z <= candidates.size(); z++) {
             double pSt = uExpList.get(z - 1) / expSum;
@@ -640,7 +655,7 @@ public class NationalTravelDemand{
         // 2-3. Monte Carlo simulation
         int indx = math.MonteCarloMethod(pList, pMap, rand.sample());
         int loc = candidates.get(indx);
-        
+
         // 3. The end. Sanity check.
         //
         // By adding the dist condition in stopLocUExp(math.java), an error will
@@ -655,18 +670,20 @@ public class NationalTravelDemand{
                     + ", Mode: " + mc.name() + ", Trip Purpose:  " + type.name()
                     + ", toy: " + toy + ", outbound?: " + isOutBound);
             int t = 0;
-            for (int l: pickedStopLocations) {
+            for (int l : pickedStopLocations) {
                 sLog.error("  stop loc: " + l);
             }
             if (allZonesSorted.length != 0) {
                 for (int l : allZonesSorted) {
                     sLog.error("  possible location: " + l);
-                    if (l == d) break; 
+                    if (l == d) {
+                        break;
+                    }
                 }
             } else {
                 sLog.info("  --possible location length == 0");
             }
-            
+
             for (double v : uExpList) {
                 sLog.error("  exp(" + t + "): " + v);
                 t++;
@@ -674,10 +691,10 @@ public class NationalTravelDemand{
             sLog.error(" -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR-  -FATAL ERROR- ");
             System.exit(-1);
         }
-        
+
         // For statistical purpose.
-        toursByModeChoiceAndDest[mc.getValue()][loc - 1] ++;
-        
+        toursByModeChoiceAndDest[mc.getValue()][loc - 1]++;
+
         return loc;
     }
 
@@ -692,6 +709,7 @@ public class NationalTravelDemand{
                     Integer key = Integer.parseInt(ExcelUtils.getColumnValue(1, line));
                     Integer[] value = {Integer.parseInt(ExcelUtils.getColumnValue(2, line)), Integer.parseInt(ExcelUtils.getColumnValue(3, line))};
                     zone.put(key, value);
+                    altMsaMap.put(Integer.parseInt(ExcelUtils.getColumnValue(2, line)), Integer.parseInt(ExcelUtils.getColumnValue(3, line)));
                 }
             }
             br.close();
@@ -811,7 +829,7 @@ public class NationalTravelDemand{
                 }
                 debug += "]";
                 sLog.debug(debug);
-                writeTripsToResults(mode, toy, type, origin, dest, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
             }
         } else if (type == TripType.PERSONAL_BUSINESS) {
             sLog.debug("Total PERSONAL_BUSINESS tour: " + p.getrPB());
@@ -906,7 +924,7 @@ public class NationalTravelDemand{
                 /**
                  * Output Result
                  */
-                writeTripsToResults(mode, toy, type, origin, dest, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
             }
         } else {
             // type == TripType.PLEASURE
@@ -1003,75 +1021,73 @@ public class NationalTravelDemand{
                 /**
                  * Output Result
                  */
-                writeTripsToResults(mode, toy, type, origin, dest, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
                 tour++;
             }
         }
     }
 
-    private void writeTripsToResults(ModeChoice mode, int toy, TripType type, int origin, int dest, List<TripType> obStopPurposes, List<Integer> obStopLocations, List<TripType> ibStopPurposes, List<Integer> ibStopLocations) {
+    private void writeTripsToResults(int pId, ModeChoice mode, int toy, TripType type, int origin, int dest, int party, List<TripType> obStopPurposes, List<Integer> obStopLocations, List<TripType> ibStopPurposes, List<Integer> ibStopLocations) {
         /*
-        outbound
-        */
+         outbound
+         */
         String key;
         String odPair;
         if (obStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = origin + "-" + dest;
-            updateMatrixCell(key, odPair);
-        }
-        else if (obStopLocations.size() == 1) {
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+        } else if (obStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(0);
             odPair = origin + "-" + obStopLocations.get(0);
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = obStopLocations.get(0) + "-" + dest;
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
         } else {
             // first trip: origin -> stop1 (i = 0). Type is stopLoc's type
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(0);
             odPair = origin + "-" + obStopLocations.get(0);
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
             // last trip: stopN -> dest (i = N). Type is tour's type.
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = obStopLocations.get(obStopLocations.size() - 1) + "-" + dest;
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
             for (int i = 0; i < obStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i + 1);
                 odPair = obStopLocations.get(i) + "-" + obStopLocations.get(i + 1);
-                updateMatrixCell(key, odPair);
+                updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
             }
         }
         /*
-        inbound
-        */
+         inbound
+         */
         if (ibStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = dest + "-" + origin;
-            updateMatrixCell(key, odPair);
-        }
-        else if (ibStopLocations.size() == 1) {
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+        } else if (ibStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(0);
             odPair = dest + "-" + ibStopLocations.get(0);
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = ibStopLocations.get(0) + "-" + origin;
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
         } else {
             // first trip: dest -> stop1 (i = 0). Type is stopLoc's type
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(0);
             odPair = dest + "-" + ibStopLocations.get(0);
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
             // last trip: stopN -> origin (i = N). Type is HOME.
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = ibStopLocations.get(ibStopLocations.size() - 1) + "-" + origin;
-            updateMatrixCell(key, odPair);
+            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
             for (int i = 0; i < ibStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i + 1);
                 odPair = ibStopLocations.get(i) + "-" + ibStopLocations.get(i + 1);
-                updateMatrixCell(key, odPair);
+                updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
             }
         }
     }
@@ -1111,10 +1127,9 @@ public class NationalTravelDemand{
         String fileName = "tours.by.purpose.and.stop.frequency.inbound-" + timestamp + ".txt";
         File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if(f.exists()) {
+            if (f.exists()) {
                 f.delete();
-            }
-            else {
+            } else {
                 f.createNewFile();
             }
 
@@ -1125,18 +1140,16 @@ public class NationalTravelDemand{
                 bw.write("\n");
             }
             bw.flush();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
         fileName = "tours.by.purpose.and.stop.frequency.outbound-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if(f.exists()) {
+            if (f.exists()) {
                 f.delete();
-            }
-            else {
+            } else {
                 f.createNewFile();
             }
 
@@ -1147,19 +1160,17 @@ public class NationalTravelDemand{
                 bw.write("\n");
             }
             bw.flush();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
-        
+
         fileName = "tours.by.purpose.and.mode.choice-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if(f.exists()) {
+            if (f.exists()) {
                 f.delete();
-            }
-            else {
+            } else {
                 f.createNewFile();
             }
 
@@ -1170,19 +1181,17 @@ public class NationalTravelDemand{
                 bw.write("\n");
             }
             bw.flush();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
-        
+
         fileName = "tours.by.mode.choice.and.dest-" + timestamp + ".txt";
         f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if(f.exists()) {
+            if (f.exists()) {
                 f.delete();
-            }
-            else {
+            } else {
                 f.createNewFile();
             }
 
@@ -1193,19 +1202,78 @@ public class NationalTravelDemand{
                 bw.write("\n");
             }
             bw.flush();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
     }
 
-    private void updateMatrixCell(String key, String odPair) {
+    private void updateMatrixCellAndSaveTripToDb(String key, String odPair, int pId, TripType type, int inbound, int toy, ModeChoice mode, int party, int origin, int dest) {
+        int tripO = Integer.parseInt(odPair.split("-")[0]);
+        int oMsa = altMsaMap.get(tripO);
+        int tripD = Integer.parseInt(odPair.split("-")[1]);
+        int dMsa = altMsaMap.get(tripD);
+        Trip trip = new Trip(pId, type.name(), inbound, tripO, oMsa, tripD, dMsa, toy, mode.name(), party, math.getCarMap().get(tripO + "-" + tripD)[3], origin, dest);
+        tripBuffer.add(trip);
+        if (tripBuffer.size() == dbMaxBatchSize) {
+            saveTripsToDb();
+            tripBuffer.clear();
+        }
+        
         Integer count = results.get(key).get(odPair);
         if (count == null) {
             results.get(key).put(odPair, 1);
         } else {
             results.get(key).put(odPair, count + 1);
+        }
+    }
+
+    private void saveTripsToDb() {
+        Connection conn = pumsDao.getConnection();
+        try {
+            conn.setAutoCommit(false);
+            pstmt = conn.prepareStatement(
+                    "INSERT INTO " + ThesisProperties.getProperties("simulation.pums2010.db.table.ntd_output")
+                    + " (" + ThesisProperties.getProperties("simulation.pums2010.db.table.ntd_output.columns") + ") "
+                    + " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            for (Trip trip : tripBuffer) {
+                pstmt.setInt(1, trip.getPersonId());
+                pstmt.setString(2, trip.getType());
+                pstmt.setInt(3, trip.getInbound());
+                pstmt.setInt(4, trip.getTripO());
+                pstmt.setInt(5, trip.getoMsa());
+                pstmt.setInt(6, trip.getTripD());
+                pstmt.setInt(7, trip.getdMsa());
+                pstmt.setInt(8, trip.getToy());
+                pstmt.setString(9, trip.getMode());
+                pstmt.setInt(10, trip.getParty());
+                pstmt.setDouble(11, trip.getDistance());
+                pstmt.setInt(12, trip.getOrigin());
+                pstmt.setInt(13, trip.getDest());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            conn.commit();
+            pstmt.clearBatch();
+
+        } catch (BatchUpdateException ex) {
+            sLog.error("----BatchUpdateException----", ex);
+            sLog.error("SQLState:  " + ex.getSQLState());
+            sLog.error("Message:  " + ex.getMessage());
+            sLog.error("Vendor:  " + ex.getErrorCode());
+            sLog.error("Update counts:  ");
+            int[] updateCounts = ex.getUpdateCounts();
+
+            for (int i = 0; i < updateCounts.length; i++) {
+                sLog.error(updateCounts[i] + "   ");
+            }
+            sLog.error("Program terminated with exit code 1.");
+            System.exit(1);
+        } catch (SQLException ex) {
+            sLog.error("Database error.", ex);
+            sLog.error("Program terminated with exit code 1.");
+            System.exit(1);
         }
     }
 }
