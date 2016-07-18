@@ -134,9 +134,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_School_1", 0.3201603);
         aMap.put("Coef_School_2", 0.0748973);
         aMap.put("Coef_School_3", 0.8341451);
-        aMap.put("Asc_1", -1.469728);
-        aMap.put("Asc_2", -0.7446439);
-        aMap.put("Asc_3", -0.3704078);
+        aMap.put("Asc_1", -2.116);
+        aMap.put("Asc_2", -1.250);
+        aMap.put("Asc_3", -0.581);
 
         toyBusinessCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -167,9 +167,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_hhchd_1", 0.5747832);
         aMap.put("Coef_hhchd_2", 0.926389);
         aMap.put("Coef_hhchd_3", 0.8699875);
-        aMap.put("Asc_1", -1.228896);
-        aMap.put("Asc_2", -1.285858);
-        aMap.put("Asc_3", -0.5417412);
+        aMap.put("Asc_1", -1.859);
+        aMap.put("Asc_2", -1.099);
+        aMap.put("Asc_3", -0.587);
 
 
         toySimplePleasureCoefs = Collections.unmodifiableMap(aMap);
@@ -196,9 +196,9 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_hhchd_1", 0.337076);
         aMap.put("Coef_hhchd_2", 0.5335793);
         aMap.put("Coef_hhchd_3", 0.5243304);
-        aMap.put("Asc_1", -1.120773);
-        aMap.put("Asc_2", -0.6538967);
-        aMap.put("Asc_3", -0.4036146);
+        aMap.put("Asc_1", -0.880);
+        aMap.put("Asc_2", -0.735);
+        aMap.put("Asc_3", -0.408);
 
         toyFullPleasureCoefs = Collections.unmodifiableMap(aMap);
     }
@@ -390,16 +390,16 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_" + TripType.BUSINESS.name() + "_cost4", -0.00370);
         aMap.put("Coef_" + TripType.BUSINESS.name() + "_cost5", -0.00278);
         aMap.put("Coef_" + TripType.BUSINESS.name() + "_Time", -0.0356);
-        aMap.put("ASC_" + TripType.BUSINESS.name() + "_Air", -0.440);
-        aMap.put("ASC_" + TripType.BUSINESS.name() + "_Train", -2.93);
+        aMap.put("ASC_" + TripType.BUSINESS.name() + "_Air", -0.86);
+        aMap.put("ASC_" + TripType.BUSINESS.name() + "_Train", -2.60);
 
         aMap.put("Coef_" + TripType.PLEASURE.name() + "_cost1", -0.00947);
         aMap.put("Coef_" + TripType.PLEASURE.name() + "_cost2", -0.00434);
         aMap.put("Coef_" + TripType.PLEASURE.name() + "_cost3", -0.000900);
         aMap.put("Coef_" + TripType.PLEASURE.name() + "_cost4", -0.000335);
         aMap.put("Coef_" + TripType.PLEASURE.name() + "_Time", -0.0590);
-        aMap.put("ASC_" + TripType.PLEASURE.name() + "_Air", -2.95);
-        aMap.put("ASC_" + TripType.PLEASURE.name() + "_Train", -3.56);
+        aMap.put("ASC_" + TripType.PLEASURE.name() + "_Air", -3.15);
+        aMap.put("ASC_" + TripType.PLEASURE.name() + "_Train", -3.59);
 
         aMap.put("Coef_" + TripType.PERSONAL_BUSINESS + "_cost1", -0.0127);
         aMap.put("Coef_" + TripType.PERSONAL_BUSINESS + "_cost2", -0.00570);
@@ -407,8 +407,8 @@ public class Math /* extends umd.lu.thesis.simulation.app2000.math.Formulae */ {
         aMap.put("Coef_" + TripType.PERSONAL_BUSINESS + "_cost4", -0.00276);
         aMap.put("Coef_" + TripType.PERSONAL_BUSINESS + "_cost5", -0.00108);
         aMap.put("Coef_" + TripType.PERSONAL_BUSINESS + "_Time", -0.0328);
-        aMap.put("ASC_" + TripType.PERSONAL_BUSINESS + "_Air", -1.49);
-        aMap.put("ASC_" + TripType.PERSONAL_BUSINESS + "_Train", -3.75);
+        aMap.put("ASC_" + TripType.PERSONAL_BUSINESS + "_Air", -1.60);
+        aMap.put("ASC_" + TripType.PERSONAL_BUSINESS + "_Train", -4.08);
 
         mcCoefs = Collections.unmodifiableMap(aMap);
     }
