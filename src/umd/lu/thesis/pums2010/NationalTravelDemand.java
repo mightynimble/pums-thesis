@@ -167,6 +167,10 @@ public class NationalTravelDemand {
                 continue;
             }
 
+            if (p.getAge() < 18) {
+                continue;
+            }
+            
             /**
              * For each BUSINESS tour
              */
@@ -1305,15 +1309,15 @@ public class NationalTravelDemand {
         if (p.getSex() == 2 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[13] += 1;}
         if (p.getSex() == 2 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[14] += 1;}
         
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[15] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[16] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[17] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[18] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[19] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[20] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[21] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[22] += 1;}
-        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[23] += 1;}
+        if (p.getAge() >= 18 && p.getAge() <= 35 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[15] += 1;}
+        if (p.getAge() >= 18 && p.getAge() <= 35 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[16] += 1;}
+        if (p.getAge() >= 18 && p.getAge() <= 35 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[17] += 1;}
+        if (p.getAge() > 35 && p.getAge() <= 60 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[18] += 1;}
+        if (p.getAge() > 35 && p.getAge() <= 60 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[19] += 1;}
+        if (p.getAge() > 35 && p.getAge() <= 60 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[20] += 1;}
+        if (p.getAge() > 60 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[21] += 1;}
+        if (p.getAge() > 60 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[22] += 1;}
+        if (p.getAge() > 60 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[23] += 1;}
         
         if (p.getIncLevel() == 1) { tripStats[24] += trip.getDistance();}
         if (p.getIncLevel() == 2) { tripStats[25] += trip.getDistance();}
