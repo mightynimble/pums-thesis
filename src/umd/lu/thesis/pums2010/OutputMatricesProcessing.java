@@ -35,11 +35,15 @@ public class OutputMatricesProcessing {
     private final static Logger sLog = LogManager.getLogger(OutputMatricesProcessing.class);
 
     private static HashMap<String, HashMap<String, Integer>> results;
+    
+    /* THIS VALUE SHOULD EQUAL TO THE SAME VAR IN NationalTravelDemand.java */
+    private static final int TRIP_STATS_COLUMNS = 27;
 
     public static void main(String[] args) throws Exception {
         sLog.info("Start to process output files from NationalTravelDemand.");
         sLog.info("  Initializing results map...");
         results = new HashMap<>();
+        long[] tripStats = new long[TRIP_STATS_COLUMNS];
         HashMap<String, Integer> subset = new HashMap<>();
         for (int m = 0; m < TravelMode.itemCount; m++) {
             for (int q = 0; q < Quarter.itemCount; q++) {
@@ -56,36 +60,66 @@ public class OutputMatricesProcessing {
         sLog.info("  Output file location: " + outputDir.getAbsolutePath());
         for (File f : outputDir.listFiles()) {
             String[] splits = f.getName().split("-");
-            String key = splits[0] + "-" + splits[1] + "-" + splits[2];
-            sLog.info("    Parse file: " + f.getName() + ", key: " + key);
-            try (FileReader fr = new FileReader(f); BufferedReader br = new BufferedReader(fr)) {
-                String line;
-                int row = 1;
-                String subKey;
-                int val;
-                while ((line = br.readLine()) != null) {
-                    for (int col = 1; col <= Math.alt; col++) {
-                        val = ExcelUtils.getColumnValue(col, line).equalsIgnoreCase("null")
-                              ? 0 : Integer.parseInt(ExcelUtils.getColumnValue(col, line));
-                        subKey = col + "-" + row;
-                        if(results.get(key).get(subKey) == null || results.get(key).get(subKey) == 0) {
-                            results.get(key).put(subKey, val);
+            if (splits[0].equals("CAR") || splits[0].equals("TRAIN") || splits[0].equals("AIR")) {
+                String key = splits[0] + "-" + splits[1] + "-" + splits[2];
+                sLog.info("    Parse file: " + f.getName() + ", key: " + key);
+                try (FileReader fr = new FileReader(f); BufferedReader br = new BufferedReader(fr)) {
+                    String line;
+                    int row = 1;
+                    String subKey;
+                    int val;
+                    while ((line = br.readLine()) != null) {
+                        for (int col = 1; col <= Math.alt; col++) {
+                            val = ExcelUtils.getColumnValue(col, line).equalsIgnoreCase("null")
+                                    ? 0 : Integer.parseInt(ExcelUtils.getColumnValue(col, line));
+                            subKey = col + "-" + row;
+                            if (results.get(key).get(subKey) == null || results.get(key).get(subKey) == 0) {
+                                results.get(key).put(subKey, val);
+                            } else {
+                                results.get(key).put(subKey, results.get(key).get(subKey) + val);
+                            }
                         }
-                        else {
-                            results.get(key).put(subKey, results.get(key).get(subKey) + val);
-                        }
+                        row++;
                     }
-                    row++;
+                } catch (IOException e) {
+                    sLog.error("    Error: " + e.getLocalizedMessage(), e);
+                    System.exit(1);
                 }
             }
-            catch (IOException e) {
-                sLog.error("    Error: " + e.getLocalizedMessage(), e);
-                System.exit(1);
+            else if (splits[0].equals("trip.stats")) {
+                try (FileReader fr = new FileReader(f); BufferedReader br = new BufferedReader(fr)) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] cells = line.split("\t");
+                        for (int i = 0; i < TRIP_STATS_COLUMNS; i ++) {
+                            if (!cells[i].isEmpty()) {
+                                tripStats[i] += Long.parseLong(cells[i]);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    sLog.error("    Error: " + e.getLocalizedMessage(), e);
+                    System.exit(1);
+                }
             }
         }
 
-        sLog.info("  Write results to file.");
-
+        sLog.info("  Write results and trip stats to file.");
+        
+        /* trip stats, one file */
+        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        String tripStatsName = timestamp + "-final-trip.stats.txt";
+        File tripStatsFile = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + tripStatsName);
+        try (FileWriter tripStatsFw = new FileWriter(tripStatsFile, true);
+                BufferedWriter tripStatsBw = new BufferedWriter(tripStatsFw);) {
+            for(long cell : tripStats) {
+                tripStatsBw.write(cell + "\t");
+            }
+            tripStatsBw.flush();
+        } catch (IOException ex) {
+            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+            System.exit(1);
+        }
 
         Map<String, List<Integer>> subtotalRowMap = new HashMap<>();
         Map<String, List<Integer>> subtotalColMap = new HashMap<>();
@@ -93,7 +127,7 @@ public class OutputMatricesProcessing {
         }
 
         int totalTrips = 0;
-        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+        
         String totalTripsFilename = timestamp + "-statistic-total-trips.txt";
         File totalTripsFile = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + totalTripsFilename);
         String subtotalColFilename = timestamp + "-statistic-subtotal-col.txt";

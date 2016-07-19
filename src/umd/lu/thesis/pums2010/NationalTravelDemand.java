@@ -80,6 +80,9 @@ public class NationalTravelDemand {
     private static int[][] toursByPurposeAndModeChoice;
     private static int[][] toursByModeChoiceAndDest;
     private static HashMap<Integer, Integer[]> sortedODDistMap;
+    
+    private static long[] tripStats;
+    private static final int TRIP_STATS_COLUMNS = 27;
 
     public NationalTravelDemand(Pums2010DAOImpl dao) {
         pumsDao = dao;
@@ -95,6 +98,7 @@ public class NationalTravelDemand {
         sortedODDistMap = math.sortODDist();
         pstmt = null;
         tripBuffer = new ArrayList<>();
+        tripStats = new long[TRIP_STATS_COLUMNS];
     }
 
     public NationalTravelDemand() {
@@ -111,6 +115,7 @@ public class NationalTravelDemand {
         sortedODDistMap = math.sortODDist();
         pstmt = null;
         tripBuffer = new ArrayList<>();
+        tripStats = new long[TRIP_STATS_COLUMNS];
     }
 
     public void run(int start, int end) {
@@ -829,7 +834,7 @@ public class NationalTravelDemand {
                 }
                 debug += "]";
                 sLog.debug(debug);
-                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p, mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
             }
         } else if (type == TripType.PERSONAL_BUSINESS) {
             sLog.debug("Total PERSONAL_BUSINESS tour: " + p.getrPB());
@@ -924,7 +929,7 @@ public class NationalTravelDemand {
                 /**
                  * Output Result
                  */
-                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p, mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
             }
         } else {
             // type == TripType.PLEASURE
@@ -1021,13 +1026,14 @@ public class NationalTravelDemand {
                 /**
                  * Output Result
                  */
-                writeTripsToResults(p.getPid(), mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
+                writeTripsToResults(p, mode, toy, type, origin, dest, party, obStopPurposes, obStopLocations, ibStopPurposes, ibStopLocations);
                 tour++;
             }
         }
     }
 
-    private void writeTripsToResults(int pId, ModeChoice mode, int toy, TripType type, int origin, int dest, int party, List<TripType> obStopPurposes, List<Integer> obStopLocations, List<TripType> ibStopPurposes, List<Integer> ibStopLocations) {
+    private void writeTripsToResults(Person2010 p, ModeChoice mode, int toy, TripType type, int origin, int dest, int party, List<TripType> obStopPurposes, List<Integer> obStopLocations, List<TripType> ibStopPurposes, List<Integer> ibStopLocations) {
+        int pId = p.getPid();
         /*
          outbound
          */
@@ -1036,28 +1042,28 @@ public class NationalTravelDemand {
         if (obStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = origin + "-" + dest;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
         } else if (obStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(0);
             odPair = origin + "-" + obStopLocations.get(0);
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = obStopLocations.get(0) + "-" + dest;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
         } else {
             // first trip: origin -> stop1 (i = 0). Type is stopLoc's type
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(0);
             odPair = origin + "-" + obStopLocations.get(0);
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
             // last trip: stopN -> dest (i = N). Type is tour's type.
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + type;
             odPair = obStopLocations.get(obStopLocations.size() - 1) + "-" + dest;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
             for (int i = 0; i < obStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + obStopPurposes.get(i + 1);
                 odPair = obStopLocations.get(i) + "-" + obStopLocations.get(i + 1);
-                updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 0, toy, mode, party, origin, dest);
+                updateMatrixCellAndTripStatsArr(key, odPair, p, type, 0, toy, mode, party, origin, dest);
             }
         }
         /*
@@ -1066,28 +1072,28 @@ public class NationalTravelDemand {
         if (ibStopLocations.isEmpty()) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = dest + "-" + origin;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
         } else if (ibStopLocations.size() == 1) {
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(0);
             odPair = dest + "-" + ibStopLocations.get(0);
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = ibStopLocations.get(0) + "-" + origin;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
         } else {
             // first trip: dest -> stop1 (i = 0). Type is stopLoc's type
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(0);
             odPair = dest + "-" + ibStopLocations.get(0);
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
             // last trip: stopN -> origin (i = N). Type is HOME.
             key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + TripType.HOME;
             odPair = ibStopLocations.get(ibStopLocations.size() - 1) + "-" + origin;
-            updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+            updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
             // enroute, output (stopOrigin, stopLoc), type is stopLoc's type
             for (int i = 0; i < ibStopLocations.size() - 1; i++) {
                 key = mode.name() + "-" + Quarter.values()[toy - 1] + "-" + ibStopPurposes.get(i + 1);
                 odPair = ibStopLocations.get(i) + "-" + ibStopLocations.get(i + 1);
-                updateMatrixCellAndSaveTripToDb(key, odPair, pId, type, 1, toy, mode, party, origin, dest);
+                updateMatrixCellAndTripStatsArr(key, odPair, p, type, 1, toy, mode, party, origin, dest);
             }
         }
     }
@@ -1122,9 +1128,9 @@ public class NationalTravelDemand {
                 }
             }
         }
-        sLog.info("Output statistical info to files.");
+        sLog.info("Output trip stats to file.");
         String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-        String fileName = "tours.by.purpose.and.stop.frequency.inbound-" + timestamp + ".txt";
+        String fileName = "trip.stats-" + timestamp + "-" + rand.sample() + ".txt";
         File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if (f.exists()) {
@@ -1133,92 +1139,114 @@ public class NationalTravelDemand {
                 f.createNewFile();
             }
 
-            for (int i = 0; i < TripType.itemCount - 1; i++) {
-                for (int j = 0; j < 5; j++) {
-                    bw.write(toursByPurposeAndStopFrequencyIB[i][j] + "\t");
-                }
-                bw.write("\n");
+            for (int i = 0; i < TRIP_STATS_COLUMNS; i++) {
+                bw.write(tripStats[i] + "\t");
             }
+            bw.write("\n");
             bw.flush();
         } catch (IOException ex) {
             sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
             System.exit(1);
         }
-        fileName = "tours.by.purpose.and.stop.frequency.outbound-" + timestamp + ".txt";
-        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
-        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if (f.exists()) {
-                f.delete();
-            } else {
-                f.createNewFile();
-            }
-
-            for (int i = 0; i < TripType.itemCount - 1; i++) {
-                for (int j = 0; j < 5; j++) {
-                    bw.write(toursByPurposeAndStopFrequencyOB[i][j] + "\t");
-                }
-                bw.write("\n");
-            }
-            bw.flush();
-        } catch (IOException ex) {
-            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
-            System.exit(1);
-        }
-
-        fileName = "tours.by.purpose.and.mode.choice-" + timestamp + ".txt";
-        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
-        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if (f.exists()) {
-                f.delete();
-            } else {
-                f.createNewFile();
-            }
-
-            for (int i = 0; i < TripType.itemCount - 1; i++) {
-                for (int j = 0; j < ModeChoice.itemCount; j++) {
-                    bw.write(toursByPurposeAndModeChoice[i][j] + "\t");
-                }
-                bw.write("\n");
-            }
-            bw.flush();
-        } catch (IOException ex) {
-            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
-            System.exit(1);
-        }
-
-        fileName = "tours.by.mode.choice.and.dest-" + timestamp + ".txt";
-        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
-        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
-            if (f.exists()) {
-                f.delete();
-            } else {
-                f.createNewFile();
-            }
-
-            for (int i = 0; i < ModeChoice.itemCount; i++) {
-                for (int j = 0; j < Math.alt; j++) {
-                    bw.write(toursByModeChoiceAndDest[i][j] + "\t");
-                }
-                bw.write("\n");
-            }
-            bw.flush();
-        } catch (IOException ex) {
-            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
-            System.exit(1);
-        }
+        
+        sLog.info("SKIP Output statistical info to files.");
+//        String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+//        String fileName = "tours.by.purpose.and.stop.frequency.inbound-" + timestamp + ".txt";
+//        File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+//        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+//            if (f.exists()) {
+//                f.delete();
+//            } else {
+//                f.createNewFile();
+//            }
+//
+//            for (int i = 0; i < TripType.itemCount - 1; i++) {
+//                for (int j = 0; j < 5; j++) {
+//                    bw.write(toursByPurposeAndStopFrequencyIB[i][j] + "\t");
+//                }
+//                bw.write("\n");
+//            }
+//            bw.flush();
+//        } catch (IOException ex) {
+//            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+//            System.exit(1);
+//        }
+//        fileName = "tours.by.purpose.and.stop.frequency.outbound-" + timestamp + ".txt";
+//        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+//        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+//            if (f.exists()) {
+//                f.delete();
+//            } else {
+//                f.createNewFile();
+//            }
+//
+//            for (int i = 0; i < TripType.itemCount - 1; i++) {
+//                for (int j = 0; j < 5; j++) {
+//                    bw.write(toursByPurposeAndStopFrequencyOB[i][j] + "\t");
+//                }
+//                bw.write("\n");
+//            }
+//            bw.flush();
+//        } catch (IOException ex) {
+//            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+//            System.exit(1);
+//        }
+//
+//        fileName = "tours.by.purpose.and.mode.choice-" + timestamp + ".txt";
+//        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+//        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+//            if (f.exists()) {
+//                f.delete();
+//            } else {
+//                f.createNewFile();
+//            }
+//
+//            for (int i = 0; i < TripType.itemCount - 1; i++) {
+//                for (int j = 0; j < ModeChoice.itemCount; j++) {
+//                    bw.write(toursByPurposeAndModeChoice[i][j] + "\t");
+//                }
+//                bw.write("\n");
+//            }
+//            bw.flush();
+//        } catch (IOException ex) {
+//            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+//            System.exit(1);
+//        }
+//
+//        fileName = "tours.by.mode.choice.and.dest-" + timestamp + ".txt";
+//        f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
+//        try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
+//            if (f.exists()) {
+//                f.delete();
+//            } else {
+//                f.createNewFile();
+//            }
+//
+//            for (int i = 0; i < ModeChoice.itemCount; i++) {
+//                for (int j = 0; j < Math.alt; j++) {
+//                    bw.write(toursByModeChoiceAndDest[i][j] + "\t");
+//                }
+//                bw.write("\n");
+//            }
+//            bw.flush();
+//        } catch (IOException ex) {
+//            sLog.error("Failed to write to file: " + ThesisProperties.getProperties("simulation.pums2010.output.dir"), ex);
+//            System.exit(1);
+//        }
     }
 
-    private void updateMatrixCellAndSaveTripToDb(String key, String odPair, int pId, TripType type, int inbound, int toy, ModeChoice mode, int party, int origin, int dest) {
+    private void updateMatrixCellAndTripStatsArr(String key, String odPair, Person2010 p, TripType type, int inbound, int toy, ModeChoice mode, int party, int origin, int dest) {
         int tripO = Integer.parseInt(odPair.split("-")[0]);
         int oMsa = altMsaMap.get(tripO);
         int tripD = Integer.parseInt(odPair.split("-")[1]);
         int dMsa = altMsaMap.get(tripD);
-        Trip trip = new Trip(pId, type.name(), inbound, tripO, oMsa, tripD, dMsa, toy, mode.name(), party, math.getCarMap().get(tripO + "-" + tripD)[3], origin, dest);
-        tripBuffer.add(trip);
-        if (tripBuffer.size() == dbMaxBatchSize) {
-            saveTripsToDb();
-            tripBuffer.clear();
-        }
+        Trip trip = new Trip(p.getPid(), type.name(), inbound, tripO, oMsa, tripD, dMsa, toy, mode.name(), party, math.getCarMap().get(tripO + "-" + tripD)[3], origin, dest);
+        updateTripStats(trip, p);
+//        tripBuffer.add(trip);
+//        if (tripBuffer.size() == dbMaxBatchSize) {
+//            saveTripsToDb();
+//            tripBuffer.clear();
+//        }
         
         Integer count = results.get(key).get(odPair);
         if (count == null) {
@@ -1226,6 +1254,70 @@ public class NationalTravelDemand {
         } else {
             results.get(key).put(odPair, count + 1);
         }
+    }
+    
+    /*
+     TRIP STATS COLUMNS:
+    
+     0  low_income + air
+     1  low_income + car
+     2  low_income + train
+     3	Medium Income, air
+     4	Medium Income, car
+     5	Medium Income, train
+     6	High Income, air
+     7	High Income, car
+     8	High Income, train
+     9	Male, air
+     10	Male, car
+     11	Male, train
+     12	Female,air
+     13	Female,car
+     14	Female,train
+     15	Age 1, air
+     16	Age 1, car
+     17	Age 1, train
+     18	Age 2, air
+     19	Age 2, car
+     20	Age 2, train
+     21	Age 3,air 
+     22	Age 3,car
+     23	Age 3,train
+     24	Low Income VMT
+     25	Medium Income VMT
+     26	High Income VMT
+     */
+    private void updateTripStats(Trip trip, Person2010 p) {
+        if (p.getIncLevel() == 1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[0] += 1;}
+        if (p.getIncLevel() == 1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[1] += 1;}
+        if (p.getIncLevel() == 1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[2] += 1;}
+        if (p.getIncLevel() == 2 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[3] += 1;}
+        if (p.getIncLevel() == 2 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[4] += 1;}
+        if (p.getIncLevel() == 2 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[5] += 1;}
+        if (p.getIncLevel() == 3 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[6] += 1;}
+        if (p.getIncLevel() == 3 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[7] += 1;}
+        if (p.getIncLevel() == 3 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[8] += 1;}
+        
+        if (p.getSex() == 1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[9] += 1;}
+        if (p.getSex() == 1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[10] += 1;}
+        if (p.getSex() == 1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[11] += 1;}
+        if (p.getSex() == 2 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[12] += 1;}
+        if (p.getSex() == 2 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[13] += 1;}
+        if (p.getSex() == 2 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[14] += 1;}
+        
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[15] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[16] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[17] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[18] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[19] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[20] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.AIR.name())) { tripStats[21] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[22] += 1;}
+        if (p.getAge() == -1 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[23] += 1;}
+        
+        if (p.getIncLevel() == 1) { tripStats[24] += trip.getDistance();}
+        if (p.getIncLevel() == 2) { tripStats[25] += trip.getDistance();}
+        if (p.getIncLevel() == 3) { tripStats[26] += trip.getDistance();}
     }
 
     private void saveTripsToDb() {
