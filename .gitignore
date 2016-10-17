@@ -13,3 +13,4 @@ logsmaster.log
 resources/config.properties
 nbproject/project.properties
 outputs/
+resources/outputs.backup
