@@ -34,7 +34,7 @@ public class CalculateMSAPMSA {
     
     // can't process all states due to memory issues, set the default to 57
     // (max is 56) when running on the server
-    private int cutoffState = 57;
+    private int cutoffState = 47;
 
     public CalculateMSAPMSA() {
     }
@@ -180,6 +180,9 @@ public class CalculateMSAPMSA {
         int rows = -1;
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE PERSON_HOUSEHOLD_EXPANDED SET MSAPMSA = ").append(msapmsa).append(" WHERE ID IN (");
+        if (ids.isEmpty()) {
+            return 0;
+        }
         for (int i = 0; i < ids.size(); i++) {
             if(i == ids.size() - 1) {
                 sb.append(ids.get(i));
@@ -195,6 +198,7 @@ public class CalculateMSAPMSA {
 
         }
         catch (SQLException ex) {
+            log.error("ERROR: SQL: \n" + sb.toString());
             log.error("Error: " + ex.getLocalizedMessage(), ex);
             System.exit(1);
         }

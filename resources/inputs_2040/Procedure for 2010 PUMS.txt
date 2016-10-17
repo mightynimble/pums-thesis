@@ -1,0 +1,51 @@
+> (P&H).SERIALNO, H.ST, H.PUMA, P.PWGTP, H.NP, P.AGEP, P.PINCP, P.SCH, P.SEX, P.ESR, H.HUPAOC, H.HUPARC, H.HHT, H.HINCP, 
+
+> delete records from person files (append ss10pusa.csv, ss10pusb.csv)
+  if records with age younger than 18 (if P.AGEP <= 18)
+  
+> Join the household file with the PUMA_MSA_PerPop.txt on H.PUMA=PUMA_MSA_PerPop.puma (NEW COLUMNS: countyfips  MSAPMSA totPOP  pumapop percentage)
+
+> Join the person files with household files (ss10husa.csv, ss10husb.csv) according to the serial number (SERIALNO)
+
+
+>'Create a variable: sum total household income (sumpinc)
+  Sum (P.PINCP) as sumpinc
+  group by SERIALNO
+
+> 'Creat a variable: household total income (HTINC)
+  if HINCP <=1 then HTINC = sumpinc
+   else HTINC = HINCP 
+
+> 'Create a variable: Respondent's age (Dummy) 
+if 19 <= P.AGEP <= 35 then Rage=1
+     36 <= P.AGEP <= 55 then Rage=2
+	 P.AGEP > 55 then Rage =3
+  
+> 'Create a variable: income level  
+  if HTINC < 30,000 then inclevl= Low (1)
+     if 30,000<= HTINC < 75,000 then inclevl= med (2)
+	 then HTINC >=75,000 then inclevl= high (3)
+
+> Create a variable : Employment Status 
+  if P.SCH = 2 or 3 then Emptype=School (3)
+     if P.ESR=1,2,4, or 5 then emptype=Employed (1)
+	 else then emptype=Unemployed (2)
+
+> 'Create a variable: HHType
+  if H.HHT=1,2,or 3 AND (H.HUPAOC =4 OR H.HUPARC =4) 
+   then HHType = Family household without Children (1)
+  if H.HHT=1,2, or 3 AND (H.HUPAOC= 1,2,3 OR H.HUPARC=1,2,3)
+   then HHType = Family household with children (2)
+  if H.HHT= 4 or 6 
+   then HHType = Single (3)
+  if H.HHT= 5 or 7
+   then HHType =Non-family household (4)
+
+> Create MSAPMSA
+
+> Expand the records according to the P.PWGTP
+
+
+> 'Create MSA variable 
+  If MSAPMSA =9999 then MSA=2
+     Else MSA=1

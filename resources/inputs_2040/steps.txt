@@ -1,0 +1,573 @@
+
+---- 1 ----
+
+Open ss10husa.csv in excel
+
+
+
+---- 2 ----
+
+Select column:  SERIALNO	PUMA	ST	NP	HHT	HINCP	HUPAOC	HUPARC
+
+
+
+---- 3 ----
+
+Create new file in excel
+
+
+
+---- 4 ----
+
+Copy-paste the above columns into the new file
+ 4-1. Add a column TMP
+ 4-2. save it as ss10hus_simplified_a.csv
+
+
+
+---- 5 ----
+
+Repeat step 1-4 for file ss10husb.csv
+
+
+
+---- 6 ----
+
+In MySQL, create table 'household'
+CREATE TABLE `household` (
+  `SERIALNO` int(11) NOT NULL,
+  `PUMA` int(11) DEFAULT NULL,
+  `ST` int(11) DEFAULT NULL,
+  `NP` int(11) DEFAULT NULL,
+  `HHT` int(11) DEFAULT NULL,
+  `HINCP` int(11) DEFAULT NULL,
+  `HUPAOC` int(11) DEFAULT NULL,
+  `HUPARC` int(11) DEFAULT NULL,
+  `TMP` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`SERIALNO`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+---- 7 ----
+
+Import ss10hus_simplified_a.csv into MySQL table 'household'
+LOAD DATA INFILE 'G:\\2010PUMS\\csv_hus\\ss10hus_simplified_a.csv' 
+INTO TABLE household 
+FIELDS TERMINATED BY ',' 
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @v8, @TMP)
+set
+PUMA = nullif(@v2,''),
+ST = nullif(@v3,''),
+NP = nullif(@v4,''),
+HHT = nullif(@v5,''),
+HINCP = nullif(@v6,''),
+HUPAOC = nullif(@v7,''),
+HUPARC = nullif(@v8,'');
+
+==RESULT== 
+18:16:37	LOAD DATA INFILE 'G:\\2010PUMS\\csv_hus\\ss10hus_simplified_a.csv'  INTO TABLE household  FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n' IGNORE 1 ROWS (SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @v8, @TMP) set PUMA = nullif(@v2,''), ST = nullif(@v3,''), NP = nullif(@v4,''), HHT = nullif(@v5,''), HINCP = nullif(@v6,''), HUPAOC = nullif(@v7,''), HUPARC = nullif(@v8,'')	716528 row(s) affected Records: 716528  Deleted: 0  Skipped: 0  Warnings: 0	13.588 sec
+
+
+
+---- 8 ----
+
+Do the same for ss10hus_simplified_b.csv
+
+==RESULT== 
+18:18:14	LOAD DATA INFILE 'G:\\2010PUMS\\csv_hus\\ss10hus_simplified_b.csv'  INTO TABLE household  FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n' IGNORE 1 ROWS (SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @v8, @TMP) set PUMA = nullif(@v2,''), ST = nullif(@v3,''), NP = nullif(@v4,''), HHT = nullif(@v5,''), HINCP = nullif(@v6,''), HUPAOC = nullif(@v7,''), HUPARC = nullif(@v8,'')	681261 row(s) affected Records: 681261  Deleted: 0  Skipped: 0  Warnings: 0	12.746 sec
+
+
+
+---- 9 ----
+
+Test inserted data: (TMP column is a place holder and has no value.)
+SELECT * FROM Thesis.household LIMIT 100;
+
+
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- 
+
+
+
+---- 10 ----
+
+Person csv files are huge. So csvkit is used
+
+
+
+---- 11 ----
+
+Install csvkit on Mac: 
+git clone https://github.com/onyxfish/csvkit.git
+sudo easy_install csvkit
+
+
+
+---- 12 ----
+
+Select column:  SERIALNO	PWGTP	AGEP	PINCP	SCH	SEX	ESR
+csvcut -c 2,7,8,104,65,69,85 /Volumes/Moveable-1/2010\ PUMS/csv_pus/ss10pusa.csv > /Volumes/Moveable-1/2010\ PUMS/csv_pus/ss10pusa_simplified.csv
+
+
+
+---- 13 ----
+
+Do the same for ss10pusb.csv
+
+
+
+---- 14 ----
+
+Create person table in MySQL
+CREATE  TABLE `thesis`.`person` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `SERIALNO` INTEGER NOT NULL,
+  `PWGTP` VARCHAR(5) NOT NULL,
+  `AGEP` VARCHAR(2) NOT NULL,
+  `PINCP` VARCHAR(9),
+  `SCH` INTEGER,
+  `SEX` INTEGER NOT NULL,
+  `ESR` INTEGER,
+  `TMP` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`) );
+
+
+
+---- 15 ----
+
+Add a column TMP, save it
+
+
+
+---- 16 ----
+
+Import data to 'person'
+LOAD DATA INFILE 'H:\\2010 PUMS\\csv_pus\\ss10pusa_simplified.csv' 
+INTO TABLE person 
+FIELDS TERMINATED BY ',' 
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @TMP)
+set
+PWGTP = nullif(@v2,''),
+AGEP = nullif(@v3,''),
+PINCP = nullif(@v4,''),
+SCH = nullif(@v5,''),
+SEX = nullif(@v6,''),
+ESR = nullif(@v7,'');
+
+==RESULT== 
+00:00:50  LOAD DATA INFILE 'H:\\2010 PUMS\\csv_pus\\ss10pusa_simplified.csv'  INTO TABLE person  FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n' IGNORE 1 ROWS (SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @TMP) set PWGTP = nullif(@v2,''), AGEP = nullif(@v3,''), PINCP = nullif(@v4,''), SCH = nullif(@v5,''), SEX = nullif(@v6,''), ESR = nullif(@v7,'')  1048575 row(s) affected Records: 1048575  Deleted: 0  Skipped: 0  Warnings: 0 13.915 sec
+
+
+
+---- 17 ----
+
+Do the same for ss10pusb_simplified.csv
+==RESULT== 
+00:07:35  LOAD DATA INFILE 'H:\\2010 PUMS\\csv_pus\\ss10pusb_simplified.csv'  INTO TABLE person  FIELDS TERMINATED BY ','  LINES TERMINATED BY '\n' IGNORE 1 ROWS (SERIALNO, @v2, @v3, @v4, @v5, @v6, @v7, @TMP) set PWGTP = nullif(@v2,''), AGEP = nullif(@v3,''), PINCP = nullif(@v4,''), SCH = nullif(@v5,''), SEX = nullif(@v6,''), ESR = nullif(@v7,'')  1048575 row(s) affected Records: 1048575  Deleted: 0  Skipped: 0  Warnings: 0 13.635 sec
+
+
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+---- 18 ----
+
+Add an index on P.AGE
+ALTER TABLE `thesis`.`person` ADD INDEX `page` (`AGEP` ASC) ;
+
+
+
+---- 19 ----
+
+Add an index on P.SERIALNO
+ALTER TABLE `thesis`.`person` ADD INDEX `serialno_idx` (`SERIALNO` ASC) ;
+
+
+
+---- 20 ----
+
+Delete agep<=18 from person:
+delete from person where agep<=18;
+==RESULT== 
+12:27:26 delete from person where agep<=18 498650 row(s) affected  9.453 sec
+
+
+
+---- 21 ----
+
+person left join household
+CREATE TABLE PERSON_LJ_HOUSEHOLD AS
+SELECT PERSON.SERIALNO, PWGTP, AGEP, PINCP, SCH, SEX, ESR, PUMA, ST, NP, HHT, HINCP, HUPAOC, HUPARC
+FROM PERSON LEFT JOIN HOUSEHOLD ON PERSON.SERIALNO = HOUSEHOLD.SERIALNO;
+
+==RESULT== 
+21:38:36  CREATE TABLE PERSON_LJ_HOUSEHOLD AS
+ SELECT PERSON.SERIALNO, PWGTP, AGEP, PINCP, SCH, SEX, ESR, PUMA, ST, NP, HHT, HINCP, HUPAOC, HUPARC
+ FROM PERSON LEFT JOIN HOUSEHOLD ON PERSON.SERIALNO = HOUSEHOLD.SERIALNO  1598500 row(s) affected
+ Records: 1598500  Duplicates: 0  Warnings: 0 43.041 sec
+
+
+
+---- 22 ----
+
+Add index on puma column:
+ ALTER TABLE `thesis`.`person_lj_household` ADD INDEX `puma_indx` (`PUMA` ASC) ;
+
+
+
+---- 23 ----
+
+Add column SUMPINC to person_lj_household:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `SUMPINC` INT NULL  AFTER `HUPARC` ;
+
+
+
+---- 24 ----
+
+Add column HTINC:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `HTINC` INT NULL  AFTER `SUMPINC` ;
+
+
+
+---- 25 ----
+
+Add column Dummy:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `DUMMY` INT NULL  AFTER `HTINC` ;
+
+
+
+---- 26 ----
+
+Add INC_LVL:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `INC_LVL` INT NULL  AFTER `DUMMY` ;
+
+
+
+---- 27 ----
+
+Add EMP_STATUS:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `EMP_STATUS` INT NULL  AFTER `INC_LVL` ;
+
+
+
+---- 28 ----
+
+Add HHTYPE:
+ALTER TABLE `thesis`.`person_lj_household` ADD COLUMN `HHTYPE` INT NULL  AFTER `EMP_STATUS` ;
+
+
+
+---- 29 ----
+
+Create table person_household_expanded
+CREATE TABLE `person_household_expanded` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `SERIALNO` int(11) NOT NULL,
+  `PWGTP` int(11) DEFAULT NULL,
+  `AGEP` int(11) DEFAULT NULL,
+  `PINCP` int(11) DEFAULT NULL,
+  `SCH` int(11) DEFAULT NULL,
+  `SEX` int(11) DEFAULT NULL,
+  `ESR` int(11) DEFAULT NULL,
+  `PUMA` int(11) DEFAULT NULL,
+  `ST` int(11) DEFAULT NULL,
+  `NP` int(11) DEFAULT NULL,
+  `HHT` int(11) DEFAULT NULL,
+  `HINCP` int(11) DEFAULT NULL,
+  `HUPAOC` int(11) DEFAULT NULL,
+  `HUPARC` int(11) DEFAULT NULL,
+  `SUMPINC` int(11) DEFAULT NULL,
+  `HTINC` int(11) DEFAULT NULL,
+  `DUMMY` int(11) DEFAULT NULL,
+  `INC_LVL` int(11) DEFAULT NULL,
+  `EMP_STATUS` int(11) DEFAULT NULL,
+  `HHTYPE` int(11) DEFAULT NULL,
+  `MSAPMSA` int(11) DEFAULT NULL,
+  `R_BUSINESS` int(11) DEFAULT NULL,
+  `R_PERSON` int(11) DEFAULT NULL,
+  `R_PB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+---- 24 ----
+
+Calculate column SUMPINC:
+update person_lj_household set sumpinc = pincp where hincp is null;
+==RESULTS==
+23:22:20  update person_lj_household
+ set sumpinc = pincp where hincp is null  48684 row(s) affected
+ Rows matched: 48684  Changed: 48684  Warnings: 0 3.760 sec
+----
+
+update person_lj_household
+set sumpinc = hincp where hincp is not null;
+==RESULTS==
+23:23:05  update person_lj_household
+ set sumpinc = hincp where hincp is not null  1549816 row(s) affected
+ Rows matched: 1549816  Changed: 1549816  Warnings: 0 112.321 sec
+
+
+
+---- 25 ----
+
+Calculate column HTINC:
+update person_lj_household set htinc = sumpinc where hincp <= 1;
+==RESULTS==
+23:31:04  update person_lj_household set htinc = sumpinc where hincp <= 1 12991 row(s) affected
+ Rows matched: 12991  Changed: 12991  Warnings: 0 4.930 sec
+----
+
+update person_lj_household set htinc = hincp where hincp > 1;
+==RESULTS==
+23:31:42  update person_lj_household set htinc = hincp where hincp > 1  1536825 row(s) affected
+ Rows matched: 1536825  Changed: 1536825  Warnings: 0 198.651 sec
+
+
+
+---- 26 ----
+
+Rename column DUMMY to RAGE in table person_lj_household:
+ALTER TABLE `thesis`.`person_lj_household` CHANGE COLUMN `DUMMY` `RAGE` INT(11) NULL DEFAULT NULL  ;
+
+
+
+---- 27 ----
+
+Rename column DUMMY to RAGE in table person_household_expended:
+ALTER TABLE `thesis`.`person_household_expanded` CHANGE COLUMN `DUMMY` `RAGE` INT(11) NULL DEFAULT NULL  ;
+
+
+
+---- 28 ----
+
+Calculate column RAGE:
+update person_lj_household set rage = 1 where agep >= 19 and agep<=35;
+==RESULTS==
+23:40:58  update person_lj_household set rage = 1 where agep >= 19 and agep<=35 420213 row(s) affected
+ Rows matched: 420213  Changed: 420213  Warnings: 0 25.584 sec
+----
+
+update person_lj_household set rage = 2 where agep >= 36 and agep<=55;
+==RESULTS==
+23:42:06  update person_lj_household set rage = 2 where agep >= 36 and agep<=55 587728 row(s) affected
+ Rows matched: 587728  Changed: 587728  Warnings: 0 42.510 sec
+----
+
+update person_lj_household set rage = 3 where agep >= 55;
+==RESULTS==
+23:43:22  update person_lj_household set rage = 3 where agep >= 55  621956 row(s) affected
+ Rows matched: 621956  Changed: 621956  Warnings: 0 50.700 sec
+
+
+
+---- 29 ----
+
+Calculate INC_LVL column:
+update person_lj_household set inc_lvl = 1 where htinc<30000;
+==RESULTS==
+23:45:22  update person_lj_household set inc_lvl = 1 where htinc<30000  356697 row(s) affected
+ Rows matched: 356697  Changed: 356697  Warnings: 0 47.768 sec
+----
+
+update person_lj_household set inc_lvl = 2 where htinc>=30000 and htinc < 75000;
+==RESULTS==
+23:46:55  update person_lj_household set inc_lvl = 2 where htinc>=30000 and htinc < 75000 591072 row(s) affected
+ Rows matched: 591072  Changed: 591072  Warnings: 0 120.605 sec
+----
+
+update person_lj_household set inc_lvl = 3 where htinc>=75000;
+==RESULTS==
+23:49:34  update person_lj_household set inc_lvl = 3 where htinc>=75000 602047 row(s) affected
+ Rows matched: 602047  Changed: 602047  Warnings: 0 58.672 sec
+
+
+
+---- 30 ----
+
+Calculate column EMP_STATUS:
+update person_lj_household set emp_status = 3 where sch=2 or sch=3;
+==RESULTS==
+00:00:49  update person_lj_household set emp_status = 3 where sch=2 or sch=3  139419 row(s) affected
+ Rows matched: 139419  Changed: 139419  Warnings: 0 21.747 sec
+----
+
+update person_lj_household set emp_status = 1 where esr = 1 or esr = 2 or esr = 4 or esr = 5;
+==RESULTS==
+00:02:48  update person_lj_household set emp_status = 1 where esr = 1 or esr = 2 or esr = 4 or esr = 5  914524 row(s) affected
+ Rows matched: 914524  Changed: 914524  Warnings: 0 44.647 sec
+----
+
+update person_lj_household set emp_status = 2 where sch <> 2 and sch <> 3 and esr <> 1 and esr <> 2 and esr <> 4 and esr <> 5;
+==RESULTS==
+00:03:53  update person_lj_household set emp_status = 2 where sch <> 2 and sch <> 3 and esr <> 1 and esr <> 2 and esr <> 4 and esr <> 5 626482 row(s) affected
+ Rows matched: 626482  Changed: 626482  Warnings: 0 39.265 sec
+
+
+
+---- 31 ----
+
+Calculate column HHTYPE: (NOTE that some HHTYPE values are NULL)
+update person_lj_household set hhtype = 1 where (hht = 1 or hht = 2 or hht = 3) and (hupaoc = 4 or huparc = 4);
+==RESULTS==
+00:06:28  update person_lj_household set hhtype = 1 where (hht = 1 or hht = 2 or hht = 3) and (hupaoc = 4 or huparc = 4)  765853 row(s) affected
+ Rows matched: 765853  Changed: 765853  Warnings: 0 40.077 sec
+----
+
+update person_lj_household set hhtype = 2 where (hht = 1 or hht = 2 or hht = 3) and (hupaoc = 1 or hupaoc = 2 or hupaoc = 3 or huparc = 1 or huparc = 2 or huparc = 3);
+==RESULTS==
+00:07:09  update person_lj_household set hhtype = 2 where (hht = 1 or hht = 2 or hht = 3) and (hupaoc = 1 or hupaoc = 2 or hupaoc = 3 or huparc = 1 or huparc = 2 or huparc = 3)  531248 row(s) affected
+ Rows matched: 531248  Changed: 531248  Warnings: 0 40.420 sec
+----
+
+update person_lj_household set hhtype = 3 where hht = 4 or hht = 6;
+==RESULTS==
+00:08:36  update person_lj_household set hhtype = 3 where hht = 4 or hht = 6  225539 row(s) affected
+ Rows matched: 225539  Changed: 225539  Warnings: 0 23.509 sec
+----
+
+update person_lj_household set hhtype = 4 where hht = 5 or hht = 7;
+==RESULTS==
+00:09:01  update person_lj_household set hhtype = 4 where hht = 5 or hht = 7  99722 row(s) affected
+ Rows matched: 99722  Changed: 99722  Warnings: 0 27.284 sec
+
+
+
+---- 32 ----
+
+Some records HTINC = null, so an additional update is needed:
+update person_lj_household set htinc = pincp where hincp is null;
+==RESULTS==
+10:02:00  update person_lj_household set htinc = pincp where hincp is null  48684 row(s) affected
+ Rows matched: 48684  Changed: 48684  Warnings: 0 15.880 sec
+
+
+
+---- 33 ----
+
+As a result, values of INC_LVL should be re-calculated:
+update person_lj_household set inc_lvl = 1 where htinc < 30000 and inc_lvl is null;
+==RESULTS==
+10:04:13  update person_lj_household set inc_lvl = 1 where htinc < 30000 and inc_lvl is null  46215 row(s) affected
+ Rows matched: 46215  Changed: 46215  Warnings: 0 14.679 sec
+ 
+----
+update person_lj_household set inc_lvl = 2 where htinc >= 30000 and htinc < 75000 and inc_lvl is null;
+==RESULTS==
+10:04:46  update person_lj_household set inc_lvl = 2 where htinc >= 30000 and htinc < 75000 and inc_lvl is null 2146 row(s) affected
+ Rows matched: 2146  Changed: 2146  Warnings: 0 11.295 sec
+
+----
+update person_lj_household set inc_lvl = 3 where htinc >= 75000 and inc_lvl is null;
+==RESULTS==
+10:05:54  update person_lj_household set inc_lvl = 3 where htinc >= 75000 and inc_lvl is null 323 row(s) affected
+ Rows matched: 323  Changed: 323  Warnings: 0 10.999 sec
+
+
+
+--- 34 ----
+
+Add auto-increment id to person_lj_household:
+ALTER TABLE `person_lj_household` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+==RESULTS==
+16:43:04  ALTER TABLE `person_lj_household` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY  1598500 row(s) affected
+ Records: 1598500  Duplicates: 0  Warnings: 0 59.343 sec
+
+
+
+---- 35 ----
+
+Add index on ST column in person_lj_household:
+ALTER TABLE `thesis`.`person_lj_household` ADD INDEX `st_indx` (`ST` ASC) ;
+
+
+
+---- 36 ----
+
+Add index on ST and PUMA column in person_household_expanded
+ALTER TABLE `thesis`.`person_household_expanded` ADD INDEX `st_indx` (`ST` ASC), ADD INDEX `puma_indx` (`PUMA` ASC) ;
+
+
+---- 37 ----
+
+Run java program: pums2010ExpandByPWGTPIntoCsv.java
+to expand person_lj_household table.
+ALTER TABLE `thesis`.`person_household_expanded` 
+
+ADD INDEX `st_indx` (`ST` ASC) 
+
+, ADD INDEX `puma_indx` (`PUMA` ASC) ;
+
+
+---- 38 ----
+
+Import expanded_output.csv (10 ~ 12GB) into MySQL person_household_expanded
+
+load data infile 'G:\\2010PUMS\\expanded_output.csv' into table person_household_expanded
+fields terminated by ',' lines terminated by '\n' 
+(`SERIALNO`,`PWGTP`,`AGEP`,`PINCP`,`SCH`,`SEX`,`ESR`,`PUMA`,`ST`,`NP`,`HHT`,`HINCP`,`HUPAOC`,`HUPARC`,`SUMPINC`,`HTINC`,`RAGE`,`INC_LVL`,`EMP_STATUS`,`HHTYPE`,`MSAPMSA`,`R_BUSINESS`,`R_PERSON`,`R_PB`);
+
+
+
+---- 39 ----
+
+Forgot to add MSA column in PERSON_HOUSEHOLD_EXPANDED. Create a table 'MSA' so that MSA and MSAPMSA can be joined by ID:
+
+CREATE  TABLE `thesis`.`msa` (
+  `id` INT NOT NULL ,
+  `msa` INT NULL ,
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) ,
+  INDEX `msa_indx` (`msa` ASC) );
+
+
+
+---- 40 ----
+Create table ID_PUMA with index on PUMA
+CREATE TABLE `thesis`.`id_puma` (
+  `id` INT NOT NULL,
+  `puma` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `puma_indx` (`puma` ASC));
+
+
+
+---- 41 ----
+Due to memory issues, added cutoff state to JAVA when calculating->update MSAPMSA
+
+
+
+---- 42 ----
+Create new table then batch insert using JAVA
+CREATE TABLE `thesis`.`id_rands` (
+  `ID` INT NOT NULL,
+  `R_BUSINESS` DOUBLE NULL,
+  `R_PERSON` DOUBLE NULL,
+  `R_PB` DOUBLE NULL,
+  `ID_RANDScol` VARCHAR(45) NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `ID_UNIQUE` (`ID` ASC));
+
+
+
+
+
+
+
+
+
+---- 40 ----
+
+Run java: umd.lu.thesis.pums2010.ProcessExpandedTable;
+
+
+

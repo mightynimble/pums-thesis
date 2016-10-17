@@ -34,8 +34,8 @@ public class pums2010ExpandByPWGTPIntoCsv {
         // get total rows from db.
         pumsDao = new Pums2010DAOImpl();
         System.out.println("pums2010ExpandByPWGTP started.\n");
-        System.out.print("Querying for total records in 'PERSON_LJ_HOUSEHOLD' table... ");
-        inTotal = pumsDao.getTotalRecords("PERSON_LJ_HOUSEHOLD");
+        System.out.print("Querying for total records in 'person_household_2040_ca' table... ");
+        inTotal = pumsDao.getTotalRecords("person_household_2040_ca");
         System.out.println("Done. (" + inTotal + " records)");
 
         expandRecordsIntoCSV();
@@ -50,7 +50,7 @@ public class pums2010ExpandByPWGTPIntoCsv {
 
 
             for (int i = 1; i < inTotal + 1; i++) {
-                String stmtString = "SELECT * FROM PERSON_LJ_HOUSEHOLD WHERE ID = " + i;
+                String stmtString = "SELECT * FROM person_household_2040_ca WHERE ID = " + i;
                 ResultSet rs = st.executeQuery(stmtString);
                 String dbRow = "";
                 if(rs.next()) {
