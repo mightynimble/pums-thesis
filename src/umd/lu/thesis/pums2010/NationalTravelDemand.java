@@ -23,8 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import org.apache.commons.math3.distribution.UniformRealDistribution;
+import java.util.Random;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import umd.lu.thesis.common.ThesisProperties;
@@ -73,7 +72,15 @@ public class NationalTravelDemand {
 
     private final HashMap<Integer, Integer> altMsaMap;
 
-    private UniformRealDistribution rand;
+    private Random randDestChoice = new Random (1073741824);
+    private Random randModeChoice = new Random (16777216);
+    private Random randStopFreq = new Random (65536);
+    private Random randStopLoc = new Random (256);
+    private Random randStopType = new Random (-256);
+    private Random randToY = new Random (-65536);
+    private Random randTourDur = new Random (-16777216);
+    private Random randTps = new Random (-1073741824);
+    
 
     private static int[][] toursByPurposeAndStopFrequencyIB;
     private static int[][] toursByPurposeAndStopFrequencyOB;
@@ -90,7 +97,6 @@ public class NationalTravelDemand {
         zoneIdMap = initZoneId();
         math = new Math();
         results = new HashMap<>();
-        rand = new UniformRealDistribution();
         toursByPurposeAndStopFrequencyIB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
@@ -107,7 +113,6 @@ public class NationalTravelDemand {
         pumsDao = new Pums2010DAOImpl();
         math = new Math();
         results = new HashMap<>();
-        rand = new UniformRealDistribution();
         toursByPurposeAndStopFrequencyIB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndStopFrequencyOB = new int[TripType.itemCount - 1][5];
         toursByPurposeAndModeChoice = new int[ModeChoice.itemCount][TripType.itemCount - 1];
@@ -123,6 +128,20 @@ public class NationalTravelDemand {
         endRow = end;
         currentRow = start;
         sLog.info("NationalTravelDemand Simulation Started. Start Row: " + startRow + ", End Row: " + endRow + ", bulkSize: " + bulkSize);
+        sLog.info("Configurations:");
+        sLog.info("simulation.pums2010.zoneid" + ThesisProperties.getProperties("simulation.pums2010.zoneid"));
+        sLog.info("simulation.pums2010.output.dir" + ThesisProperties.getProperties("simulation.pums2010.output.dir"));
+        sLog.info("simulation.pums2010.db.table.ntd_output" + ThesisProperties.getProperties("simulation.pums2010.db.table.ntd_output"));
+        sLog.info("simulation.pums2010.db.table.ntd_output.columns" + ThesisProperties.getProperties("simulation.pums2010.db.table.ntd_output.columns"));
+        sLog.info("simulation.pums2010.odskim_car_other" + ThesisProperties.getProperties("simulation.pums2010.odskim_car_other"));
+        sLog.info("simulation.pums2010.odskim_car_business" + ThesisProperties.getProperties("simulation.pums2010.odskim_car_business"));
+        sLog.info("simulation.pums2010.air_skim_avg" + ThesisProperties.getProperties("simulation.pums2010.air_skim_avg"));
+        sLog.info("simulation.pums2010.odskim_train" + ThesisProperties.getProperties("simulation.pums2010.odskim_train"));
+        sLog.info("simulation.pums2010.msa_emp" + ThesisProperties.getProperties("simulation.pums2010.msa_emp"));
+        sLog.info("simulation.pums2010.msafare_1" + ThesisProperties.getProperties("simulation.pums2010.msafare_1"));
+        sLog.info("simulation.pums2010.msafare_2" + ThesisProperties.getProperties("simulation.pums2010.msafare_2"));
+        sLog.info("simulation.pums2010.msafare_3" + ThesisProperties.getProperties("simulation.pums2010.msafare_3"));
+        sLog.info("simulation.pums2010.msafare_4" + ThesisProperties.getProperties("simulation.pums2010.msafare_4"));
 
         math.preCalculateLogsum();
 
@@ -212,7 +231,7 @@ public class NationalTravelDemand {
             }
         }
 
-        int dest = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int dest = math.MonteCarloMethod(pList, pMap, randDestChoice.nextDouble());
 
 //        if (dest ==1) {
 //            sLog.info("--- destChoice: dest == 1, o: " + o);
@@ -268,7 +287,7 @@ public class NationalTravelDemand {
         }
 
         // monte carlo method
-        int toy = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int toy = math.MonteCarloMethod(pList, pMap, randToY.nextDouble());
 
         // For statistical purpose.
 //        toursByToY[toy] ++;
@@ -301,7 +320,7 @@ public class NationalTravelDemand {
 //                tempSt += pList.get(t - 1);
 //            }
 //            
-            return math.MonteCarloMethod(pList, pMap, rand.sample());
+            return math.MonteCarloMethod(pList, pMap, randTourDur.nextDouble());
         } else {
             // calculate p
             for (int t = 1; t <= 31; t++) {
@@ -313,7 +332,7 @@ public class NationalTravelDemand {
             }
 
             Collections.sort(pList);
-            double r = rand.sample();
+            double r = randTourDur.nextDouble();
             double tempSt = 0.0;
             for (int t = 1; t <= 31; t++) {
                 if (tempSt < r && r <= pList.get(t - 1)) {
@@ -371,7 +390,7 @@ public class NationalTravelDemand {
         pMap.put(p4, tmp4);
 
         // monte carlo method
-        return math.MonteCarloMethod(pList, pMap, rand.sample());
+        return math.MonteCarloMethod(pList, pMap, randTps.nextDouble());
     }
 
     private ModeChoice findModeChoice(Person2010 p, int d, TripType type, int toy, int days) {
@@ -424,7 +443,7 @@ public class NationalTravelDemand {
         pMap.put(pTrain, tmp3);
 
         // monte carlo method
-        int modeChoiceValue = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int modeChoiceValue = math.MonteCarloMethod(pList, pMap, randModeChoice.nextDouble());
         sLog.debug("    modeChoiceValue: " + modeChoiceValue);
 
         ModeChoice mc = (modeChoiceValue == 0 ? ModeChoice.CAR : (modeChoiceValue == 1 ? ModeChoice.AIR : ModeChoice.TRAIN));
@@ -477,7 +496,7 @@ public class NationalTravelDemand {
             pMap.put(p, tmp);
         }
 
-        int stops = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int stops = math.MonteCarloMethod(pList, pMap, randStopFreq.nextDouble());
         if (stops == -1) {
             return 0;
         }
@@ -525,7 +544,7 @@ public class NationalTravelDemand {
             tmp3.add(TripType.PERSONAL_BUSINESS.getValue());
             pMap.put(pPB, tmp3);
 
-            int typeValue = math.MonteCarloMethod(pList, pMap, rand.sample());
+            int typeValue = math.MonteCarloMethod(pList, pMap, randStopType.nextDouble());
             stopTypes.add((typeValue == TripType.BUSINESS.getValue() ? TripType.BUSINESS
                     : (typeValue == TripType.PLEASURE.getValue() ? TripType.PLEASURE
                             : TripType.PERSONAL_BUSINESS)));
@@ -627,7 +646,7 @@ public class NationalTravelDemand {
             candidates.removeAll(readyToRemove);
         }
 
-        if (candidates.size() == 0) {
+        if (candidates.isEmpty()) {
             return -1;
         }
 
@@ -662,7 +681,7 @@ public class NationalTravelDemand {
         }
 
         // 2-3. Monte Carlo simulation
-        int indx = math.MonteCarloMethod(pList, pMap, rand.sample());
+        int indx = math.MonteCarloMethod(pList, pMap, randStopLoc.nextDouble());
         int loc = candidates.get(indx);
 
         // 3. The end. Sanity check.
@@ -1104,12 +1123,13 @@ public class NationalTravelDemand {
 
     private void outputResults() {
         sLog.info("Output results to files.");
+        Random rand = new Random();
         for (int mc = 0; mc < ModeChoice.itemCount; mc++) {
             for (int toy = 0; toy < 4; toy++) {
                 for (int type = 0; type < TripType.itemCount; type++) {
                     String key = ModeChoice.values()[mc] + "-" + Quarter.values()[toy] + "-" + TripType.values()[type];
                     String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-                    String fileName = key + "-" + timestamp + "-" + rand.sample() + ".txt";
+                    String fileName = key + "-" + timestamp + "-" + rand.nextDouble() + ".txt";
                     File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
                     try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
                         if (f.exists()) {
@@ -1134,7 +1154,7 @@ public class NationalTravelDemand {
         }
         sLog.info("Output trip stats to file.");
         String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-        String fileName = "trip.stats-" + timestamp + "-" + rand.sample() + ".txt";
+        String fileName = "trip.stats-" + timestamp + "-" + rand.nextDouble() + ".txt";
         File f = new File(ThesisProperties.getProperties("simulation.pums2010.output.dir") + fileName);
         try (FileWriter fw = new FileWriter(f); BufferedWriter bw = new BufferedWriter(fw)) {
             if (f.exists()) {
