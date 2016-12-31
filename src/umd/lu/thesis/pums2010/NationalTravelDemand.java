@@ -1339,9 +1339,9 @@ public class NationalTravelDemand {
         if (p.getAge() > 60 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[22] += 1;}
         if (p.getAge() > 60 && trip.getMode().equals(TravelMode.TRAIN.name())) { tripStats[23] += 1;}
         
-        if (p.getIncLevel() == 1) { tripStats[24] += trip.getDistance();}
-        if (p.getIncLevel() == 2) { tripStats[25] += trip.getDistance();}
-        if (p.getIncLevel() == 3) { tripStats[26] += trip.getDistance();}
+        if (p.getIncLevel() == 1 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[24] += trip.getDistance();}
+        if (p.getIncLevel() == 2 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[25] += trip.getDistance();}
+        if (p.getIncLevel() == 3 && trip.getMode().equals(TravelMode.CAR.name())) { tripStats[26] += trip.getDistance();}
     }
 
     private void saveTripsToDb() {
