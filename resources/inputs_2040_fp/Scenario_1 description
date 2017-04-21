@@ -1,0 +1,6 @@
+Scenario_1
+
+fuel price increase
+car: 30 MPG, fuel price is increased to 1.75 times of the base year price
+train: no change
+air: distance < 500 miles, base year cost + 5; 500 < distance <= 1000, base year cost+10; distance >1000 miles, base year cost +30;
